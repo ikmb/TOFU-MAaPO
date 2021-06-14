@@ -4,7 +4,7 @@
 
 ## Overview
 
-This pipelines analyses short reads and can identify the most likely species in the spective sample. 
+This pipelines analyses short reads and can perform abundance of microbial metabolic pathways and phylogenetic analysis. 
 
 ### Documentation 
 
@@ -14,4 +14,3 @@ Documentation about the pipeline can be found in the `docs/` directory or under 
 2. [Installation and configuration](docs/installation.md)
 3. [Running the pipeline](docs/usage.md)
 4. [Output](docs/output.md)
-5. [Troubleshooting](docs/troubleshooting.md)
