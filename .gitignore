@@ -1,0 +1,14 @@
+bin/alba/
+.nextflow.log*
+.nextflow/
+work/
+results/
+cache/
+databases
+output/*
+docs/.Rhistory
+._nextflow.config
+._main.nf
+._.DS_Store
+.DS_Store
+.git_old
