@@ -1,0 +1,18 @@
+title: "Metagenome pipeline report"
+subtitle: "Best-practice metagenome pipeline using Metaphlan3"
+custom_logo: "ikmblogo.png"
+custom_logo_title: "Insitute of Clinical Molecular Biology, Kiel"
+custom_logo_url: "http://www.ikmb.uni-kiel.de"
+
+extra_fn_clean_exts:
+    - _R1
+    - _R2
+report_comment: >
+    This report has been generated automatically by the IKMB Metagenome pipeline.
+
+report_header_info:
+    - Contact E-mail: "m.hoeppner@ikmb.uni-kiel.de"
+    - Application Type: "Metagenomic profiling"
+
+top_modules:
+    - 'general_stats'

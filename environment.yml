@@ -1,0 +1,17 @@
+# You can use this file to create a conda environment for this pipeline:
+#   conda env create -f environment.yml
+name: metagenomics-profiling-1.2
+channels:
+ - defaults
+ - conda-forge
+ - bioconda
+dependencies:
+ - matplotlib=2.1.1
+ - metaphlan2
+ - fastp=0.20.0
+ - bwa=0.7.17
+ - samtools=1.9
+ - hclust2=0.99
+ - graphlan=1.1.3
+ - export2graphlan=0.20
+ - multiqc=1.7
