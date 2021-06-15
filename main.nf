@@ -111,7 +111,7 @@ workflow QC_rmHost{
      CLEANPEREADS(TRIMREADS.out.filterPEReads)
      CLEANSEREADS(TRIMREADS.out.filterSEReads)
      FILTERREADS(
-         TRIMREADS.out.filterPEReads.join(TRIMREADS.out.filterSEReads),
+         CLEANPEREADS.out.join(CLEANSEREADS.out),
          Channel.fromPath("${bowtie_base}*").collect(),         
          Channel.fromPath(params.genomes[params.genome].bowtie_index).map{index -> index.Name} )    
     emit:
@@ -131,7 +131,7 @@ workflow QC_noHost{
      CLEANSEREADS(TRIMREADS.out.filterSEReads)
      
 	emit:
-     my_data = TRIMREADS.out.filterPEReads.join(TRIMREADS.out.filterSEReads)
+     my_data = CLEANPEREADS.out.join(CLEANSEREADS.out)
      fastqcoutput = FASTQC.out.collect()    
 }
 /* 
