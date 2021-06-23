@@ -260,7 +260,7 @@ workflow {
             Fastqcoutput = QC_rmHost.out.fastqcoutput.collect()
         }else{
             QC_nohost()
-            QCout = QC_nohost.out.my_data
+            QCout = QC_noHost.out.my_data
             Fastqcoutput = QC_noHost.out.fastqcoutput.collect()
             }
     //kraken:
