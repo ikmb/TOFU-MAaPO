@@ -12,3 +12,5 @@ docs/.Rhistory
 ._.DS_Store
 .DS_Store
 .git_old
+inputs/
+metagenomicworkflows.sif

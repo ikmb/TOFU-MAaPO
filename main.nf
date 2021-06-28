@@ -259,7 +259,7 @@ workflow {
             QCout = QC_rmHost.out.my_data
             Fastqcoutput = QC_rmHost.out.fastqcoutput.collect()
         }else{
-            QC_nohost()
+            QC_noHost()
             QCout = QC_noHost.out.my_data
             Fastqcoutput = QC_noHost.out.fastqcoutput.collect()
             }
