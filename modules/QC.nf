@@ -12,14 +12,14 @@ process FASTQC {
 
 	script:
 	"""
-	fastqc --quiet --threads $task.cpus $left $right
+	fastqc --quiet --threads ${task.cpus} $left $right
 	"""
 }
 
 process TRIMREADS {
 
 	label 'bbmap'
-
+	//errorStrategy 'ignore'
 	scratch true
 	input:
 	tuple val(sampleID),file(left),file(right)
@@ -46,7 +46,7 @@ process CLEANPEREADS {
 
 	label 'bbmap'
 
-	scratch true
+	scratch params.scratch
 
 	input:
 	tuple val(sampleID),file(left),file(right)
@@ -68,7 +68,7 @@ process CLEANSEREADS {
 
 	label 'bbmap'
 
-	scratch true
+	scratch params.scratch
 
 	input:
 	tuple val(sampleID),file(unpaired)
@@ -89,7 +89,7 @@ process CLEANSEREADS {
 process FILTERREADS {
 
 	label 'bowtie2'
-	scratch true
+	scratch params.scratch
 	//publishDir "${params.outdir}/${sampleID}/reads_clean", mode: 'copy'
 
 	input:

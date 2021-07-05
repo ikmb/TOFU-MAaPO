@@ -4,7 +4,7 @@
 
 	publishDir "${OUTDIR}/${sampleID}/Megahit", mode: 'copy'
 	//scratch true
-	label 'Megahit'
+	label 'megahit'
 
 	input:
 	tuple val(sampleID),path(left),path(right),path(unpaired)
