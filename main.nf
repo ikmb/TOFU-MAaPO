@@ -139,7 +139,10 @@ workflow QC_noHost{
  */
   include {
   KRAKEN2;
-  KRAKEN2YAML
+  KR2MPA;
+  KRAKEN2YAML;
+  KRAKENMERGEREPORTS;
+  KRAKENMPAMERGE
   } from './modules/kraken.nf' 
   
 /*
@@ -149,7 +152,10 @@ workflow kraken{
     take: data
     main:
         KRAKEN2(data)
-        KRAKEN2YAML(KRAKEN2.out.krakenreport.collect())
+        KR2MPA(KRAKEN2.out.krakenreport)
+        KRAKEN2YAML(KRAKEN2.out.krakenreport.collect()  )
+        KRAKENMERGEREPORTS(KRAKEN2.out.krakenreport.collect()   )
+        KRAKENMPAMERGE(KR2MPA.out.krakenmpa.collect()  )
     emit:
         kraken_data = KRAKEN2YAML.out
 }
