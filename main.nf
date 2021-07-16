@@ -23,6 +23,8 @@ Metaphlan DB:   : ${params.metaphlan_db}
 HUMAnN DB:      : ${params.humann_db}
 Kraken DB:      : ${params.kraken2_db}
 Host genome:    : ${params.genome}"""
+if(params.assembly){
+log.info "GTDBTK ref.     : ${params.GTDBTKreference}"}
 log.info "=========================================="
 log.info "Command Line:     $workflow.commandLine"
 log.info "=========================================="
@@ -37,7 +39,7 @@ def helpMessage() {
   =================================================================
   Usage:
   The typical command for running the pipeline is as follows:
-  nextflow run eikematthias/metagenomic-workflows --reads '/path/to/*_R{1,2}_001.fastq.gz' 
+  nextflow run ikmb/metagenomic-workflows --reads '/path/to/*_R{1,2}_001.fastq.gz' 
   Mandatory arguments:
   --reads 		The path to the fastq.gz files containing PE metagenomic reads (1 per sample)
 
@@ -233,6 +235,7 @@ workflow humann{
      MEGAHIT;
      MAPPING;
      METABAT;
+     filtercontigs;
      contigs_to_bins;
      checkm_all_bins;
      GTDBTK;
@@ -246,7 +249,8 @@ workflow assembly{
     take: data
     main:
         MEGAHIT(data)
-        MAPPING(MEGAHIT.out.contigs)
+        filtercontigs(MEGAHIT.out.contigs)
+        MAPPING(filtercontigs.out.contigs)
         METABAT(MAPPING.out.maps)
         contigs_to_bins(METABAT.out)
         checkm_all_bins(METABAT.out)

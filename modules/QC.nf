@@ -106,7 +106,7 @@ process FILTERREADS {
 	unpaired_clean = sampleID + ".clean.unpaired.fastq.gz"
 	bowtie_log = sampleID + ".txt"
 	"""
-	bowtie2 -x $genome -1 $left -2 $right -U $unpaired -S /dev/null --no-unal -p ${task.cpus} --un-gz $unpaired_clean  --un-conc-gz ${sampleID}.clean.R%.fastq.gz 2> $bowtie_log
+	bowtie2 --met-stderr -x $genome -1 $left -2 $right -U $unpaired -S /dev/null --no-unal -p ${task.cpus} --un-gz $unpaired_clean  --un-conc-gz ${sampleID}.clean.R%.fastq.gz 2> $bowtie_log
 	"""
 }
 

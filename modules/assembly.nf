@@ -2,28 +2,41 @@
 
 	process MEGAHIT {
 
-	publishDir "${OUTDIR}/${sampleID}/Megahit", mode: 'copy'
-	//scratch true
+	publishDir "${params.outdir}/${sampleID}/Megahit", mode: 'copy'
+	scratch params.scratch
 	label 'megahit'
 
 	input:
 	tuple val(sampleID),path(left),path(right),path(unpaired)
 	output:
-	file("**/*"), emit: outputfolder
+	path("**/*"), emit: outputfolder
 	tuple val(sampleID), file("ut-repfix/final.contigs.fa"), path(left),path(right),path(unpaired), emit: contigs
 	script:
 	"""
 	zcat $unpaired > unpaired.fq
 	zcat $left > left.fq
-    zcat $right > right.fq
-	megahit -1 left.fq -2 right.fq -r unpaired.fq -m 0.95 -out-repfix $sampleID -t ${task.cpus}	
+	zcat $right > right.fq
+	megahit -1 left.fq -2 right.fq -r unpaired.fq -m 0.95 -o $sampleID -out-repfix $sampleID -t ${task.cpus}	
 	"""
 	}
 
+	process filtercontigs {
+	scratch params.scratch
+
+	input:
+	tuple val(sampleID), file("ut-repfix/final.contigs.fa"), path(left),path(right),path(unpaired)
+	output:
+	tuple val(sampleID), file("fcontigsfiltered.fa"), path(left),path(right),path(unpaired), emit: contigs
+	script:
+	"""
+	python3 ${baseDir}/bin/contigfilterbylen.py 1500 ut-repfix/final.contigs.fa > fcontigsfiltered.fa
+	"""
+	}
+	
 	process MAPPING {
 
 	label 'bowtie2'
-	scratch true
+	scratch params.scratch
 	input:
 	tuple val(sampleID), file(fcontigs), path(left),path(right),path(unpaired)
 	output:
@@ -45,8 +58,8 @@
 	process METABAT {
 
 	label 'metabat2'
-	scratch true
-	publishDir "${OUTDIR}/${sampleID}/Metabat2", mode: 'copy'
+	scratch params.scratch
+	publishDir "${params.outdir}/${sampleID}/Metabat2", mode: 'copy'
 
 	input: 
 	tuple val(sampleID), file(fcontigs), file(depthout)
@@ -61,8 +74,8 @@
 
 	process contigs_to_bins {
 
-	publishDir "${OUTDIR}/${sampleID}/Metabat2", mode: 'copy'
-	scratch true
+	publishDir "${params.outdir}/${sampleID}/Metabat2", mode: 'copy'
+	scratch params.scratch
 	input: 
 	tuple val(sampleID), file(fafile)
 
@@ -77,8 +90,8 @@
 	process checkm_all_bins {
 
 	label 'checkm'
-	//scratch true
-	publishDir "${OUTDIR}/${sampleID}/checkm", mode: 'copy'
+	scratch params.scratch
+	publishDir "${params.outdir}/${sampleID}/checkm", mode: 'copy'
 
 	input: 
 	tuple val(sampleID), file(fafile)
@@ -94,8 +107,8 @@
 	process GTDBTK {
 
 	label 'gtdbtk'
-	//scratch true
-	publishDir "${OUTDIR}/${sampleID}/gtdbtk", mode: 'copy'
+	scratch params.scratch
+	publishDir "${params.outdir}/${sampleID}/gtdbtk", mode: 'copy'
 
 	input: 
 	tuple val(sampleID), file(fafile)
@@ -104,13 +117,13 @@
 	
 	shell:
 	"""
-	export GTDBTK_DATA_PATH="${baseDir}/databases/release202"
+	export GTDBTK_DATA_PATH=${params.GTDBTKreference}
 	gtdbtk classify_wf --cpus ${task.cpus} --genome_dir . --extension fa --out_dir all.bins.gtdbtk_output --pplacer_cpus 1
 	"""
 	}
 
 	process getCountTable {
-	publishDir "${OUTDIR}/${sampleID}/counttable", mode: 'copy'
+	publishDir "${params.outdir}/${sampleID}/counttable", mode: 'copy'
 
 	input:
 	tuple val(sampleID), file(finalbam)

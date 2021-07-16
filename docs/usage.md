@@ -26,6 +26,8 @@ For analysis following modules are available:<br />
 
 Experimental:<br />
 **--assembly** Run a genome assembly workflow<br />
+Reference database for GTDB-TK needs to be set (already set on Kiel Medcluster):<br />
+GTDB-TK Reference: `--GTDBTKreference`<br />
 
 ## QC otions:
 **--genome** set host genome. On the IKMB Medcluster valid options are human, mouse or chimp. In other cases this needs to be pre-configured.<br />
