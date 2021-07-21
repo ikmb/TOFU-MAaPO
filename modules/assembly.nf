@@ -97,7 +97,7 @@
 	tuple val(sampleID), file(fafile)
 
 	output:
-	
+	file('bins/*')
 	shell:
 	"""
 	checkm lineage_wf -t ${task.cpus} -x fa . ./bins
@@ -114,7 +114,7 @@
 	tuple val(sampleID), file(fafile)
 
 	output:
-	
+	file("all.bins.gtdbtk_output/*")
 	shell:
 	"""
 	export GTDBTK_DATA_PATH=${params.GTDBTKreference}
@@ -128,7 +128,7 @@
 	input:
 	tuple val(sampleID), file(finalbam)
 	output:
-
+	file("*.txt")
 	shell:
 	"""
 	samtools idxstats $finalbam > ${sampleID}_idxstats.txt
