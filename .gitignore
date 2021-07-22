@@ -14,3 +14,4 @@ docs/.Rhistory
 .git_old
 inputs/
 metagenomicworkflows.sif
+.vscode

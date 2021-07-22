@@ -1,7 +1,7 @@
 process KRAKEN2 {
 
+tag "$sampleID"
 label 'kraken'
-
 publishDir "${params.outdir}/${sampleID}/Kraken/", mode: 'copy'
 
 input:

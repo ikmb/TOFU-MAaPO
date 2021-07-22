@@ -15,6 +15,7 @@ process PREPARE_METAPHLAN {
 process METAPHLAN {
 
    label 'metaphlan'
+   tag "$sampleID"
    //scratch true
    publishDir "${params.outdir}/${sampleID}/Metaphlan3", mode: 'copy'
 

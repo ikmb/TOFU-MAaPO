@@ -1,16 +1,17 @@
-
-
 	process MEGAHIT {
 
 	publishDir "${params.outdir}/${sampleID}/Megahit", mode: 'copy'
 	scratch params.scratch
 	label 'megahit'
+	tag "$sampleID"
 
 	input:
 	tuple val(sampleID),path(left),path(right),path(unpaired)
+
 	output:
 	path("**/*"), emit: outputfolder
 	tuple val(sampleID), file("ut-repfix/final.contigs.fa"), path(left),path(right),path(unpaired), emit: contigs
+
 	script:
 	"""
 	zcat $unpaired > unpaired.fq
@@ -22,11 +23,14 @@
 
 	process filtercontigs {
 	scratch params.scratch
+	tag "$sampleID"
 
 	input:
 	tuple val(sampleID), file("ut-repfix/final.contigs.fa"), path(left),path(right),path(unpaired)
+
 	output:
 	tuple val(sampleID), file("fcontigsfiltered.fa"), path(left),path(right),path(unpaired), emit: contigs
+
 	script:
 	"""
 	python3 ${baseDir}/bin/contigfilterbylen.py 1500 ut-repfix/final.contigs.fa > fcontigsfiltered.fa
@@ -37,11 +41,15 @@
 
 	label 'bowtie2'
 	scratch params.scratch
+	tag "$sampleID"
+
 	input:
 	tuple val(sampleID), file(fcontigs), path(left),path(right),path(unpaired)
+
 	output:
 	tuple val(sampleID), file(fcontigs), file(depthout), emit: maps
 	tuple val(sampleID), file("${sampleID}_final.bam"), emit: counttable
+
 	script:
 	depthout = sampleID + '_depth.txt'
     """
@@ -59,6 +67,7 @@
 
 	label 'metabat2'
 	scratch params.scratch
+	tag "$sampleID"
 	publishDir "${params.outdir}/${sampleID}/Metabat2", mode: 'copy'
 
 	input: 
@@ -66,6 +75,7 @@
 
 	output:
 	tuple val(sampleID), file("${sampleID}_bin.*.fa")
+
 	script:
 	"""
 	metabat2 -i $fcontigs -a ${sampleID}_depth.txt -o ${sampleID}_bin -t ${task.cpus}
@@ -74,13 +84,16 @@
 
 	process contigs_to_bins {
 
-	publishDir "${params.outdir}/${sampleID}/Metabat2", mode: 'copy'
 	scratch params.scratch
+	tag "$sampleID"
+	publishDir "${params.outdir}/${sampleID}/Metabat2", mode: 'copy'
+	
 	input: 
 	tuple val(sampleID), file(fafile)
 
 	output:
 	file("${sampleID}.contigs_to_bins.tsv")
+
 	shell:
 	"""
 	grep '>' !{fafile} | tr '>' '\t' | tr -d ':' > !{sampleID}.contigs_to_bins.tsv
@@ -91,6 +104,7 @@
 
 	label 'checkm'
 	scratch params.scratch
+	tag "$sampleID"
 	publishDir "${params.outdir}/${sampleID}/checkm", mode: 'copy'
 
 	input: 
@@ -98,6 +112,7 @@
 
 	output:
 	file('bins/*')
+
 	shell:
 	"""
 	checkm lineage_wf -t ${task.cpus} -x fa . ./bins
@@ -108,6 +123,7 @@
 
 	label 'gtdbtk'
 	scratch params.scratch
+	tag "$sampleID"
 	publishDir "${params.outdir}/${sampleID}/gtdbtk", mode: 'copy'
 
 	input: 
@@ -123,12 +139,16 @@
 	}
 
 	process getCountTable {
+	
+	tag "$sampleID"
 	publishDir "${params.outdir}/${sampleID}/counttable", mode: 'copy'
 
 	input:
 	tuple val(sampleID), file(finalbam)
+
 	output:
 	file("*.txt")
+
 	shell:
 	"""
 	samtools idxstats $finalbam > ${sampleID}_idxstats.txt

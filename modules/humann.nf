@@ -1,15 +1,19 @@
 process HUMANN {
+
     label 'humann'
+    tag "$sampleID"
     //scratch true
     //publishDir "${params.outdir}/${sampleID}/humann", mode: 'copy'
 
      input:
      tuple val(sampleID),path(left_clean),path(right_clean),path(unpaired_clean)
+
      output:
 	 path(genefamilies), emit: genefamilies
      path(pathabundance), emit: pathabundance
      path(pathcoverage), emit: pathcoverage
      path('*'), emit: humannouts
+
      script:
      genefamilies = sampleID + '_genefamilies.tsv'
      pathabundance = sampleID + '_pathabundance.tsv'
@@ -26,12 +30,14 @@ process HUMANN {
     //tuple path(genefamilies),path(pathabundance),path(pathcoverage)
     //tuple val(sampleID),file("${sampleID}_genefamilies.tsv"),file("${sampleID}_pathabundance.tsv"),file("${sampleID}_pathcoverage.tsv")
 	process JOINgenefamilies {
+    
+    label 'humann'
     publishDir "${params.outdir}/humann", mode: 'copy'
     scratch true
-    label 'humann'
-
+    
     input:
 	path('*')
+
     output:
         file(mergedtable)
 
@@ -44,12 +50,15 @@ process HUMANN {
   	}
 
 	process JOINpathabundance {
+
+    label 'humann'
     publishDir "${params.outdir}/humann", mode: 'copy'
     scratch true
-    label 'humann'
+    
 
     input:
 	path('*')
+
     output:
         file(mergedtable)
 
@@ -62,12 +71,15 @@ process HUMANN {
   	}
 
 	process JOINpathcoverage {
+
+    label 'humann'
     publishDir "${params.outdir}/humann", mode: 'copy'
     scratch true
-    label 'humann'
+    
 
     input:
 	path('*')
+
     output:
         file(mergedtable)
 
