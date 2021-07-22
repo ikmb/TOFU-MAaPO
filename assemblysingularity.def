@@ -22,7 +22,6 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - checkm-genome
   - picard
   - megahit
   - spades
