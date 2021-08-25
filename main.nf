@@ -19,10 +19,13 @@ Nextflow Version: $workflow.nextflow.version
 Container Engine: ${workflow.containerEngine}
 =======INPUTS=============================
 Reads:          : ${params.reads}"
-Metaphlan DB:   : ${params.metaphlan_db}
-HUMAnN DB:      : ${params.humann_db}
-Kraken DB:      : ${params.kraken2_db}
 Host genome:    : ${params.genome}"""
+if(params.kraken){
+log.info "Kraken DB:      : ${params.kraken2_db}"}
+if(params.humann){
+log.info "HUMAnN DB:      : ${params.humann_db}"}
+if(params.metaphlan){
+log.info "Metaphlan DB:   : ${params.metaphlan_db}"}
 if(params.assembly){
 log.info "GTDBTK ref.     : ${params.GTDBTKreference}"}
 log.info "=========================================="
@@ -139,7 +142,7 @@ workflow QC_noHost{
 /* 
  * Import kraken modules 
  */
-  include {
+include {
   KRAKEN2;
   KR2MPA;
   KRAKEN2YAML;
@@ -165,7 +168,7 @@ workflow kraken{
 /* 
  * Import metaphlan modules 
  */
-  include {
+include {
   PREPARE_METAPHLAN;
   METAPHLAN;
   ABUNDANCEMERGE
@@ -191,12 +194,12 @@ workflow metaphlan{
 /*
  * Import humann modules
  */
-  include {
-      HUMANN;
-      JOINgenefamilies;
-      JOINpathabundance;
-      JOINpathcoverage
-  } from './modules/humann.nf'
+include {
+    HUMANN;
+    JOINgenefamilies;
+    JOINpathabundance;
+    JOINpathcoverage
+    } from './modules/humann.nf'
 
 /*
  * Humann3 pipeline logic
@@ -231,16 +234,16 @@ workflow humann{
 /*
  * Import Genome Assembly modules
  */
- include {
-     MEGAHIT;
-     MAPPING;
-     METABAT;
-     filtercontigs;
-     contigs_to_bins;
-     checkm_all_bins;
-     GTDBTK;
-     getCountTable
- } from './modules/assembly.nf'
+include {
+    MEGAHIT;
+    MAPPING;
+    METABAT;
+    filtercontigs;
+    contigs_to_bins;
+    checkm_all_bins;
+    GTDBTK;
+    getCountTable
+    } from './modules/assembly.nf'
 
 /*
  * Genome Assembly pipeline logic
@@ -275,7 +278,7 @@ workflow {
             }
     //kraken:
         if(params.virus){
-        kraken(QCout)
+            kraken(QCout)
         }
     //metaphlan:
         if(params.metaphlan){

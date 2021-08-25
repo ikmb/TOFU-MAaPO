@@ -20,7 +20,7 @@ process TRIMREADS {
 
 	label 'bbmap'
 	//errorStrategy 'ignore'
-	scratch true
+	scratch params.scratch
 	input:
 	tuple val(sampleID),file(left),file(right)
 		
@@ -91,6 +91,7 @@ process FILTERREADS {
 	label 'bowtie2'
 	scratch params.scratch
 	//publishDir "${params.outdir}/${sampleID}/reads_clean", mode: 'copy'
+	publishDir "${params.outdir}/reads_clean", mode: 'copy'
 
 	input:
 	tuple val(sampleID),file(left),file(right),file(unpaired)
