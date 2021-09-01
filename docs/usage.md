@@ -7,7 +7,7 @@ On Kiel Medcluster, please load the following modules with:
 module load singularity nextflow
 ```
 
-Reference databases for Metaphlan3, Kraken2 and HUMAnN3 are needed. On Kiel Medcluster, these are already set in the respective config file.
+Reference databases for Metaphlan3, Kraken2 and HUMAnN3 are needed. On Kiel Medcluster, these are already set in the respective config file.<br />
 Metaphlan DB: `--metaphlan_db`<br />
 HUMAnN DB:    `--humann_db`<br />
 Kraken DB:    `--kraken2_db`<br />
@@ -29,7 +29,7 @@ Experimental:<br />
 Reference database for GTDB-TK needs to be set (already set on Kiel Medcluster):<br />
 GTDB-TK Reference: `--GTDBTKreference`<br />
 
-## QC otions:
+## QC options:
 **--genome** set host genome. On the IKMB Medcluster valid options are human, mouse or chimp. In other cases this needs to be pre-configured.<br />
 
 ## Other options:
