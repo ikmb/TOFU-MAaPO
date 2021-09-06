@@ -26,11 +26,11 @@ process METAPHLAN {
    path(metaphlan_out), emit: outputMetaphlan
    tuple val(sampleID), file(bam_out), emit: outputMetaphlanBowtie
    tuple val(sampleID), file('v_metaphlan.txt'), emit: version_metaphlan
-   path('*'), emit: metaphlanouts
+   //path('*'), emit: metaphlanouts
    script:
 
    metaphlan_out = sampleID + ".out"
-   bowtie_out = sampleID + "bowtie2.txt"
+   bowtie_out = sampleID + "_bowtie2.txt"
    sam_out = sampleID + ".sam"
    bam_out = sampleID + ".bam"
    """

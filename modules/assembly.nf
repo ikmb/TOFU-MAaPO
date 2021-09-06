@@ -152,6 +152,6 @@
 	shell:
 	"""
 	samtools idxstats $finalbam > ${sampleID}_idxstats.txt
-    python ${baseDir}/bin/get_count_table.py ${sampleID}_idxstats.txt > counts_${sampleID}.txt
+	python ${baseDir}/bin/get_count_table.py ${sampleID}_idxstats.txt > counts_${sampleID}.txt
 	"""
 	}
