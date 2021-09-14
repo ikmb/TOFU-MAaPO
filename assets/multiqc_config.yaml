@@ -5,8 +5,13 @@ custom_logo_title: "Insitute of Clinical Molecular Biology, Kiel"
 custom_logo_url: "http://www.ikmb.uni-kiel.de"
 
 extra_fn_clean_exts:
-    - _R1
-    - _R2
+  - "_R1"
+  - "_R2"
+  - "_L001"
+  - "_L002"
+  - ".R1"
+  - ".R2"
+
 report_comment: >
     This report has been generated automatically by the IKMB Metagenomic workflows pipeline.
 
@@ -15,4 +20,12 @@ report_header_info:
     - Application Type: "Metagenomic workflows"
 
 top_modules:
-    - 'general_stats'
+- 'fastqc':
+    name: 'FastQC: raw reads'
+    path_filters_exclude:
+        - '*clean*'
+- 'fastqc':
+    name: 'FastQC: after QC'
+    info: 'Reads after trimming and, if requested, host removal.'
+    path_filters:
+        - '*clean*'

@@ -35,3 +35,4 @@ GTDB-TK Reference: `--GTDBTKreference`<br />
 ## Other options:
 **--outdir** set a custom output directory, default is "results"<br />
 **-resume** resumes pipeline and will continue the run with already completed, cached processes.<br />
+**-work-dir** set a custom work directory, default is "work"<br />

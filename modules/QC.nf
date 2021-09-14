@@ -1,4 +1,4 @@
-process FASTQC {
+process FASTQCraw {
 
 	label 'fastqc'
 
@@ -6,6 +6,28 @@ process FASTQC {
 
 	input:
 	tuple val(sampleID), file(left), file(right)
+
+	output:
+	path('*_fastqc.{zip,html}')
+
+	script:
+	leftnewname = sampleID + "_R1_raw.fastq.gz"
+	rightnewname = sampleID + "_R2_raw.fastq.gz"
+	"""
+	mv $left $leftnewname
+	mv $right $rightnewname
+	fastqc --quiet --threads ${task.cpus} $leftnewname $rightnewname
+	"""
+}
+
+process FASTQCclean {
+
+	label 'fastqc'
+
+	publishDir "${params.outdir}/${sampleID}/FastQC", mode: 'copy'
+
+	input:
+	tuple val(sampleID), file(left), file(right), file(unpaired)
 
 	output:
 	path('*_fastqc.{zip,html}')
@@ -32,10 +54,10 @@ process TRIMREADS {
 	script:
 	bbduk_adapter_stats = sampleID + ".bbduk.adapter.stats"
 
-	left_trimmed = left.getBaseName() + "_trimmed.fastq.gz"
-	right_trimmed = right.getBaseName() + "_trimmed.fastq.gz"
+	left_trimmed = left.getBaseName() + "_R1_trimmed.fastq.gz"
+	right_trimmed = right.getBaseName() + "_R2_trimmed.fastq.gz"
 
-	unpaired = sampleID + "_unpaired.fastq.gz"
+	unpaired = sampleID + "_unpaired_trimmed.fastq.gz"
 
 	"""
 	bbduk.sh stats=$bbduk_adapter_stats threads=${task.cpus} in=${left} in2=${right} out1=${left_trimmed} out2=${right_trimmed} outs=$unpaired ref=${params.adapters} ktrim=r k=23 mink=11 hdist=1 minlength=${params.min_read_length} tpe tbo
@@ -55,8 +77,8 @@ process CLEANPEREADS {
 	tuple val(sampleID),file(left_clean),file(right_clean)
 
 	script:
-	left_clean = left.getBaseName() + "_clean.fastq.gz"
-	right_clean = right.getBaseName() + "_clean.fastq.gz"
+	left_clean = sampleID + "_R1_cleanwithhost.fastq.gz"
+	right_clean = sampleID + "_R2_cleanwithhost.fastq.gz"
 	artifact_stats = sampleID + ".bbduk.artifacts.stats"
 		
 	"""
@@ -78,7 +100,7 @@ process CLEANSEREADS {
 
 	script:
 
-	unpaired_clean = unpaired.getBaseName() + "_clean.fastq.gz"
+	unpaired_clean = sampleID + "_unpaired_cleanwithhost.fastq.gz"
 
 	"""
 	bbduk.sh threads=${task.cpus} in=${unpaired}  k=31 ref=artifacts,phix ordered cardinality out1=${unpaired_clean} minlength=${params.min_read_length}
@@ -118,7 +140,8 @@ process MULTIQC1 {
 	label 'multiqc'
 
 	input:
-	path ('*')
+	path('*')
+	path('*')
 	output:
 	file("multiqc_report.html")
 
@@ -139,7 +162,8 @@ process MULTIQC2 {
 	label 'multiqc'
 
 	input:
-	path ('*')
+	path('*')
+	path('*')
 	path('*')
 	output:
 	file("multiqc_report.html")
