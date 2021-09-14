@@ -82,7 +82,8 @@ if (params.help){
  * MULTIQC1 and MULTIQC2 differ only in having 1 or 2 input-channels, remove this when optional inputs are possible
  */
 include { 
-  FASTQC;
+  FASTQCraw;
+  FASTQCclean;
   TRIMREADS;
   CLEANPEREADS;
   CLEANSEREADS;
@@ -111,17 +112,19 @@ workflow QC_rmHost{
         }
 
      reads_ch = Channel.fromFilePairs(params.reads , flat: true ).ifEmpty {exit 1, "Could not find the specified input reads $params.reads"}
-     FASTQC(reads_ch)
+     FASTQCraw(reads_ch)
      TRIMREADS(reads_ch)
      CLEANPEREADS(TRIMREADS.out.filterPEReads)
      CLEANSEREADS(TRIMREADS.out.filterSEReads)
      FILTERREADS(
          CLEANPEREADS.out.join(CLEANSEREADS.out),
          Channel.fromPath("${bowtie_base}*").collect(),         
-         Channel.fromPath(params.genomes[params.genome].bowtie_index).map{index -> index.Name} )    
+         Channel.fromPath(params.genomes[params.genome].bowtie_index).map{index -> index.Name} )  
+     FASTQCclean(FILTERREADS.out.cleaned_reads)  
     emit:
-     my_data = FILTERREADS.out.cleaned_reads
-     fastqcoutput = FASTQC.out.collect()
+     qcedreads = FILTERREADS.out.cleaned_reads
+     fastqcoutput = FASTQCraw.out.collect()
+     fastqcoutputclean = FASTQCclean.out.collect()
 }
 
 workflow QC_noHost{
@@ -130,14 +133,15 @@ workflow QC_noHost{
     println "No Host genome was specified!"
 
      reads_ch = Channel.fromFilePairs(params.reads , flat: true ).ifEmpty {exit 1, "Could not find the specified input reads $params.reads"}
-     FASTQC(reads_ch)
+     FASTQCraw(reads_ch)
      TRIMREADS(reads_ch)
      CLEANPEREADS(TRIMREADS.out.filterPEReads)
      CLEANSEREADS(TRIMREADS.out.filterSEReads)
-     
+     FASTQCclean(CLEANPEREADS.out.join(CLEANSEREADS.out))
 	emit:
-     my_data = CLEANPEREADS.out.join(CLEANSEREADS.out)
-     fastqcoutput = FASTQC.out.collect()    
+     qcedreads = CLEANPEREADS.out.join(CLEANSEREADS.out)
+     fastqcoutput = FASTQCraw.out.collect()
+     fastqcoutputclean = FASTQCclean.out.collect()    
 }
 /* 
  * Import kraken modules 
@@ -269,12 +273,14 @@ workflow {
     //QC, either with host contaminations or without:
         if(params.genome){
             QC_rmHost()
-            QCout = QC_rmHost.out.my_data
+            QCout = QC_rmHost.out.qcedreads
             Fastqcoutput = QC_rmHost.out.fastqcoutput.collect()
+            FASTqccleanout = QC_rmHost.out.fastqcoutputclean.collect()
         }else{
             QC_noHost()
-            QCout = QC_noHost.out.my_data
+            QCout = QC_noHost.out.qcedreads
             Fastqcoutput = QC_noHost.out.fastqcoutput.collect()
+            FASTqccleanout = QC_noHost.out.fastqcoutputclean.collect()
             }
     //kraken:
         if(params.virus){
@@ -296,11 +302,13 @@ workflow {
         if(params.virus){
             MULTIQC2(
                 Fastqcoutput.collect(),
+                FASTqccleanout.collect(),
                 kraken.out.collect()
             )    
         }else{
             MULTIQC1(
-                Fastqcoutput.collect()
+                Fastqcoutput.collect(),
+                FASTqccleanout.collect()
             ) 
         }
 }
