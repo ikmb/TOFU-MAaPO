@@ -6,8 +6,13 @@ process PREPARE_METAPHLAN {
 
 	"""
 		cd ${params.metaphlan_db}
-		wget https://www.dropbox.com/sh/7qze7m7g9fe2xjg/AAAyoJpOgcjop41VIHAGWIVLa/mpa_latest?dl=1
-		mv mpa_latest?dl=1 mpa_latest
+		##Dropbox mirror is currently down
+    #wget https://www.dropbox.com/sh/7qze7m7g9fe2xjg/AAAyoJpOgcjop41VIHAGWIVLa/mpa_latest?dl=1
+    #mv mpa_latest?dl=1 mpa_latest
+
+    #Zenodo mirror
+    wget https://zenodo.org/record/3957592/files/mpa_latest?download=1
+		mv mpa_latest?download=1 mpa_latest
 	
 	"""
 }
