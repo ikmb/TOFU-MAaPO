@@ -2,7 +2,7 @@ process FASTQCraw {
 
 	label 'fastqc'
 
-	publishDir "${params.outdir}/${sampleID}/FastQC", mode: 'copy'
+	publishDir "${params.outdir}/FastQC", mode: 'copy'
 
 	input:
 	tuple val(sampleID), file(left), file(right)
@@ -24,7 +24,7 @@ process FASTQCclean {
 
 	label 'fastqc'
 
-	publishDir "${params.outdir}/${sampleID}/FastQC", mode: 'copy'
+	publishDir "${params.outdir}/FastQC", mode: 'copy'
 
 	input:
 	tuple val(sampleID), file(left), file(right), file(unpaired)
@@ -113,7 +113,7 @@ process FILTERREADS {
 	label 'bowtie2'
 	scratch params.scratch
 	//publishDir "${params.outdir}/${sampleID}/reads_clean", mode: 'copy'
-	publishDir "${params.outdir}/reads_clean", mode: 'copy'
+	if(params.cleanreads){publishDir "${params.outdir}/reads_clean", mode: 'copy'}
 
 	input:
 	tuple val(sampleID),file(left),file(right),file(unpaired)

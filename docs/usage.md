@@ -31,8 +31,10 @@ GTDB-TK Reference: `--GTDBTKreference`<br />
 
 ## QC options:
 **--genome** set host genome. On the IKMB Medcluster valid options are human, mouse or chimp. In other cases this needs to be pre-configured.<br />
+**--cleanreads**  Publish QC'ed fastq.gz files. Disabled by default.<br /> 
 
 ## Other options:
-**--outdir** set a custom output directory, default is "results"<br />
+**--outdir** set a custom output directory, default is "results".<br />
 **-resume** resumes pipeline and will continue the run with already completed, cached processes.<br />
 **-work-dir** set a custom work directory, default is "work"<br />
+**--updatemetaphlan** check whether metaphlan-db is still up-to-date before running. Update must be made manually<br />

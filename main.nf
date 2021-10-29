@@ -56,14 +56,15 @@ def helpMessage() {
                 --humann_db     Set directory of humann database (not needed for medcluster)
 
   --virus       Run Kraken2 with a virus database
-                Kraken2 argmeunts:
-                --kraken2_db    Set directory of virus database (not needed for medcluster)
+                Kraken2 arguments:
+                --kraken2_db    Set directory of virus/kraken2 database (not needed for medcluster)
 
   Experimental:
   --assembly    Run Genome Assembly with Megahit, Metabat and GTDBTK
 
   Optonal arguments:
   --genome		Remove host contaminations. Use a pre-configured genome sequence by its common name (on medcluster: human, mouse or chimp)
+  --cleanreads  Publish QCed fastq.gz files. Disabled by default
   --email 		An eMail adress to which reports are sent
   -profile      The nextflow execution profile to use (local or medcluster [default])
 
@@ -103,7 +104,7 @@ workflow QC_rmHost{
         } else if (!params.genomes) {
             exit 1, "Specified a genome name for host mapping, but no genomes are configured for your profile. Aborting!"
         } else if (!params.genomes.containsKey(params.genome)) {
-            exit 1, "Specified unknown name for the host genome! Valid options are: ${params.genomes.keySet()}"
+            exit 1, "Specified unknown name for the host genome! Valid presets are: ${params.genomes.keySet()}"
         } else {
             log.info "Using ${params.genome} as host species."
 
@@ -148,7 +149,7 @@ workflow QC_noHost{
  */
 include {
   KRAKEN2;
-  KR2MPA;
+  KRAKEN2MPA;
   KRAKEN2YAML;
   KRAKENMERGEREPORTS;
   KRAKENMPAMERGE
@@ -161,10 +162,10 @@ workflow kraken{
     take: data
     main:
         KRAKEN2(data)
-        KR2MPA(KRAKEN2.out.krakenreport)
+        KRAKEN2MPA(KRAKEN2.out.krakenreport)
         KRAKEN2YAML(KRAKEN2.out.krakenreport.collect()  )
         KRAKENMERGEREPORTS(KRAKEN2.out.krakenreport.collect()   )
-        KRAKENMPAMERGE(KR2MPA.out.krakenmpa.collect()  )
+        KRAKENMPAMERGE(KRAKEN2MPA.out.krakenmpa.collect()  )
     emit:
         kraken_data = KRAKEN2YAML.out
 }
@@ -175,7 +176,8 @@ workflow kraken{
 include {
   PREPARE_METAPHLAN;
   METAPHLAN;
-  ABUNDANCEMERGE
+  ABUNDANCE_REL_MERGE;
+  ABUNDANCE_ABS_MERGE
   } from './modules/metaphlan.nf'
 
 /*
@@ -190,9 +192,12 @@ workflow metaphlan{
             if (!db_path.exists()) { exit 1, "Could not find Metaphlan database - please check the path" } 
         }else {exit 1, "No Metaphlan database was specified, aborting..."}
         */
-        PREPARE_METAPHLAN()
+        if(params.updatemetaphlan){
+            PREPARE_METAPHLAN()
+        }
         METAPHLAN(data)
-        ABUNDANCEMERGE(METAPHLAN.out.outputMetaphlan.collect() )
+        ABUNDANCE_REL_MERGE(METAPHLAN.out.outputMetaphlan.collect() )
+        ABUNDANCE_ABS_MERGE(METAPHLAN.out.outputMetaphlan.collect() )
 }
 
 /*
@@ -312,3 +317,5 @@ workflow {
             ) 
         }
 }
+
+workflow.onComplete {}

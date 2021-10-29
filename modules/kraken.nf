@@ -20,7 +20,7 @@ kraken2 --db ${params.kraken2_db} --threads ${task.cpus} --output $kraken_log --
 }
 //output: tuple val(sampleID),file(kraken_log), emit: krakenlog
 
-process KR2MPA {
+process KRAKEN2MPA {
 
 input:
 file(report)
