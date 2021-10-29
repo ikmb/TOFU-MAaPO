@@ -42,25 +42,26 @@
 	label 'bowtie2'
 	scratch params.scratch
 	tag "$sampleID"
+	publishDir "${params.outdir}/${sampleID}/Mapping", mode: 'copy'
 
 	input:
 	tuple val(sampleID), file(fcontigs), path(left),path(right),path(unpaired)
 
 	output:
 	tuple val(sampleID), file(fcontigs), file(depthout), emit: maps
-	tuple val(sampleID), file("${sampleID}_final.bam"), emit: counttable
+	tuple val(sampleID), file(mappingbam), emit: counttable
 
 	script:
 	depthout = sampleID + '_depth.txt'
+	mappingbam = sampleID + '_mapping_final.bam'
     """
 	#build and index
 	bowtie2-build $fcontigs ${sampleID}_mapping --threads ${task.cpus}
 	bowtie2 -p ${task.cpus} -x ${sampleID}_mapping -1 $left -2 $right -U $unpaired -S ${sampleID}_mapped.sam |& tee -a ${sampleID}.txt
-	samtools view -u ${sampleID}_mapped.sam | samtools sort -m 7G -@ 5 -o ${sampleID}_final.bam  
+	samtools view -u ${sampleID}_mapped.sam | samtools sort -m 7G -@ 5 -o $mappingbam
 
-	jgi_summarize_bam_contig_depths ${sampleID}_final.bam --outputDepth ${sampleID}_depth.txt
+	jgi_summarize_bam_contig_depths $mappingbam --outputDepth $depthout
 	"""
-
 	}
 
 	process METABAT {
@@ -131,6 +132,7 @@
 
 	output:
 	file("all.bins.gtdbtk_output/*")
+	
 	shell:
 	"""
 	export GTDBTK_DATA_PATH=${params.GTDBTKreference}

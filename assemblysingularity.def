@@ -22,6 +22,7 @@ channels:
   - bioconda
   - defaults
 dependencies:
+  - bracken
   - picard
   - megahit
   - spades
