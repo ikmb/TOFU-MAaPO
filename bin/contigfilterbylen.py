@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-#Removes all contigs with less than 1500 bp.
+#Removes all contigs with less than, in this case, 1500 bp.
 
 import sys
 
