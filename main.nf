@@ -64,6 +64,7 @@ def helpMessage() {
 
   Optonal arguments:
   --genome		Remove host contaminations. Use a pre-configured genome sequence by its common name (on medcluster: human, mouse or chimp)
+  --cleanreads  Publish QCed fastq.gz files. Disabled by default
   --email 		An eMail adress to which reports are sent
   -profile      The nextflow execution profile to use (local or medcluster [default])
 
@@ -175,7 +176,8 @@ workflow kraken{
 include {
   PREPARE_METAPHLAN;
   METAPHLAN;
-  ABUNDANCEMERGE
+  ABUNDANCE_REL_MERGE;
+  ABUNDANCE_ABS_MERGE
   } from './modules/metaphlan.nf'
 
 /*
@@ -194,7 +196,8 @@ workflow metaphlan{
             PREPARE_METAPHLAN()
         }
         METAPHLAN(data)
-        ABUNDANCEMERGE(METAPHLAN.out.outputMetaphlan.collect() )
+        ABUNDANCE_REL_MERGE(METAPHLAN.out.outputMetaphlan.collect() )
+        ABUNDANCE_ABS_MERGE(METAPHLAN.out.outputMetaphlan.collect() )
 }
 
 /*

@@ -49,7 +49,7 @@ process METAPHLAN {
    """
 }
 
-process ABUNDANCEMERGE {
+process ABUNDANCE_REL_MERGE {
 
 	publishDir "${params.outdir}/Metaphlan3", mode: 'copy'
 
@@ -60,9 +60,27 @@ process ABUNDANCEMERGE {
 	file(abundances)
 
 	script:
-	abundances = "metaphlan_abundances.txt"
+	abundances = "metaphlan_rel_abundances.txt"
 
 	"""
 		merge_metaphlan_tables.py ${results.join(" ")} > $abundances
+	"""
+}
+
+process ABUNDANCE_ABS_MERGE {
+
+	publishDir "${params.outdir}/Metaphlan3", mode: 'copy'
+
+	input:
+	path(results)
+
+	output:
+	file(abundances)
+
+	script:
+	abundances = "metaphlan_abs_abundances.txt"
+
+	"""
+		python3 ${baseDir}/bin/merge_abs_reads.py ${results.join(" ")} > $abundances
 	"""
 }
