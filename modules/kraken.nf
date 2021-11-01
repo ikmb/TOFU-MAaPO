@@ -9,6 +9,7 @@ tuple val(sampleID),file(left),file(right),file(unpaired)
 
 output:
 path(report), emit: krakenreport
+tuple val(sampleID), file(report), emit: brackeninput
 
 script:
 report = sampleID + ".kraken2_report.txt"
@@ -85,5 +86,42 @@ process KRAKENMPAMERGE {
 
 	"""
 		combine_mpa.py -i ${mpaoutput.join(" ")} -o $abundances 
+	"""
+}
+
+process BRACKEN {
+
+	tag "$sampleID"
+	label 'bracken'
+	publishDir "${params.outdir}/${sampleID}/Kraken/", mode: 'copy'
+
+	input:
+	tuple val(sampleID), file(report)
+
+	output:
+	file(bracken_output)
+
+	script:
+	bracken_output = sampleID + ".bracken"
+	"""
+		bracken -d ${params.kraken2_db} -i ${report} -o ${bracken_output} -r ${params.bracken_length} -l ${params.bracken_level} -t ${params.bracken_threshold}
+	"""
+}
+
+process BRACKENMERGE {
+
+	publishDir "${params.outdir}/Kraken", mode: 'copy'
+
+	input:
+	path(bracken_output)
+
+	output:
+	file(bracken_merged)
+
+	script:
+	bracken_merged = "bracken_merged.txt"
+
+	"""
+		combine_bracken_outputs.py --files ${bracken_output.join(" ")} -o $bracken_merged 
 	"""
 }

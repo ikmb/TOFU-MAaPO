@@ -14,7 +14,7 @@ From:nfcore/base
 
 
 %post
-    echo "name: biobakery
+    echo "name: metagenomicworkflows
 channels:
   - biobakery
   - conda-forge
