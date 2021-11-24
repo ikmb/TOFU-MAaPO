@@ -17,5 +17,5 @@ metagenomicworkflows.sif
 .vscode
 mgxcovid*
 TODO.txt
-work*
+work/*
 .testcall.sh
