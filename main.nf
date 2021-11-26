@@ -294,7 +294,7 @@ workflow {
             FASTqccleanout = QC_noHost.out.fastqcoutputclean.collect()
             }
     //kraken:
-        if(params.virus){
+        if(params.virus || params.kraken || params.bracken){
             kraken(QCout)
         }
     //metaphlan:
