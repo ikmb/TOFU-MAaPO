@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-# This script merges multiple absolute metaphlan read tables into one. This is an alternative to merge_metaphlan_tables_abs.py, supplied by the Metaphlan authors,
+# This script merges multiple absolute metaphlan read tables into one. This is an alternative to merge_metaphlan_tables.py, supplied by the Metaphlan authors,
 # that merges relative abundance. 
-# Credits to timyerg, who published this script at forum.biobakery.org/t/merge-metaphlan-tables-py-with-absolute-abundance/1839/1
+# Credits to timyerg, who published a version of this script at forum.biobakery.org/t/merge-metaphlan-tables-py-with-absolute-abundance/1839/1 (CC BY-SA), based on the
+# original Metaphlan utility script merge_metaphlan_tables.py
 
 import argparse
 import os
@@ -39,7 +40,7 @@ def merge( aaastrIn, ostm ):
             listmpaVersion.add(mpaVersion[0])
 
         if len(listmpaVersion) > 1:
-            print('merge_metaphlan_tables found tables made with different versions of the MetaPhlAn2 database.\nPlease re-run MetaPhlAn2 with the same database.\n')
+            print('merge_metaphlan_tables found tables made with different versions of the MetaPhlAn3 database.\nPlease re-run MetaPhlAn3 with the same database.\n')
             return
         
         iIn = pd.read_csv(f, 

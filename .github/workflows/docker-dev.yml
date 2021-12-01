@@ -1,0 +1,32 @@
+name: Docker
+
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+on:
+  push:
+    branches: [ devel, cicd, dev ]
+  pull_request:
+    branches: [ devel, cicd, dev ]
+
+
+jobs:
+  push_dockerhub:
+    name: Push new Docker image to Docker Hub (latest)
+    runs-on: ubuntu-latest
+    env:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_PASS: ${{ secrets.DOCKERHUB_TOKEN }}
+    steps:
+      - name: Check out pipeline code
+        uses: actions/checkout@v2
+
+      - name: Build new docker image
+        run: docker build --no-cache . -t ikmb/metagenome:devel
+
+      - name: Push Docker image to DockerHub (latest)
+        run: |
+          echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+          docker push ikmb/metagenome:devel

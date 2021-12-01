@@ -152,7 +152,9 @@ include {
   KRAKEN2MPA;
   KRAKEN2YAML;
   KRAKENMERGEREPORTS;
-  KRAKENMPAMERGE
+  KRAKENMPAMERGE;
+  BRACKEN;
+  BRACKENMERGE
   } from './modules/kraken.nf' 
   
 /*
@@ -166,6 +168,10 @@ workflow kraken{
         KRAKEN2YAML(KRAKEN2.out.krakenreport.collect()  )
         KRAKENMERGEREPORTS(KRAKEN2.out.krakenreport.collect()   )
         KRAKENMPAMERGE(KRAKEN2MPA.out.krakenmpa.collect()  )
+        if(params.bracken){
+            BRACKEN(KRAKEN2.out.brackeninput)
+            BRACKENMERGE(BRACKEN.out.collect()   )
+        }
     emit:
         kraken_data = KRAKEN2YAML.out
 }
@@ -288,7 +294,7 @@ workflow {
             FASTqccleanout = QC_noHost.out.fastqcoutputclean.collect()
             }
     //kraken:
-        if(params.virus){
+        if(params.virus || params.kraken || params.bracken){
             kraken(QCout)
         }
     //metaphlan:
@@ -304,7 +310,7 @@ workflow {
             assembly(QCout)
         }
     //multiqc, collecting all fastqc- and kraken-files; change this when optional inputs are doable:
-        if(params.virus){
+        if(params.virus || params.kraken || params.bracken){
             MULTIQC2(
                 Fastqcoutput.collect(),
                 FASTqccleanout.collect(),

@@ -20,9 +20,12 @@ nextflow run ikmb/metagenomic-workflows --reads '/path/to/fastqfiles/*_R{1,2}_00
 ```
 ## Available modules:
 For analysis following modules are available:<br />
-**--virus** Run Kraken2 with a on Medcluster preconfigured RefSeq viruse database.<br />
 **--metaphlan** Run Metaphlan3<br />
 **--humann** Run HUMAnN3<br />
+**--virus** Run Kraken2 with a on Medcluster preconfigured RefSeq viruse database.<br />
+**--bracken** Run Bracken (Bayesian Reestimation of Abundance with KrakEN) after Kraken2. Kraken2 DB must be [bracken-ready](https://github.com/jenniferlu717/Bracken#step-0-build-a-kraken-10-or-kraken-20-database)<br />
+
+
 
 Experimental:<br />
 **--assembly** Run a genome assembly workflow<br />
@@ -38,3 +41,8 @@ GTDB-TK Reference: `--GTDBTKreference`<br />
 **-resume** resumes pipeline and will continue the run with already completed, cached processes.<br />
 **-work-dir** set a custom work directory, default is "work"<br />
 **--updatemetaphlan** check whether metaphlan-db is still up-to-date before running. Update must be made manually<br />
+
+### Bracken options and their default:
+**--bracken_length** = 100<br />
+**--bracken_level** = "S"<br />
+**--bracken_threshold** = 0<br />
