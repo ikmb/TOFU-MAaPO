@@ -310,7 +310,7 @@ workflow {
             assembly(QCout)
         }
     //multiqc, collecting all fastqc- and kraken-files; change this when optional inputs are doable:
-        if(params.virus){
+        if(params.virus || params.kraken || params.bracken){
             MULTIQC2(
                 Fastqcoutput.collect(),
                 FASTqccleanout.collect(),
