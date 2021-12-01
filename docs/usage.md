@@ -2,6 +2,9 @@
 
 This pipeline requires Nextflow 21.04.0 or higher. Other dependencies are containerized with Singularity and Docker.<br />
 
+As default, this pipeline works with the profile for Kiel medcluster. Should you choose to run it locally on your own computer, please set **-profile local**. 
+Important: Change parameters in conf/local.config to your local hardware specifications prior running the pipeline.
+
 On Kiel Medcluster, please load the following modules with:
 ```bash
 module load singularity nextflow
@@ -28,7 +31,7 @@ For analysis following modules are available:<br />
 
 
 Experimental:<br />
-**--assembly** Run a genome assembly workflow<br />
+**--assembly** Run a genome assembly workflow. Usually needs 250GB of RAM!<br />
 Reference database for GTDB-TK needs to be set (already set on Kiel Medcluster):<br />
 GTDB-TK Reference: `--GTDBTKreference`<br />
 
