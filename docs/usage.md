@@ -23,9 +23,9 @@ nextflow run ikmb/metagenomic-workflows --reads '/path/to/fastqfiles/*_R{1,2}_00
 ```
 ## Available modules:
 For analysis following modules are available:<br />
-**--metaphlan** Run Metaphlan3<br />
-**--humann** Run HUMAnN3<br />
-**--virus** Run Kraken2 with a on Medcluster preconfigured RefSeq viruse database.<br />
+**--metaphlan** Run Metaphlan3, a tool for profiling the composition of microbial communities<br />
+**--humann** Run HUMAnN3, a tool for profiling the abundance of microbial metabolic pathways and other molecular functions<br />
+**--virus** Run Kraken2, a tool for taxonomic classification tool, with a on Medcluster preconfigured RefSeq virus database.<br />
 **--bracken** Run Bracken (Bayesian Reestimation of Abundance with KrakEN) after Kraken2. Kraken2 DB must be [bracken-ready](https://github.com/jenniferlu717/Bracken#step-0-build-a-kraken-10-or-kraken-20-database)<br />
 
 
