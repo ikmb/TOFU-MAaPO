@@ -16,7 +16,7 @@ report = sampleID + ".kraken2_report.txt"
 kraken_log = sampleID + ".kraken2.log"
 
 """
-kraken2 --db ${params.kraken2_db} --threads ${task.cpus} --output $kraken_log --report $report $left $right
+kraken2 --db ${params.kraken2_db} --paired --threads ${task.cpus} --output $kraken_log --report $report $left $right 
 """
 }
 //output: tuple val(sampleID),file(kraken_log), emit: krakenlog

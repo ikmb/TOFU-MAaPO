@@ -4,7 +4,7 @@
 
 ## Overview
 
-This pipelines analyses short reads and can perform analysis of abundance of microbial metabolic pathways and phylogenetic. 
+This pipelines analyses short reads and can perform analysis of taxonomic profiling, abundance of microbial metabolic pathways and more. 
 
 ### Documentation 
 
