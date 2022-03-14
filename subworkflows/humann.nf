@@ -2,8 +2,9 @@
  * Import humann modules
  */
 include {
-    HUMANN_SE;
-    HUMANN_PE;
+    HUMANN;
+    //HUMANN_SE;
+    //HUMANN_PE;
     JOINgenefamilies;
     JOINpathabundance;
     JOINpathcoverage
@@ -33,6 +34,13 @@ workflow humann{
         if(!params.metaphlan){
             PREPARE_METAPHLAN()
         }
+
+        HUMANN(data)
+        JOINgenefamilies(HUMANN.out.genefamilies.collect() )
+        JOINpathabundance(HUMANN.out.pathabundance.collect())
+        JOINpathcoverage(HUMANN.out.pathcoverage.collect())
+
+        /*
         if(params.single_end){
             HUMANN_SE(data)
             JOINgenefamilies(HUMANN_SE.out.genefamilies.collect() )
@@ -44,4 +52,5 @@ workflow humann{
             JOINpathabundance(HUMANN_PE.out.pathabundance.collect())
             JOINpathcoverage(HUMANN_PE.out.pathcoverage.collect())
         }
+        */
 }

@@ -20,3 +20,4 @@ work/*
 .testcall.sh
 work*
 alt_environment.yml
+!workflows

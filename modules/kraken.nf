@@ -1,4 +1,4 @@
-process KRAKEN2_PE {
+/*process KRAKEN2_PE {
 
 tag "$sampleID"
 label 'kraken'
@@ -43,8 +43,50 @@ kraken_log = sampleID + ".kraken2.log"
 kraken2 --db ${params.kraken2_db} --threads ${task.cpus} --output $kraken_log --report $report ${reads}
 """
 }
+*/
+process KRAKEN2 {
 
-//output: tuple val(sampleID),file(kraken_log), emit: krakenlog
+tag "$sampleID"
+label 'kraken'
+publishDir "${params.outdir}/${sampleID}/Kraken/", mode: 'copy'
+
+input:
+	tuple val(meta), path(reads)
+
+output:
+	path(report), emit: krakenreport
+	//tuple val(sampleID), file(kraken_log), emit: krakenlog
+	tuple val(sampleID), file(report), emit: brackeninput
+
+script:
+	sampleID = meta.id
+	report = sampleID + ".kraken2_report.txt"
+	kraken_log = sampleID + "_kraken2.log"
+
+	left_clean = sampleID + "_R1_clean.fastq.gz"
+	right_clean = sampleID + "_R2_clean.fastq.gz"
+	unpaired_clean = sampleID + "_single_clean.fastq.gz"
+
+    if (!params.single_end) {  
+	"""
+	kraken2 --db ${params.kraken2_db} \
+		--paired \
+		--threads ${task.cpus} \
+		--output $kraken_log \
+		--report $report ${left_clean} ${right_clean} 
+	"""
+	} else {
+	"""
+	kraken2 --db ${params.kraken2_db} \
+		--threads ${task.cpus} \
+		--output $kraken_log \
+		--report $report ${unpaired_clean} 
+	"""	
+	}
+}
+
+
+
 
 process KRAKEN2MPA {
 
