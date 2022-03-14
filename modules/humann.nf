@@ -1,4 +1,4 @@
-process HUMANN {
+process HUMANN_SE {
 
     label 'humann'
     tag "$sampleID"
@@ -6,7 +6,7 @@ process HUMANN {
     //publishDir "${params.outdir}/${sampleID}/humann", mode: 'copy'
 
      input:
-     tuple val(sampleID),path(left_clean),path(right_clean),path(unpaired_clean)
+     tuple val(meta),path(reads)
 
      output:
 	 path(genefamilies), emit: genefamilies
@@ -15,14 +15,46 @@ process HUMANN {
      path('*'), emit: humannouts
 
      script:
+     sampleID = meta.id
+     genefamilies = sampleID + '_genefamilies.tsv'
+     pathabundance = sampleID + '_pathabundance.tsv'
+     pathcoverage = sampleID + '_pathcoverage.tsv'
+	 singleread = sampleID + '.fq'
+     """
+		zcat $reads > $singleread
+
+    	humann --input $singleread --output . --remove-temp-output --threads ${task.cpus} --nucleotide-database ${params.humann_db}/chocophlan --protein-database ${params.humann_db}/uniref --metaphlan-options "--bowtie2db ${params.metaphlan_db} -x mpa_v30_CHOCOPhlAn_201901 --stat_q 0.2 --force -t rel_ab_w_read_stats --nproc ${task.cpus}"
+        rm *.fq 
+     """
+	}
+
+    process HUMANN_PE {
+
+    label 'humann'
+    tag "$sampleID"
+    //scratch true
+    //publishDir "${params.outdir}/${sampleID}/humann", mode: 'copy'
+
+     input:
+     tuple val(meta),path(reads),path(unpaired_clean)
+
+     output:
+	 path(genefamilies), emit: genefamilies
+     path(pathabundance), emit: pathabundance
+     path(pathcoverage), emit: pathcoverage
+     path('*'), emit: humannouts
+
+     script:
+     sampleID = meta.id
      genefamilies = sampleID + '_genefamilies.tsv'
      pathabundance = sampleID + '_pathabundance.tsv'
      pathcoverage = sampleID + '_pathcoverage.tsv'
 	 merged = sampleID + '.fq'
      """
-		zcat $left_clean > left.fq
-    	zcat $right_clean > right.fq
-    	cat left.fq right.fq > $merged
+		zcat ${reads[0]} > left.fq
+    	zcat ${reads[1]} > right.fq
+        zcat $unpaired_clean > single.fq
+    	cat left.fq right.fq single.fq > $merged
     	humann --input $merged --output . --remove-temp-output --threads ${task.cpus} --nucleotide-database ${params.humann_db}/chocophlan --protein-database ${params.humann_db}/uniref --metaphlan-options "--bowtie2db ${params.metaphlan_db} -x mpa_v30_CHOCOPhlAn_201901 --stat_q 0.2 --force -t rel_ab_w_read_stats --nproc ${task.cpus}"
         rm *.fq 
      """

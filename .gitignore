@@ -1,4 +1,3 @@
-bin/alba/
 .nextflow.log*
 .nextflow/
 work/
@@ -20,3 +19,4 @@ TODO.txt
 work/*
 .testcall.sh
 work*
+alt_environment.yml

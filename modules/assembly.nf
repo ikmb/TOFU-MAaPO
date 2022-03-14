@@ -1,4 +1,4 @@
-	process MEGAHIT {
+	process MEGAHIT_PE {
 
 	publishDir "${params.outdir}/${sampleID}/Megahit", mode: 'copy'
 	scratch params.scratch
@@ -6,30 +6,55 @@
 	tag "$sampleID"
 
 	input:
-	tuple val(sampleID),path(left),path(right),path(unpaired)
+	tuple val(meta), path(reads), path(unpaired)
 
 	output:
 	path("**/*"), emit: outputfolder
-	tuple val(sampleID), file("ut-repfix/final.contigs.fa"), path(left),path(right),path(unpaired), emit: contigs
+	tuple val(sampleID), file("ut-repfix/final.contigs.fa"), path(reads), path(unpaired), emit: contigs
 
 	script:
+	sampleID = meta.id
 	"""
 	zcat $unpaired > unpaired.fq
-	zcat $left > left.fq
-	zcat $right > right.fq
+	zcat ${reads[0]} > left.fq
+	zcat ${reads[1]} > right.fq
 	megahit -1 left.fq -2 right.fq -r unpaired.fq -m 0.95 -o $sampleID -out-repfix $sampleID -t ${task.cpus}	
 	"""
 	}
 
-	process filtercontigs {
+	process MEGAHIT_SE {
+
+	publishDir "${params.outdir}/${sampleID}/Megahit", mode: 'copy'
+	scratch params.scratch
+	label 'megahit'
+	tag "$sampleID"
+
+	input:
+	tuple val(meta), path(reads)
+
+	output:
+	path("**/*"), emit: outputfolder
+	tuple val(sampleID), file("ut-repfix/final.contigs.fa"), path(reads), emit: contigs
+
+	script:
+	sampleID = meta.id
+	"""
+	
+	zcat ${reads[0]} > unpaired.fq
+	
+	megahit -r unpaired.fq -m 0.95 -o $sampleID -out-repfix $sampleID -t ${task.cpus}	
+	"""
+	}
+
+	process filtercontigs_SE {
 	scratch params.scratch
 	tag "$sampleID"
 
 	input:
-	tuple val(sampleID), file("ut-repfix/final.contigs.fa"), path(left),path(right),path(unpaired)
+	tuple val(sampleID), file("ut-repfix/final.contigs.fa"), path(reads)
 
 	output:
-	tuple val(sampleID), file("fcontigsfiltered.fa"), path(left),path(right),path(unpaired), emit: contigs
+	tuple val(sampleID), file("fcontigsfiltered.fa"), path(reads), emit: contigs
 
 	script:
 	"""
@@ -37,7 +62,23 @@
 	"""
 	}
 	
-	process MAPPING {
+	process filtercontigs_PE {
+	scratch params.scratch
+	tag "$sampleID"
+
+	input:
+	tuple val(sampleID), file("ut-repfix/final.contigs.fa"), path(reads), path(unpaired)
+
+	output:
+	tuple val(sampleID), file("fcontigsfiltered.fa"), path(reads), path(unpaired), emit: contigs
+
+	script:
+	"""
+	python3 ${baseDir}/bin/contigfilterbylen.py 1500 ut-repfix/final.contigs.fa > fcontigsfiltered.fa
+	"""
+	}
+
+	process MAPPING_SE {
 
 	label 'bowtie2'
 	scratch params.scratch
@@ -45,7 +86,7 @@
 	publishDir "${params.outdir}/${sampleID}/Mapping", mode: 'copy'
 
 	input:
-	tuple val(sampleID), file(fcontigs), path(left),path(right),path(unpaired)
+	tuple val(sampleID), file(fcontigs),  path(unpaired)
 
 	output:
 	tuple val(sampleID), file(fcontigs), file(depthout), emit: maps
@@ -57,7 +98,34 @@
     """
 	#build and index
 	bowtie2-build $fcontigs ${sampleID}_mapping --threads ${task.cpus}
-	bowtie2 -p ${task.cpus} -x ${sampleID}_mapping -1 $left -2 $right -U $unpaired -S ${sampleID}_mapped.sam |& tee -a ${sampleID}.txt
+	bowtie2 -p ${task.cpus} -x ${sampleID}_mapping -U $unpaired -S ${sampleID}_mapped.sam |& tee -a ${sampleID}.txt
+	samtools view -u ${sampleID}_mapped.sam | samtools sort -m 7G -@ 5 -o $mappingbam
+
+	jgi_summarize_bam_contig_depths $mappingbam --outputDepth $depthout
+	"""
+	}
+
+	process MAPPING_PE {
+
+	label 'bowtie2'
+	scratch params.scratch
+	tag "$sampleID"
+	publishDir "${params.outdir}/${sampleID}/Mapping", mode: 'copy'
+
+	input:
+	tuple val(sampleID), file(fcontigs), path(reads), path(unpaired)
+
+	output:
+	tuple val(sampleID), file(fcontigs), file(depthout), emit: maps
+	tuple val(sampleID), file(mappingbam), emit: counttable
+
+	script:
+	depthout = sampleID + '_depth.txt'
+	mappingbam = sampleID + '_mapping_final.bam'
+    """
+	#build and index
+	bowtie2-build $fcontigs ${sampleID}_mapping --threads ${task.cpus}
+	bowtie2 -p ${task.cpus} -x ${sampleID}_mapping -1 ${reads[0]} -2 ${reads[1]} -U $unpaired -S ${sampleID}_mapped.sam |& tee -a ${sampleID}.txt
 	samtools view -u ${sampleID}_mapped.sam | samtools sort -m 7G -@ 5 -o $mappingbam
 
 	jgi_summarize_bam_contig_depths $mappingbam --outputDepth $depthout

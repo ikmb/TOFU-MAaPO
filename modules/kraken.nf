@@ -1,24 +1,49 @@
-process KRAKEN2 {
+process KRAKEN2_PE {
 
 tag "$sampleID"
 label 'kraken'
 publishDir "${params.outdir}/${sampleID}/Kraken/", mode: 'copy'
 
 input:
-tuple val(sampleID),file(left),file(right),file(unpaired)
+tuple val(meta),path(reads),file(unpaired)
 
 output:
 path(report), emit: krakenreport
 tuple val(sampleID), file(report), emit: brackeninput
 
 script:
+sampleID = meta.id
 report = sampleID + ".kraken2_report.txt"
 kraken_log = sampleID + ".kraken2.log"
 
 """
-kraken2 --db ${params.kraken2_db} --paired --threads ${task.cpus} --output $kraken_log --report $report $left $right 
+kraken2 --db ${params.kraken2_db} --paired --threads ${task.cpus} --output $kraken_log --report $report ${reads[0]} ${reads[1]} 
 """
 }
+
+process KRAKEN2_SE {
+
+tag "$sampleID"
+label 'kraken'
+publishDir "${params.outdir}/${sampleID}/Kraken/", mode: 'copy'
+
+input:
+tuple val(meta),path(reads)
+
+output:
+path(report), emit: krakenreport
+tuple val(sampleID), file(report), emit: brackeninput
+
+script:
+sampleID = meta.id
+report = sampleID + ".kraken2_report.txt"
+kraken_log = sampleID + ".kraken2.log"
+
+"""
+kraken2 --db ${params.kraken2_db} --threads ${task.cpus} --output $kraken_log --report $report ${reads}
+"""
+}
+
 //output: tuple val(sampleID),file(kraken_log), emit: krakenlog
 
 process KRAKEN2MPA {
