@@ -40,7 +40,7 @@ workflow input_check {
         }
 
     emit:
-        reads // channel: [ val(meta), [ read1, read2 ] ] or  [ val(meta), [ read1 ] ]
+        reads // channel: [ val(meta), [ 0:read1, 1:read2 ] ] or  [ val(meta), [ 0:readsingle ] ]
 }
 
 def hasExtension(it, extension) {
