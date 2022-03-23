@@ -1,3 +1,4 @@
+
 process KRAKEN2 {
 
 tag "$sampleID"
@@ -5,52 +6,67 @@ label 'kraken'
 publishDir "${params.outdir}/${sampleID}/Kraken/", mode: 'copy'
 
 input:
-tuple val(sampleID),file(left),file(right),file(unpaired)
+	tuple val(meta), path(reads)
 
 output:
-path(report), emit: krakenreport
-tuple val(sampleID), file(report), emit: brackeninput
+	path(report), emit: krakenreport
+	//tuple val(sampleID), file(kraken_log), emit: krakenlog
+	tuple val(sampleID), file(report), emit: brackeninput
 
 script:
-report = sampleID + ".kraken2_report.txt"
-kraken_log = sampleID + ".kraken2.log"
+	sampleID = meta.id
+	report = sampleID + ".kraken2_report.txt"
+	kraken_log = sampleID + "_kraken2.log"
 
-"""
-kraken2 --db ${params.kraken2_db} --paired --threads ${task.cpus} --output $kraken_log --report $report $left $right 
-"""
+	left_clean = sampleID + "_R1_clean.fastq.gz"
+	right_clean = sampleID + "_R2_clean.fastq.gz"
+	unpaired_clean = sampleID + "_single_clean.fastq.gz"
+
+    if (!params.single_end) {  
+	"""
+	kraken2 --db ${params.kraken2_db} \
+		--paired \
+		--threads ${task.cpus} \
+		--output $kraken_log \
+		--report $report ${left_clean} ${right_clean} 
+	"""
+	} else {
+	"""
+	kraken2 --db ${params.kraken2_db} \
+		--threads ${task.cpus} \
+		--output $kraken_log \
+		--report $report ${unpaired_clean} 
+	"""	
+	}
 }
-//output: tuple val(sampleID),file(kraken_log), emit: krakenlog
 
 process KRAKEN2MPA {
 
 input:
-file(report)
+	file(report)
 
 output:
-path("${report.simpleName}.kraken_mpa.txt"), emit: krakenmpa
+	path("${report.simpleName}.kraken_mpa.txt"), emit: krakenmpa
 
 script:
-
-
-"""
-kreport2mpa.py -r $report -o ${report.simpleName}.kraken_mpa.txt --percentages --display-header
-"""
+	"""
+	kreport2mpa.py -r $report -o ${report.simpleName}.kraken_mpa.txt --percentages --display-header
+	"""
 }
 
 process KRAKEN2YAML {
 
 input:
-path(reports)
+	path(reports)
 
 output:
-file(report_yaml)
+	file(report_yaml)
 
 script:
-
-report_yaml = "kraken_report_mqc.yaml"
-"""	
-kraken2yaml.pl --outfile $report_yaml
-"""
+	report_yaml = "kraken_report_mqc.yaml"
+	"""	
+	kraken2yaml.pl --outfile $report_yaml
+	"""
 }
 
 process KRAKENMERGEREPORTS {
@@ -58,30 +74,30 @@ process KRAKENMERGEREPORTS {
 publishDir "${params.outdir}/Kraken", mode: 'copy'
 
 input:
-path(report)
+	path(report)
 
 output:
-file(report_combined)
+	file(report_combined)
 
 script:
 
-report_combined = "kraken_report_combined.txt"
-"""	
-combine_kreports.py -r ${report.join(" ")} -o $report_combined
-"""
+	report_combined = "kraken_report_combined.txt"
+	"""	
+	combine_kreports.py -r ${report.join(" ")} -o $report_combined
+	"""
 }
 // --sample-names ${report.simpleName.join(" ")}
 process KRAKENMPAMERGE {
 
-	publishDir "${params.outdir}/Kraken", mode: 'copy'
+publishDir "${params.outdir}/Kraken", mode: 'copy'
 
-	input:
+input:
 	path(mpaoutput)
 
-	output:
+output:
 	file(abundances)
 
-	script:
+script:
 	abundances = "kraken2_mpa_abundances.txt"
 
 	"""
@@ -91,17 +107,17 @@ process KRAKENMPAMERGE {
 
 process BRACKEN {
 
-	tag "$sampleID"
-	label 'bracken'
-	publishDir "${params.outdir}/${sampleID}/Kraken/", mode: 'copy'
+tag "$sampleID"
+label 'bracken'
+publishDir "${params.outdir}/${sampleID}/Kraken/", mode: 'copy'
 
-	input:
+input:
 	tuple val(sampleID), file(report)
 
-	output:
+output:
 	file(bracken_output)
 
-	script:
+script:
 	bracken_output = sampleID + ".bracken"
 	"""
 		bracken -d ${params.kraken2_db} -i ${report} -o ${bracken_output} -r ${params.bracken_length} -l ${params.bracken_level} -t ${params.bracken_threshold}
@@ -110,17 +126,17 @@ process BRACKEN {
 
 process BRACKENMERGE {
 
-	publishDir "${params.outdir}/Kraken", mode: 'copy'
+publishDir "${params.outdir}/Kraken", mode: 'copy'
 
-	input:
+input:
 	path(bracken_output)
 
-	output:
+output:
 	file(bracken_merged)
 
-	script:
+script:
+	
 	bracken_merged = "bracken_merged.txt"
-
 	"""
 		combine_bracken_outputs.py --files ${bracken_output.join(" ")} -o $bracken_merged 
 	"""
