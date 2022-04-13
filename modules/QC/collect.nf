@@ -1,6 +1,6 @@
 /*
 # These are processes to keep the cardinality and name structure the same
-# with the workflow that removes host reads
+# to the workflow that removes host reads
 */
 
 process COLLECTOR_PE {

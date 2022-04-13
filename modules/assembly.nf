@@ -183,6 +183,8 @@ process MAPPING{
 	"""
 	export GTDBTK_DATA_PATH=${params.GTDBTKreference}
 	gtdbtk classify_wf --cpus ${task.cpus} --genome_dir . --extension fa --out_dir all.bins.gtdbtk_output --pplacer_cpus 1
+
+	#gawk -F "\t" '{ sub(/.*;s__/, "s__", \$2); print \$1 "\t" \$2 }' all.bins.gtdbtk_output/gtdbtk.bac120.summary.tsv > all.bins.gtdbtk_output/parsed_bac120_summary.tsv
 	"""
 	}
 
