@@ -10,8 +10,8 @@
 		tuple val(meta), path(reads)
 
 	output:
-		path('**/*'), emit: outputfolder
-		tuple val(sampleID), file("ut-repfix/final.contigs.fa"), path('*_clean.fastq.gz', includeInputs: true), emit: contigs
+		path('output/*'), emit: outputfolder
+		tuple val(sampleID), file(output_final_contigs), path('*_clean.fastq.gz', includeInputs: true), emit: contigs
 
 	script:
 		sampleID = meta.id
@@ -24,6 +24,8 @@
     	fq_right = sampleID + "_2.fq"
     	fq_single = sampleID + "_single.fq"
 
+		replacer = ">" + sampleID + "_k"
+		output_final_contigs = sampleID + "_final.contigs.fa"
 		if (!params.single_end) {  
 		"""
 		zcat $unpaired_clean > $fq_single
@@ -32,10 +34,15 @@
 		megahit -1 $fq_left \
 				-2 $fq_right \
 				-r $fq_single \
+				-o output \
 				-m 0.95 \
-				-o $sampleID \
-				-out-repfix $sampleID \
 				-t ${task.cpus}	
+
+		rm $fq_single
+		rm $fq_left
+		rm $fq_right
+
+		gawk '{gsub (/^>k/, "$replacer");print}' output/final.contigs.fa > $output_final_contigs
 		"""
 		} else {
 		"""	
@@ -43,9 +50,12 @@
 
 		megahit	-r $fq_single \
 				-m 0.95 \
-				-o $sampleID \
-				-out-repfix $sampleID \
+				-o output \
 				-t ${task.cpus}	
+
+		rm $fq_single
+
+		gawk '{gsub (/^>k/, "/$replacer");print}' output/final.contigs.fa > $output_final_contigs
 		"""			
 		}
 	}
@@ -55,14 +65,14 @@
 	tag "$sampleID"
 
 	input:
-	tuple val(sampleID), file("ut-repfix/final.contigs.fa"), path(reads)
+	tuple val(sampleID), file(finalcontigs), path(reads)
 
 	output:
 	tuple val(sampleID), file("fcontigsfiltered.fa"), path(reads), emit: contigs
 
 	script:
 	"""
-	python3 ${baseDir}/bin/contigfilterbylen.py 1500 ut-repfix/final.contigs.fa > fcontigsfiltered.fa
+	python3 ${baseDir}/bin/contigfilterbylen.py 1500 $finalcontigs > fcontigsfiltered.fa
 	"""
 	}
 
@@ -181,10 +191,10 @@ process MAPPING{
 	
 	shell:
 	"""
-	export GTDBTK_DATA_PATH=${params.GTDBTKreference}
-	gtdbtk classify_wf --cpus ${task.cpus} --genome_dir . --extension fa --out_dir all.bins.gtdbtk_output --pplacer_cpus 1
+	export GTDBTK_DATA_PATH=${params.gtdbtk_reference}
+	gtdbtk classify_wf --cpus ${task.cpus} --genome_dir . --extension fa --out_dir all.bins.gtdbtk_output --pplacer_cpus 1 -f
 
-	#gawk -F "\t" '{ sub(/.*;s__/, "s__", \$2); print \$1 "\t" \$2 }' all.bins.gtdbtk_output/gtdbtk.bac120.summary.tsv > all.bins.gtdbtk_output/parsed_bac120_summary.tsv
+	gawk -F "\t" '{ sub(/.*;s__/, "s__", \$2); print \$1 "\t" \$2 }' all.bins.gtdbtk_output/gtdbtk.bac120.summary.tsv > all.bins.gtdbtk_output/parsed_bac120_summary.tsv
 	"""
 	}
 

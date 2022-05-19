@@ -27,7 +27,7 @@ log.info "HUMAnN DB:      : ${params.humann_db}"}
 if(params.metaphlan){
 log.info "Metaphlan DB:   : ${params.metaphlan_db}"}
 if(params.assembly){
-log.info "GTDBTK ref.     : ${params.GTDBTKreference}"}
+log.info "GTDBTK ref.     : ${params.gtdbtk_reference}"}
 log.info "=========================================="
 log.info "Command Line:     $workflow.commandLine"
 log.info "=========================================="
@@ -44,7 +44,7 @@ def helpMessage() {
   The typical command for running the pipeline is as follows:
   nextflow run ikmb/metagenomic-workflows --reads '/path/to/*_R{1,2}_001.fastq.gz' 
   Mandatory arguments:
-  --reads 		The path to the fastq.gz files containing PE metagenomic reads (1 per sample)
+  --reads 		The path to the fastq.gz files containing PE metagenomic reads (2 per sample) or SE metagenomic reads (1 per sample, use --single_end)
 
   Analysis Modules:
   --metaphlan   Run Metaphlan3 for profiling the composition of microbial communities
@@ -66,6 +66,7 @@ def helpMessage() {
   --genome		Remove host contaminations. Use a pre-configured genome sequence by its common name (on medcluster: human, mouse or chimp)
   --cleanreads  Publish QCed fastq.gz files. Disabled by default
   -profile      The nextflow execution profile to use (local or medcluster [default])
+  --single_end  Run the pipeline for single-end metagenomic reads
 
   """.stripIndent()
 }
