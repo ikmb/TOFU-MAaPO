@@ -4,7 +4,7 @@ process FILTERREADS_SE {
 	scratch params.scratch
 
 	if(params.cleanreads){
-		publishDir "${params.outdir}/reads_clean", mode: 'copy'
+		publishDir "${params.outdir}/qced_files", mode: 'copy'
 	}
 
 	input:
@@ -42,7 +42,7 @@ process FILTERREADS_PE {
 	scratch params.scratch
 
 	if(params.cleanreads){
-		publishDir "${params.outdir}/reads_clean", mode: 'copy'
+		publishDir "${params.outdir}/qced_files", mode: 'copy'
 	}
 
 	input:

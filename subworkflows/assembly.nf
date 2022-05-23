@@ -55,7 +55,12 @@ workflow assembly{
         METABAT(ch_mapping)
         contigs_to_bins(METABAT.out)
         checkm_all_bins(METABAT.out)
-        GTDBTK(METABAT.out)
+
+        if(!params.skip_gtdbtk)
+        {
+            GTDBTK(METABAT.out)
+        }
+        
         getCountTable(ch_counttable)
 }
 

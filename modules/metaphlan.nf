@@ -6,7 +6,7 @@ process PREPARE_METAPHLAN {
 
 	"""
 		cd ${params.metaphlan_db}
-		##Dropbox mirror is currently down
+		##Dropbox mirror
     #wget https://www.dropbox.com/sh/7qze7m7g9fe2xjg/AAAyoJpOgcjop41VIHAGWIVLa/mpa_latest?dl=1
     #mv mpa_latest?dl=1 mpa_latest
 
