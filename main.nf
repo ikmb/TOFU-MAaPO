@@ -44,7 +44,8 @@ def helpMessage() {
   The typical command for running the pipeline is as follows:
   nextflow run ikmb/metagenomic-workflows --reads '/path/to/*_R{1,2}_001.fastq.gz' 
   Mandatory arguments:
-  --reads 		The path to the fastq.gz files containing PE metagenomic reads (2 per sample) or SE metagenomic reads (1 per sample, use --single_end)
+  --reads 		The path to the fastq.gz files containing PE metagenomic reads (2 per sample) or SE metagenomic reads (1 per sample, use --single_end) or a csv file with a list of reads
+
 
   Analysis Modules:
   --metaphlan   Run Metaphlan3 for profiling the composition of microbial communities
@@ -89,4 +90,8 @@ workflow {
 
 }
 
-workflow.onComplete {}
+workflow.onComplete {
+  log.info "========================================="
+  log.info "Duration:		$workflow.duration"
+  log.info "========================================="
+}
