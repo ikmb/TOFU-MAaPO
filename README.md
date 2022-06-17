@@ -14,3 +14,7 @@ Documentation about the pipeline can be found in the `docs/` directory or under 
 2. [Installation and configuration](docs/installation.md)
 3. [Running the pipeline](docs/usage.md)
 4. [Output](docs/output.md)
+
+# Funding
+
+The project was funded by the German Research Foundation (DFG) [Research Unit 5042 - miTarget INF](https://www.mitarget.org/).
