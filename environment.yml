@@ -149,6 +149,7 @@ dependencies:
   - megahit=1.2.9=h2e03b76_1
   - metabat2=2.12.1=1
   - metaphlan=3.0.14=pyhb7b1952_0
+  - minimap2
   - munkres=1.1.4=pyh9f0ad1d_0
   - muscle=5.1=h9f5acd7_1
   - ncurses=6.3=h27087fc_1
