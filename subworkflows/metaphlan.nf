@@ -5,8 +5,6 @@
 include {
   PREPARE_METAPHLAN;
   METAPHLAN;
-  //METAPHLAN_SE;
-  //METAPHLAN_PE;
   ABUNDANCE_REL_MERGE;
   ABUNDANCE_ABS_MERGE
   } from '../modules/metaphlan.nf'
@@ -26,15 +24,6 @@ workflow metaphlan{
         if(params.updatemetaphlan){
             PREPARE_METAPHLAN()
         }
-        /*
-        if(params.single_end){
-            METAPHLAN_SE(data)
-            ch_metaphout = METAPHLAN_SE.out.outputMetaphlan
-        }else{
-            METAPHLAN_PE(data)
-            ch_metaphout = METAPHLAN_PE.out.outputMetaphlan
-        }
-        */
         METAPHLAN(data)
         ch_metaphout = METAPHLAN.out.outputMetaphlan
 

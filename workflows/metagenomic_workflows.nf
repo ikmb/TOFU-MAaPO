@@ -38,7 +38,7 @@ workflow MW {
             input_check_qced()
             QCout = input_check_qced.out.reads
         }
-//        Channel.empty().join(QC_rmHost.out.qcedreads).view()
+        
     //kraken:
         if(params.virus || params.kraken || params.bracken){
             kraken(QCout)
@@ -52,7 +52,7 @@ workflow MW {
             humann(QCout)
         }
     //genome assembly:
-        if(params.assembly){
+        if( params.assembly || params.magscot ){
             assembly(QCout)
         }
 
