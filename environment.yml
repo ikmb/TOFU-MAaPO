@@ -18,6 +18,6 @@ dependencies:
   - fastqc
   - gawk
   - pandas
-  - samtools=3.16
+  - samtools
   - sed
   - krakentools=1.2
