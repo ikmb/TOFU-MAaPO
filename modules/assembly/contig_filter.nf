@@ -3,15 +3,17 @@ process filtercontigs {
 	tag "$sampleID"
 
 	input:
-    	tuple val(sampleID), file(finalcontigs), path(reads)
+    	tuple val(meta), file(finalcontigs), path(reads)
 
 	output:
-	    tuple val(sampleID), file(fcontigs_filtered), path(reads), emit: contigs
+	    tuple val(meta), file(fcontigs_filtered), path(reads), emit: contigs
 	    path(fcontigs_filtered), emit: filteredcontig
 
-	    tuple val(sampleID), file(fcontigs_filtered), emit: magscot_contigs
+	    tuple val(meta), file(fcontigs_filtered), emit: magscot_contigs
 
 	script:
+		sampleID = meta.id
+
 		fcontigs_filtered = sampleID + '_fcontigsfiltered.fa'
 
 		"""

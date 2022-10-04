@@ -1,7 +1,7 @@
 	process VAMB_CONCATENATE {
         label 'bowtie2'
-		//scratch params.scratch
-		scratch false
+		scratch params.scratch
+
         input:
             path(contigs)
 
@@ -12,30 +12,31 @@
 			catalogue = "collected_catalogue.fna.gz"
 			catalogue_index = "catalogue.mmi"
 
-        """
-        concatenate.py $catalogue ${contigs.join(" ")} --keepnames
-		minimap2 -I100G -d $catalogue_index $catalogue -m 2000 # make index
-        """
+        	"""
+        	concatenate.py $catalogue ${contigs.join(" ")} --keepnames
+			minimap2 -I100G -d $catalogue_index $catalogue -m 2000 # make index
+        	"""
     }
 
 process VAMB_MAPPING{
 
 	label 'bowtie2'
-	//scratch params.scratch
-	scratch false
+	scratch params.scratch
 	tag "$sampleID"
 	//publishDir "${params.outdir}/${sampleID}/Mapping", mode: 'copy'
 
 	input:
-		tuple val(sampleID), file(fcontigs), path(reads)
+		tuple val(meta), file(fcontigs), path(reads)
 		tuple path(catalogue), path(catalogue_index)
 
 	output:
 		path(depthout), emit: counttable 
 
-		val(sampleID), emit: sampleid
+		val(meta), emit: sampleid
 
 	script:
+		sampleID = meta.id
+
 		left_clean = sampleID + "_R1_clean.fastq.gz"
 		right_clean = sampleID + "_R2_clean.fastq.gz"
 		single_clean = sampleID + "_single_clean.fastq.gz"
@@ -62,8 +63,8 @@ process VAMB_MAPPING{
 }
 
 process VAMB_COLLECT_DEPTHS {
-
-    scratch false
+	label 'default'
+    scratch params.scratch
 	//publishDir "${params.outdir}/${sampleID}/vamb", mode: 'copy'
 
 	input:
@@ -74,36 +75,33 @@ process VAMB_COLLECT_DEPTHS {
 	script:
 
 		alldepths = 'all_depths.tsv'
-	"""
-			Rscript ${baseDir}/bin/collectmapping.R $alldepths
-			sed -i "s/[.]var/-var/g" $alldepths
-	"""
+
+		"""
+		Rscript ${baseDir}/bin/collectmapping.R $alldepths
+		sed -i "s/[.]var/-var/g" $alldepths
+		"""
 }
 
 process VAMB {
 
 	label 'vamb'
-	//scratch params.scratch
-    scratch false
+	scratch params.scratch
 	//publishDir "${params.outdir}/${sampleID}/vamb", mode: 'copy'
 
 	input:
         tuple path(catalogue), path(catalogue_index)
-		path(alldepths) //, file(mappingbam), file(mappingbam_index)
-	    //tuple val(sampleID), path(catalogue), path(mappingbam)//, path(mappingbam_index)
-        //tuple val(sampleID), file(fcontigs), file(depthout)
+		path(alldepths)
 
 	output:
-	    //tuple val(sampleID), file("${sampleID}_bin/bins/*.fna"), emit: fna_output
 		path(cluster_table), emit: all_samples_clustertable
 
 	script:
 		cluster_table = 'all_vamb_contigs_to_bin.tsv'
 
-	"""
+		"""
     	vamb --outdir bin --fasta $catalogue --jgi $alldepths -o _k141_ #--bamfiles mappingbam -o C --minfasta 200000
 		mv bin/clusters.tsv $cluster_table
-	"""
+		"""
 }
 
 
@@ -114,14 +112,16 @@ process VAMB_CONTIGS_SELECTION{
 
 	input:
 		path(all_cluster_table)
-		val(sampleID)
+		val(meta)
 	output:
-		tuple val(sampleID), file(persample_clustertable), emit: persample_clustertable
+		tuple val(meta), file(persample_clustertable), emit: persample_clustertable
 
 	script:
+		sampleID = meta.id
+
 		persample_clustertable = sampleID + '_vamb_contigs_to_bin.tsv'
 
-	"""
+		"""
     	grep $sampleID $all_cluster_table > $persample_clustertable
-	"""
+		"""
 }

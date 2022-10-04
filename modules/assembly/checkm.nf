@@ -6,12 +6,13 @@ process checkm {
 	publishDir "${params.outdir}/${sampleID}/checkm", mode: 'copy'
 
 	input: 
-	    tuple val(sampleID), file(fafile)
+	    tuple val(meta), file(fafile)
 
 	output:
 	    file('bins/*')
 
 	shell:
+		sampleID = meta.id
 	    """
 	    checkm lineage_wf -t ${task.cpus} -x fa . ./bins
 	    """

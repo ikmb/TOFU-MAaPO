@@ -30,7 +30,7 @@ include {
     EXTRACT_REFINED_BINS
     } from '../modules/assembly/magscot.nf'
 
-
+include { abundance_persample } from '../modules/assembly/abundance_table.nf'
 /*
  * Genome Assembly pipeline logic
  */
@@ -112,7 +112,7 @@ workflow assembly{
     */
 
             ch_per_sample_contigs_to_bins = VAMB_CONTIGS_SELECTION.out.persample_clustertable.join( contigs_to_bins.out.metabat2_contigs_to_bins ).join( MAXBIN2.out.contigs_to_bin).join( CONCOCT.out.contigs_to_bin )
-                
+                          
             FORMATTING_CONTIG_TO_BIN(   ch_per_sample_contigs_to_bins   )
             MARKER_IDENT(   ch_mapping.join( FORMATTING_CONTIG_TO_BIN.out.formatted_contigs_to_bin))
             MAGSCOT( FORMATTING_CONTIG_TO_BIN.out.formatted_contigs_to_bin.join( MARKER_IDENT.out.hmm_output ).join( filtercontigs.out.magscot_contigs ))
@@ -128,5 +128,12 @@ workflow assembly{
             }
         
             getCountTable(ch_bam)
+    /*
+    * Abundance Table for MAGS
+    */
+            abundance_persample( EXTRACT_REFINED_BINS.out.refined_bins.join( MEGAHIT.out.contigs ) )
         }
+
+
+        
 }

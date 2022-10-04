@@ -10,7 +10,7 @@ process MEGAHIT {
 
 	output:
 		path('output/*'), emit: outputfolder
-		tuple val(sampleID), file(output_final_contigs), path('*_clean.fastq.gz', includeInputs: true), emit: contigs
+		tuple val(meta), file(output_final_contigs), path('*_clean.fastq.gz', includeInputs: true), emit: contigs
 
 	script:
 		sampleID = meta.id

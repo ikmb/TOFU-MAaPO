@@ -361,7 +361,7 @@ dependencies:
   - readline=8.1=h46c0cb4_0
   - requests=2.27.1=pyhd8ed1ab_0
   - rsync=3.2.3=h7593e3f_1
-  - samtools=1.12=h9aed4be_1
+  - samtools=1.16.1=h6899075_0
   - scikit-learn=1.0.2=py37hf9e9bfc_0
   - scipy=1.7.3=py37hf2a6cf1_0
   - seaborn=0.11.2=hd8ed1ab_0

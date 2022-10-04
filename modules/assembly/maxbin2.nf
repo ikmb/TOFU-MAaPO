@@ -7,12 +7,13 @@ process MAXBIN2 {
 	//publishDir "${params.outdir}/${sampleID}/maxbin2", mode: 'copy'
 
 	input:
-	    tuple val(sampleID), file(fcontigs), file(depthout)
+	    tuple val(meta), file(fcontigs), file(depthout)
 	output:
 		//file("*"), emit: all
-		tuple val(sampleID), file(maxbin2_contigs_to_bin), emit: contigs_to_bin
+		tuple val(meta), file(maxbin2_contigs_to_bin), emit: contigs_to_bin
 
 	script:
+		sampleID = meta.id
     	abundance_table = sampleID + '.abu'
     	maxbin2output = 'maxbin2_out/' + sampleID + '.maxbin2'
 		maxbin2_contigs_to_bin = sampleID + '_maxbin2_contigs_to_bin.tsv'

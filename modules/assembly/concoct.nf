@@ -1,19 +1,21 @@
 process CONCOCT {
 
 	label 'concoct'
-	//scratch params.scratch
-    scratch false
+	scratch params.scratch
+    //scratch false
 	tag "$sampleID"
 	//publishDir "${params.outdir}/${sampleID}/concoct", mode: 'copy'
 
 	input:
-	    tuple val(sampleID), file(fcontigs), file(depthout), file(mappingbam)
+	    tuple val(meta), file(fcontigs), file(depthout), file(mappingbam)
 	
     output:
 		//file("*"), emit: all
-		tuple val(sampleID), file(concoct_contigs_to_bin), emit: contigs_to_bin
+		tuple val(meta), file(concoct_contigs_to_bin), emit: contigs_to_bin
 	
     script:
+        sampleID = meta.id
+
         bed_file = sampleID + '.bed'
 	    concoct_contigs_to_bin = sampleID + '_concoct_contigs_to_bin.tsv'
 	"""

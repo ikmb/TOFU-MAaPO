@@ -6,13 +6,14 @@ process CONTIGS_MAPPING{
 	publishDir "${params.outdir}/${sampleID}/Mapping", mode: 'copy'
 
 	input:
-		tuple val(sampleID), file(fcontigs), path(reads)
+		tuple val(meta), file(fcontigs), path(reads)
 
 	output:
-		tuple val(sampleID), file(fcontigs), file(depthout), emit: maps
-		tuple val(sampleID), file(mappingbam), emit: bam
+		tuple val(meta), file(fcontigs), file(depthout), emit: maps
+		tuple val(meta), file(mappingbam), emit: bam
 
 	script:
+		sampleID = meta.id
 		left_clean = sampleID + "_R1_clean.fastq.gz"
 		right_clean = sampleID + "_R2_clean.fastq.gz"
 		single_clean = sampleID + "_single_clean.fastq.gz"
