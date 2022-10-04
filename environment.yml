@@ -13,7 +13,6 @@ dependencies:
   - metaphlan=3.0.14
   - humann=3.0.1
   - concoct=1.1.0
-  - bzip
   - bowtie2
   - fastqc
   - gawk
