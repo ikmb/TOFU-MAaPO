@@ -20,6 +20,7 @@ process METABAT {
 
 process contigs_to_bins {
 
+	label 'default'
 	scratch params.scratch
 	tag "$sampleID"
 	publishDir "${params.outdir}/${sampleID}/Metabat2", mode: 'copy'

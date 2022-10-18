@@ -43,7 +43,7 @@ process MEGAHIT {
 		    rm $fq_left
 		    rm $fq_right
 
-		    gawk '{gsub (/^>k/, "$replacer");print}' output/final.contigs.fa > $output_final_contigs
+		    awk '{gsub (/^>k/, "$replacer");print}' output/final.contigs.fa > $output_final_contigs
 		    """
 		} else {
 		    """	
@@ -56,7 +56,7 @@ process MEGAHIT {
 
 		    rm $fq_single
 
-		    gawk '{gsub (/^>k/, "/$replacer");print}' output/final.contigs.fa > $output_final_contigs
+		    awk '{gsub (/^>k/, "/$replacer");print}' output/final.contigs.fa > $output_final_contigs
 		    """			
 		}
 }

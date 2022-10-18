@@ -85,11 +85,11 @@
 
     //tuple path(genefamilies),path(pathabundance),path(pathcoverage)
     //tuple val(sampleID),file("${sampleID}_genefamilies.tsv"),file("${sampleID}_pathabundance.tsv"),file("${sampleID}_pathcoverage.tsv")
-	process JOINgenefamilies {
+process JOINgenefamilies {
     
     label 'humann'
     publishDir "${params.outdir}/humann", mode: 'copy'
-    scratch true
+    scratch params.scratch
     
     input:
 	path('*')
@@ -103,13 +103,13 @@
         """
             humann_join_tables --input . --output $mergedtable
         """
-  	}
+}
 
-	process JOINpathabundance {
+process JOINpathabundance {
 
     label 'humann'
     publishDir "${params.outdir}/humann", mode: 'copy'
-    scratch true
+    scratch params.scratch
     
 
     input:
@@ -124,9 +124,9 @@
         """
             humann_join_tables --input . --output $mergedtable
         """
-  	}
+}
 
-	process JOINpathcoverage {
+process JOINpathcoverage {
 
     label 'humann'
     publishDir "${params.outdir}/humann", mode: 'copy'
@@ -145,4 +145,4 @@
         """
             humann_join_tables --input . --output $mergedtable
         """
-  	}       
+}       

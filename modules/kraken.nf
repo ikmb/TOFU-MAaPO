@@ -126,7 +126,7 @@ process BRACKEN {
 
 process BRACKENMERGE {
 
-	label 'default'
+	label 'bracken'
 	publishDir "${params.outdir}/Kraken", mode: 'copy'
 
 	input:

@@ -1,19 +1,35 @@
-	process VAMB_CONCATENATE {
-        label 'bowtie2'
+	process VAMB_CATALOGUE {
+        label 'vamb'
 		scratch params.scratch
 
         input:
             path(contigs)
 
         output:
-			tuple path(catalogue), path(catalogue_index), emit: catalogue
+			path(catalogue), emit: catalogue
 
         script:
 			catalogue = "collected_catalogue.fna.gz"
-			catalogue_index = "catalogue.mmi"
 
         	"""
         	concatenate.py $catalogue ${contigs.join(" ")} --keepnames
+        	"""
+    }
+
+	process VAMB_CATALOGUE_INDEX {
+        label 'default'
+		scratch params.scratch
+
+        input:
+            path(catalogue)
+
+        output:
+			tuple path(catalogue), path(catalogue_index), emit: catalogue
+
+        script:
+			catalogue_index = "catalogue.mmi"
+
+        	"""
 			minimap2 -I100G -d $catalogue_index $catalogue -m 2000 # make index
         	"""
     }
@@ -107,6 +123,8 @@ process VAMB {
 
 
 process VAMB_CONTIGS_SELECTION{
+	
+	label 'default'
 	scratch params.scratch
 	tag "$sampleID"
 

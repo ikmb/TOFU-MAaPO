@@ -52,6 +52,8 @@ process abundance_persample{
 
             samtools index bin_coverage/${sampleID}.bam
 
+            rm bin_coverage/${sampleID}.sam
+
 			jgi_summarize_bam_contig_depths bin_coverage/${sampleID}.bam --outputDepth $depthout
 			"""
 		} else {
@@ -73,11 +75,16 @@ process abundance_persample{
             
             samtools sort -@ ${task.cpus} \
                           -o bin_coverage/${sampleID}.bam \
+                          -n \
                           bin_coverage/${sampleID}.sam            
             
             samtools index bin_coverage/${sampleID}.bam
 
+
+            rm bin_coverage/${sampleID}.sam
+            
 			jgi_summarize_bam_contig_depths bin_coverage/${sampleID}.bam --outputDepth $depthout
             """		
 		}
 }
+//rm bin_coverage/${sampleID}.sam

@@ -16,7 +16,8 @@ include { METABAT;
         } from '../modules/assembly/metabat.nf'
 
 include {
-    VAMB_CONCATENATE;
+    VAMB_CATALOGUE;
+    VAMB_CATALOGUE_INDEX;
     VAMB_MAPPING;
     VAMB_COLLECT_DEPTHS;
     VAMB_CONTIGS_SELECTION;
@@ -81,14 +82,17 @@ workflow assembly{
     /*
     * VAMB Workflow
     */
-            VAMB_CONCATENATE(ch_collected_filtered_contigs  )
+            VAMB_CATALOGUE(ch_collected_filtered_contigs  )
+            VAMB_CATALOGUE_INDEX( VAMB_CATALOGUE.out.catalogue )
+
 
             VAMB_MAPPING(       ch_filteredcontigs, 
-                                VAMB_CONCATENATE.out.catalogue,
+                                VAMB_CATALOGUE_INDEX.out.catalogue,
                               )
+            
             VAMB_COLLECT_DEPTHS( VAMB_MAPPING.out.counttable.collect() )
 
-            VAMB(   VAMB_CONCATENATE.out.catalogue,
+            VAMB(   VAMB_CATALOGUE_INDEX.out.catalogue,
                     VAMB_COLLECT_DEPTHS.out.alldepths
                  )
             

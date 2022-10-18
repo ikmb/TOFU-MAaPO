@@ -1,11 +1,11 @@
 process PREPARE_METAPHLAN {
 
 	executor 'local'
-  label 'default'
+  label 'local_run'
 	script:
 
 	"""
-		cd ${params.metaphlan_db}
+		cd ${params.metaphlan4_db}
 		##Dropbox mirror
     #wget https://www.dropbox.com/sh/7qze7m7g9fe2xjg/AAAyoJpOgcjop41VIHAGWIVLa/mpa_latest?dl=1
     #mv mpa_latest?dl=1 mpa_latest
@@ -21,8 +21,8 @@ process METAPHLAN {
 
    label 'metaphlan'
    tag "$sampleID"
-   //scratch true
-   publishDir "${params.outdir}/${sampleID}/Metaphlan3", mode: 'copy'
+   scratch params.scratch
+   publishDir "${params.outdir}/${sampleID}/Metaphlan", mode: 'copy'
 
    input:
    //tuple val(sampleID), file(left_reads), file(right_reads), file(unpaired)
@@ -60,8 +60,8 @@ process METAPHLAN {
         zcat ${unpaired_clean} > $phlan_single
 
         metaphlan $phlan_left,$phlan_right,$phlan_single \
-          --bowtie2db ${params.metaphlan_db} \
-          -x mpa_v30_CHOCOPhlAn_201901 \
+          --bowtie2db ${params.metaphlan4_db} \
+          --index mpa_vJan21_CHOCOPhlAnSGB_202103 \
           --samout $sam_out \
           --bowtie2out $bowtie_out \
           --stat_q 0.2 \
@@ -69,11 +69,12 @@ process METAPHLAN {
           -t rel_ab_w_read_stats \
           --nproc ${task.cpus} \
           -o $metaphlan_out \
-          --input_type fastq
+          --input_type fastq \
+          --offline
       else
         metaphlan $phlan_left,$phlan_right \
-          --bowtie2db ${params.metaphlan_db} \
-          -x mpa_v30_CHOCOPhlAn_201901 \
+          --bowtie2db ${params.metaphlan4_db} \
+          --index mpa_vJan21_CHOCOPhlAnSGB_202103 \
           --samout $sam_out \
           --bowtie2out $bowtie_out \
           --stat_q 0.2 \
@@ -81,7 +82,8 @@ process METAPHLAN {
           -t rel_ab_w_read_stats \
           --nproc ${task.cpus} \
           -o $metaphlan_out \
-          --input_type fastq
+          --input_type fastq \
+          --offline
       fi
       
       rm *.fq
@@ -95,8 +97,8 @@ process METAPHLAN {
       zcat ${unpaired_clean} > $phlan_single
 
       metaphlan $phlan_single \
-        --bowtie2db ${params.metaphlan_db} \
-        -x mpa_v30_CHOCOPhlAn_201901 \
+        --bowtie2db ${params.metaphlan4_db} \
+        --index mpa_vJan21_CHOCOPhlAnSGB_202103 \
         --samout $sam_out \
         --bowtie2out $bowtie_out \
         --stat_q 0.2 \
@@ -104,7 +106,8 @@ process METAPHLAN {
         -t rel_ab_w_read_stats \
         --nproc ${task.cpus} \
         -o $metaphlan_out \
-        --input_type fastq
+        --input_type fastq \
+        --offline
         
       rm *.fq
       samtools view -S -b $sam_out > $bam_out
@@ -112,10 +115,11 @@ process METAPHLAN {
       """
     }
 }
-
+//        #-x mpa_v30_CHOCOPhlAn_201901 \
 process ABUNDANCE_REL_MERGE {
   label 'default'
 	publishDir "${params.outdir}/Metaphlan3", mode: 'copy'
+  scratch params.scratch
 
 	input:
 	  path(results)
@@ -134,6 +138,7 @@ process ABUNDANCE_REL_MERGE {
 process ABUNDANCE_ABS_MERGE {
   label 'default'
 	publishDir "${params.outdir}/Metaphlan3", mode: 'copy'
+  scratch params.scratch
 
 	input:
 	  path(results)
@@ -145,6 +150,6 @@ process ABUNDANCE_ABS_MERGE {
 	  abundances = "metaphlan_abs_abundances.txt"
 
 	  """
-		python3 ${baseDir}/bin/merge_abs_reads.py ${results.join(" ")} > $abundances
+		/opt/conda/envs/ikmb-metagenome-1.2/bin/python3 ${baseDir}/bin/merge_abs_reads.py ${results.join(" ")} > $abundances
 	  """
 }

@@ -8,9 +8,9 @@ dependencies:
   - r=4.0
   - r-tidyverse
   - r-data.table
-  - python=3.8.5
+  - python=3.10
   - metabat2
-  - metaphlan=3.0.14
+  - metaphlan
   - humann=3.0.1
   - concoct=1.1.0
   - bowtie2
