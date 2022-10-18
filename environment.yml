@@ -11,7 +11,7 @@ dependencies:
   - python=3.10
   - metabat2
   - metaphlan
-  - humann=3.0.1
+  - humann
   - concoct=1.1.0
   - bowtie2
   - fastqc
