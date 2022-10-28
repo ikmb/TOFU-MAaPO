@@ -13,6 +13,8 @@ include { assembly } from '../subworkflows/assembly'
 workflow MW {
     main:
 
+        ch_versions = Channel.empty()
+
     //QC, either with host contaminations or without:
         if(!params.no_qc){
 
@@ -46,6 +48,7 @@ workflow MW {
     //metaphlan:
         if(params.metaphlan){
             metaphlan(QCout)
+            //ch_versions = ch_versions.mix(metaphlan.out.versions)
         }
     //humann:
         if(params.humann){

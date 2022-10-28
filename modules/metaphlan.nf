@@ -2,17 +2,22 @@ process PREPARE_METAPHLAN {
 
 	executor 'local'
   label 'local_run'
+  output: 
+    val 'true', emit: readystate
 	script:
 
 	"""
 		cd ${params.metaphlan4_db}
+
+    metaphlan --install --force_download --bowtie2db ${params.metaphlan4_db} --nproc ${task.cpus}
+    wget http://cmprod1.cibio.unitn.it/biobakery4/metaphlan_databases/mpa_latest
 		##Dropbox mirror
     #wget https://www.dropbox.com/sh/7qze7m7g9fe2xjg/AAAyoJpOgcjop41VIHAGWIVLa/mpa_latest?dl=1
     #mv mpa_latest?dl=1 mpa_latest
 
     #Zenodo mirror
-    wget https://zenodo.org/record/3957592/files/mpa_latest?download=1
-		mv mpa_latest?download=1 mpa_latest
+    #wget https://zenodo.org/record/3957592/files/mpa_latest?download=1
+		#mv mpa_latest?download=1 mpa_latest
 	
 	"""
 }
@@ -22,11 +27,13 @@ process METAPHLAN {
    label 'metaphlan'
    tag "$sampleID"
    scratch params.scratch
-   publishDir "${params.outdir}/${sampleID}/Metaphlan", mode: 'copy'
+   //scratch false
+   publishDir "${params.outdir}/${sampleID}/Metaphlan4", mode: 'copy'
 
    input:
    //tuple val(sampleID), file(left_reads), file(right_reads), file(unpaired)
-   tuple val(meta), path(reads)
+    tuple val(meta), path(reads)
+    each ready
 
    output:
     path(metaphlan_out), emit: outputMetaphlan
@@ -35,10 +42,10 @@ process METAPHLAN {
     //path('*'), emit: metaphlanouts
    script:
     sampleID = meta.id
-    metaphlan_out = sampleID + ".out"
-    bowtie_out = sampleID + "_bowtie2.txt"
-    sam_out = sampleID + ".sam"
-    bam_out = sampleID + ".bam"
+    metaphlan_out = sampleID + "_metaphlan.out"
+    bowtie_out = sampleID + "_metaphlan_bowtie2.txt"
+    sam_out = sampleID + "_metaphlan.sam"
+    bam_out = sampleID + "_metaphlan.bam"
 
 		left_clean = sampleID + "_R1_clean.fastq.gz"
 		right_clean = sampleID + "_R2_clean.fastq.gz"
@@ -50,6 +57,9 @@ process METAPHLAN {
 
     if (!params.single_end) {  
       """
+      METAPHLAN_BOWTIE2_DB=${params.metaphlan_db}
+      DEFAULT_DB_FOLDER=${params.metaphlan_db}
+
       metaphlan --version &> v_metaphlan.txt
      
       zcat ${left_clean} > $phlan_left
@@ -60,8 +70,7 @@ process METAPHLAN {
         zcat ${unpaired_clean} > $phlan_single
 
         metaphlan $phlan_left,$phlan_right,$phlan_single \
-          --bowtie2db ${params.metaphlan4_db} \
-          --index mpa_vJan21_CHOCOPhlAnSGB_202103 \
+          --bowtie2db ${params.metaphlan_db} \
           --samout $sam_out \
           --bowtie2out $bowtie_out \
           --stat_q 0.2 \
@@ -71,10 +80,10 @@ process METAPHLAN {
           -o $metaphlan_out \
           --input_type fastq \
           --offline
+
       else
         metaphlan $phlan_left,$phlan_right \
-          --bowtie2db ${params.metaphlan4_db} \
-          --index mpa_vJan21_CHOCOPhlAnSGB_202103 \
+          --bowtie2db ${params.metaphlan_db} \
           --samout $sam_out \
           --bowtie2out $bowtie_out \
           --stat_q 0.2 \
@@ -89,36 +98,40 @@ process METAPHLAN {
       rm *.fq
       samtools view -S -b $sam_out > $bam_out
       rm $sam_out
+
       """
     } else {
       """
+      METAPHLAN_BOWTIE2_DB=${params.metaphlan_db}
+      DEFAULT_DB_FOLDER=${params.metaphlan_db}
+
       metaphlan --version &> v_metaphlan.txt
       
       zcat ${unpaired_clean} > $phlan_single
 
       metaphlan $phlan_single \
-        --bowtie2db ${params.metaphlan4_db} \
-        --index mpa_vJan21_CHOCOPhlAnSGB_202103 \
-        --samout $sam_out \
-        --bowtie2out $bowtie_out \
-        --stat_q 0.2 \
-        --force \
-        -t rel_ab_w_read_stats \
-        --nproc ${task.cpus} \
-        -o $metaphlan_out \
-        --input_type fastq \
-        --offline
-        
+        --bowtie2db ${params.metaphlan_db} \
+          --samout $sam_out \
+          --bowtie2out $bowtie_out \
+          --stat_q 0.2 \
+          --force \
+          -t rel_ab_w_read_stats \
+          --nproc ${task.cpus} \
+          -o $metaphlan_out \
+          --input_type fastq \
+          --offline
+
       rm *.fq
       samtools view -S -b $sam_out > $bam_out
       rm $sam_out
+
       """
     }
 }
-//        #-x mpa_v30_CHOCOPhlAn_201901 \
+
 process ABUNDANCE_REL_MERGE {
   label 'default'
-	publishDir "${params.outdir}/Metaphlan3", mode: 'copy'
+	publishDir "${params.outdir}/Metaphlan4", mode: 'copy'
   scratch params.scratch
 
 	input:
@@ -137,7 +150,7 @@ process ABUNDANCE_REL_MERGE {
 
 process ABUNDANCE_ABS_MERGE {
   label 'default'
-	publishDir "${params.outdir}/Metaphlan3", mode: 'copy'
+	publishDir "${params.outdir}/Metaphlan4", mode: 'copy'
   scratch params.scratch
 
 	input:

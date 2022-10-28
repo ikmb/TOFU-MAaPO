@@ -11,6 +11,7 @@ process GTDBTK {
 
 	output:
 	    file("all.bins.gtdbtk_output/*")
+		tuple val(meta), file("all.bins.gtdbtk_output/gtdbtk.bac120.summary.tsv"), emit: taxonomic_table
 	
 	shell:
 		sampleID = meta.id

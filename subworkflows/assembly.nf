@@ -31,7 +31,7 @@ include {
     EXTRACT_REFINED_BINS
     } from '../modules/assembly/magscot.nf'
 
-include { abundance_persample } from '../modules/assembly/abundance_table.nf'
+include { BINCOVERAGE_PERSAMPLE } from '../modules/assembly/bincoverage_persample.nf'
 /*
  * Genome Assembly pipeline logic
  */
@@ -129,15 +129,16 @@ workflow assembly{
 
             if(!params.skip_gtdbtk){
                 GTDBTK( EXTRACT_REFINED_BINS.out.refined_bins )
+                /*
+                * Abundance Table for MAGS
+                */
+                BINCOVERAGE_PERSAMPLE( CONTIGS_MAPPING.out.sample_depth.join( MAGSCOT.out.contigs_to_bins_table ).join( GTDBTK.out.taxonomic_table ) )
             }
         
             getCountTable(ch_bam)
-    /*
-    * Abundance Table for MAGS
-    */
-            abundance_persample( EXTRACT_REFINED_BINS.out.refined_bins.join( MEGAHIT.out.contigs ) )
+
         }
 
-
+        
         
 }

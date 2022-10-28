@@ -86,7 +86,7 @@ process KRAKENMERGEREPORTS {
 		combine_kreports.py -r ${report.join(" ")} -o $report_combined
 		"""
 }
-// --sample-names ${report.simpleName.join(" ")}
+
 process KRAKENMPAMERGE {
 	label 'default'
 	publishDir "${params.outdir}/Kraken", mode: 'copy'

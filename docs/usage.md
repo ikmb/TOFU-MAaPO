@@ -10,7 +10,7 @@ On Kiel Medcluster, please load the following modules with:
 module load singularity nextflow
 ```
 
-Reference databases for Metaphlan3, Kraken2 and HUMAnN3 are needed. On Kiel Medcluster, these are already set in the respective config file.<br />
+Reference databases for Metaphlan4, Kraken2 and HUMAnN3 (Set also aMetaphlan4 DB for HUMAnN3.6) are needed. On Kiel Medcluster, these are already set in the respective config file.<br />
 Metaphlan DB: `--metaphlan_db`<br />
 HUMAnN DB:    `--humann_db`<br />
 Kraken DB:    `--kraken2_db`<br />
@@ -23,16 +23,19 @@ nextflow run ikmb/metagenomic-workflows --reads '/path/to/fastqfiles/*_R{1,2}_00
 ```
 ## Available modules:
 For analysis following modules are available:<br />
-**--metaphlan** Run Metaphlan3, a tool for profiling the composition of microbial communities<br />
+**--metaphlan** Run Metaphlan4, a tool for profiling the composition of microbial communities<br />
 **--humann** Run HUMAnN3, a tool for profiling the abundance of microbial metabolic pathways and other molecular functions<br />
 **--virus** Run Kraken2, a tool for taxonomic classification tool, with a on Medcluster preconfigured RefSeq virus database.<br />
 **--bracken** Run Bracken (Bayesian Reestimation of Abundance with KrakEN) after Kraken2. Kraken2 DB must be [bracken-ready](https://github.com/jenniferlu717/Bracken#step-0-build-a-kraken-10-or-kraken-20-database)<br />
 
 Experimental:<br />
-**--assembly** Run a genome assembly workflow. Usually needs 250GB of RAM!<br />
+**--assembly** Run a basic genome assembly workflow.<br />
+**--magscot** Run an extended genome assembly workflow with [MAGScoT](https://github.com/ikmb/MAGScoT) Bin Refinement.<br />
+Both Genome Assembly Modules will run GTDB-TK for taxonomical profiling.<br />
+Skip GTDB-TK with `--skip_gtdbtk`<br />
 Reference database for GTDB-TK needs to be set (already set on Kiel Medcluster):<br />
-Skip GTDB-TK `--skip_gtdbtk`<br />
 GTDB-TK Reference: `--gtdbtk_reference`<br />
+
 
 ## QC options:
 **--genome** Set host genome. On the IKMB Medcluster valid options are human, mouse or chimp. In other cases this needs to be pre-configured.<br />
