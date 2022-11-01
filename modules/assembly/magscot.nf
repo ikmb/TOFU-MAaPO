@@ -116,7 +116,8 @@ process EXTRACT_REFINED_BINS {
 	input:
 		tuple val(meta), file(refined_contigs_to_bins), file(fcontigs_filtered)
 	output:
-		tuple val(meta), file("refined_bins"), emit: refined_bins
+		tuple val(meta), file("refined_bins/*"), emit: refined_bins
+		tuple val(meta), file("refined_bins"), emit: refined_bins_folder
 	script:
 		sampleID = meta.id
 	"""

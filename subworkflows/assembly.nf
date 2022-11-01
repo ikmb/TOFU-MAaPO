@@ -128,7 +128,7 @@ workflow assembly{
             checkm( EXTRACT_REFINED_BINS.out.refined_bins )
 
             if(!params.skip_gtdbtk){
-                GTDBTK( EXTRACT_REFINED_BINS.out.refined_bins )
+                GTDBTK( EXTRACT_REFINED_BINS.out.refined_bins_folder )
                 /*
                 * Abundance Table for MAGS
                 */

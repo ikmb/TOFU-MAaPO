@@ -25,11 +25,16 @@ TPMpercontig <- (expected_transcripts_percontig/depths$contigLen)/sum((expected_
 
 contigsTPMtable <- data.table(contigName=depths$contigName, TPMpercontig)
 
+## Solution with mean avg per contig
+#output <- merge(binstaxcontigs, contigsTPMtable, by.x="contig", by.y="contigName") %>% group_by(binnew) %>% summarise(mean_contigs_TPM_per_bin=(mean(TPMpercontig)),taxa=unique(classification)) %>% rename(bin=binnew)
 
-
-output <- merge(binstaxcontigs, contigsTPMtable, by.x="contig", by.y="contigName") %>% group_by(binnew) %>% summarise(mean_contigs_TPM_per_bin=(mean(TPMpercontig)),taxa=unique(classification)) %>% rename(bin=binnew)
+## Solution with weighted by contig_length
+output <- merge(binstaxcontigs, contigsTPMtable, by.x="contig", by.y="contigName") %>% 
+  group_by(binnew) %>% 
+  summarise(weighted_contigs_TPM_per_bin=sum((TPMpercontig*contigLen)/sum(contigLen)),
+            taxa=unique(classification)) %>% 
+  summarise(bin=binnew,
+            taxa=binstotax$classification,
+            scaled_weighted_contigs_TPM_per_bin=weighted_contigs_TPM_per_bin/sum(weighted_contigs_TPM_per_bin)*10^6) 
 
 fwrite(output, file=output_file_name,sep = ",")
-#paste0(sampleID,"_abundance_table.tbl")
-
-#
