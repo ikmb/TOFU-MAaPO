@@ -1,3 +1,19 @@
+    process PREPARE_HUMANN {
+
+	executor 'local'
+    label 'local_run'
+    output: 
+        val 'true', emit: readystate
+	script:
+
+	"""
+	cd ${params.humann_db}
+
+    humann_databases --download uniref uniref90_diamond ${params.humann_db}
+    humann_databases --download chocophlan full ${params.humann_db}
+	"""
+}
+    
 
     process HUMANN {
 
@@ -9,6 +25,8 @@
 
      input:
      tuple val(meta),path(reads)
+     each readymetaphlan
+     each readyhumann
 
      output:
 	 path('*_genefamilies.tsv'), emit: genefamilies
@@ -46,6 +64,9 @@
             cat $phlan_left $phlan_right > $merged
         fi
 
+        METAPHLAN_BOWTIE2_DB=${params.metaphlan_db}
+        DEFAULT_DB_FOLDER=${params.metaphlan_db}
+
     	humann --input $merged \
             --output . \
             --remove-temp-output \
@@ -53,17 +74,19 @@
             --nucleotide-database ${params.humann_db}/chocophlan \
             --protein-database ${params.humann_db}/uniref \
             --metaphlan-options "--bowtie2db ${params.metaphlan_db} \
-            -x mpa_v30_CHOCOPhlAn_201901 \
-            --stat_q 0.2 \
-            --force \
-            -t rel_ab_w_read_stats \
             --nproc ${task.cpus}" \
             --output-basename $sampleID
-        rm *.fq 
+        rm *.fq
         """
+
 	} else {
         """
         zcat ${unpaired_clean} > $phlan_single
+        
+        
+        METAPHLAN_BOWTIE2_DB=${params.metaphlan_db}
+        DEFAULT_DB_FOLDER=${params.metaphlan_db}
+
 
     	humann --input $phlan_single \
             --output . \
@@ -73,23 +96,17 @@
             --nucleotide-database ${params.humann_db}/chocophlan \
             --protein-database ${params.humann_db}/uniref \
             --metaphlan-options "--bowtie2db ${params.metaphlan_db} \
-            -x mpa_v30_CHOCOPhlAn_201901 \
-            --stat_q 0.2 \
-            --force \
-            -t rel_ab_w_read_stats \
             --nproc ${task.cpus}"
         rm *.fq 
         """
     }
 }
 
-    //tuple path(genefamilies),path(pathabundance),path(pathcoverage)
-    //tuple val(sampleID),file("${sampleID}_genefamilies.tsv"),file("${sampleID}_pathabundance.tsv"),file("${sampleID}_pathcoverage.tsv")
-	process JOINgenefamilies {
+process JOINgenefamilies {
     
     label 'humann'
     publishDir "${params.outdir}/humann", mode: 'copy'
-    scratch true
+    scratch params.scratch
     
     input:
 	path('*')
@@ -103,13 +120,13 @@
         """
             humann_join_tables --input . --output $mergedtable
         """
-  	}
+}
 
-	process JOINpathabundance {
+process JOINpathabundance {
 
     label 'humann'
     publishDir "${params.outdir}/humann", mode: 'copy'
-    scratch true
+    scratch params.scratch
     
 
     input:
@@ -124,13 +141,13 @@
         """
             humann_join_tables --input . --output $mergedtable
         """
-  	}
+}
 
-	process JOINpathcoverage {
+process JOINpathcoverage {
 
     label 'humann'
     publishDir "${params.outdir}/humann", mode: 'copy'
-    scratch true
+    scratch params.scratch
     
 
     input:
@@ -145,4 +162,4 @@
         """
             humann_join_tables --input . --output $mergedtable
         """
-  	}       
+}       

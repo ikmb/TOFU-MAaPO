@@ -5,8 +5,6 @@
 include {
   PREPARE_METAPHLAN;
   METAPHLAN;
-  //METAPHLAN_SE;
-  //METAPHLAN_PE;
   ABUNDANCE_REL_MERGE;
   ABUNDANCE_ABS_MERGE
   } from '../modules/metaphlan.nf'
@@ -17,6 +15,7 @@ include {
 workflow metaphlan{
     take: data
     main:
+        ch_versions = Channel.empty()
         /*
         if (params.metaphlan_db) {
             db_path = file("${params.metaphlan_db_test}")
@@ -25,23 +24,19 @@ workflow metaphlan{
         */
         if(params.updatemetaphlan){
             PREPARE_METAPHLAN()
-        }
-        /*
-        if(params.single_end){
-            METAPHLAN_SE(data)
-            ch_metaphout = METAPHLAN_SE.out.outputMetaphlan
+            ch_readymetaphlan = PREPARE_METAPHLAN.out
         }else{
-            METAPHLAN_PE(data)
-            ch_metaphout = METAPHLAN_PE.out.outputMetaphlan
+            ch_readymetaphlan = Channel.of('true')
         }
-        */
-        METAPHLAN(data)
+        METAPHLAN(data, ch_readymetaphlan)
         ch_metaphout = METAPHLAN.out.outputMetaphlan
-
+        ch_versions = ch_versions.mix(METAPHLAN.out.version_metaphlan.first() )
         if(params.metaphlan_analysis_type == "rel_ab_w_read_stats"){
             ABUNDANCE_REL_MERGE(ch_metaphout.collect() )
             ABUNDANCE_ABS_MERGE(ch_metaphout.collect() )
         } else if (params.metaphlan_analysis_type == "rel_ab") {
             ABUNDANCE_REL_MERGE(ch_metaphout.collect() )
         }
+    emit:
+        versions = ch_versions
 }

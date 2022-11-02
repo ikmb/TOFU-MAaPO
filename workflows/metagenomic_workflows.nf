@@ -13,6 +13,8 @@ include { assembly } from '../subworkflows/assembly'
 workflow MW {
     main:
 
+        ch_versions = Channel.empty()
+
     //QC, either with host contaminations or without:
         if(!params.no_qc){
 
@@ -38,7 +40,7 @@ workflow MW {
             input_check_qced()
             QCout = input_check_qced.out.reads
         }
-//        Channel.empty().join(QC_rmHost.out.qcedreads).view()
+        
     //kraken:
         if(params.virus || params.kraken || params.bracken){
             kraken(QCout)
@@ -46,13 +48,14 @@ workflow MW {
     //metaphlan:
         if(params.metaphlan){
             metaphlan(QCout)
+            //ch_versions = ch_versions.mix(metaphlan.out.versions)
         }
     //humann:
         if(params.humann){
             humann(QCout)
         }
     //genome assembly:
-        if(params.assembly){
+        if( params.assembly || params.magscot ){
             assembly(QCout)
         }
 

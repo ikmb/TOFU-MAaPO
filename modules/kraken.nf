@@ -41,103 +41,104 @@ script:
 }
 
 process KRAKEN2MPA {
+	label 'default'
+	input:
+		file(report)
 
-input:
-	file(report)
+	output:
+		path("${report.simpleName}.kraken_mpa.txt"), emit: krakenmpa
 
-output:
-	path("${report.simpleName}.kraken_mpa.txt"), emit: krakenmpa
-
-script:
-	"""
-	kreport2mpa.py -r $report -o ${report.simpleName}.kraken_mpa.txt --percentages --display-header
-	"""
+	script:
+		"""
+		kreport2mpa.py -r $report -o ${report.simpleName}.kraken_mpa.txt --percentages --display-header
+		"""
 }
 
 process KRAKEN2YAML {
+	label 'default'
+	input:
+		path(reports)
 
-input:
-	path(reports)
+	output:
+		file(report_yaml)
 
-output:
-	file(report_yaml)
-
-script:
-	report_yaml = "kraken_report_mqc.yaml"
-	"""	
-	kraken2yaml.pl --outfile $report_yaml
-	"""
+	script:
+		report_yaml = "kraken_report_mqc.yaml"
+		"""	
+		kraken2yaml.pl --outfile $report_yaml
+		"""
 }
 
 process KRAKENMERGEREPORTS {
-	
-publishDir "${params.outdir}/Kraken", mode: 'copy'
+	label 'default'
+	publishDir "${params.outdir}/Kraken", mode: 'copy'
 
-input:
-	path(report)
+	input:
+		path(report)
 
-output:
-	file(report_combined)
+	output:
+		file(report_combined)
 
-script:
+	script:
 
-	report_combined = "kraken_report_combined.txt"
-	"""	
-	combine_kreports.py -r ${report.join(" ")} -o $report_combined
-	"""
+		report_combined = "kraken_report_combined.txt"
+		"""	
+		combine_kreports.py -r ${report.join(" ")} -o $report_combined
+		"""
 }
-// --sample-names ${report.simpleName.join(" ")}
+
 process KRAKENMPAMERGE {
+	label 'default'
+	publishDir "${params.outdir}/Kraken", mode: 'copy'
 
-publishDir "${params.outdir}/Kraken", mode: 'copy'
+	input:
+		path(mpaoutput)
 
-input:
-	path(mpaoutput)
+	output:
+		file(abundances)
 
-output:
-	file(abundances)
+	script:
+		abundances = "kraken2_mpa_abundances.txt"
 
-script:
-	abundances = "kraken2_mpa_abundances.txt"
-
-	"""
+		"""
 		combine_mpa.py -i ${mpaoutput.join(" ")} -o $abundances 
-	"""
+		"""
 }
 
 process BRACKEN {
 
-tag "$sampleID"
-label 'bracken'
-publishDir "${params.outdir}/${sampleID}/Kraken/", mode: 'copy'
+	tag "$sampleID"
+	label 'bracken'
+	publishDir "${params.outdir}/${sampleID}/Kraken/", mode: 'copy'
 
-input:
-	tuple val(sampleID), file(report)
+	input:
+		tuple val(sampleID), file(report)
 
-output:
-	file(bracken_output)
+	output:
+		file(bracken_output)
 
-script:
-	bracken_output = sampleID + ".bracken"
-	"""
+	script:
+		bracken_output = sampleID + ".bracken"
+		"""
 		bracken -d ${params.kraken2_db} -i ${report} -o ${bracken_output} -r ${params.bracken_length} -l ${params.bracken_level} -t ${params.bracken_threshold}
-	"""
+		"""
 }
 
 process BRACKENMERGE {
 
-publishDir "${params.outdir}/Kraken", mode: 'copy'
+	label 'bracken'
+	publishDir "${params.outdir}/Kraken", mode: 'copy'
 
-input:
-	path(bracken_output)
+	input:
+		path(bracken_output)
 
-output:
-	file(bracken_merged)
+	output:
+		file(bracken_merged)
 
-script:
+	script:
 	
 	bracken_merged = "bracken_merged.txt"
 	"""
-		combine_bracken_outputs.py --files ${bracken_output.join(" ")} -o $bracken_merged 
+	combine_bracken_outputs.py --files ${bracken_output.join(" ")} -o $bracken_merged 
 	"""
 }
