@@ -76,24 +76,16 @@
             --metaphlan-options "--bowtie2db ${params.metaphlan_db} \
             --nproc ${task.cpus}" \
             --output-basename $sampleID
-        rm *.fq 
+        rm *.fq
         """
-        //            -x mpa_v30_CHOCOPhlAn_201901 \
-        //            -t rel_ab_w_read_stats \
-            //--mpa3 \
 
-    /*
-            --index mpa_v31_CHOCOPhlAn_201901 \
-            --stat_q 0.2 \
-            --force \
-*/
 	} else {
         """
         zcat ${unpaired_clean} > $phlan_single
         
         
-        METAPHLAN_BOWTIE2_DB=${params.metaphlan_db}/
-        DEFAULT_DB_FOLDER=${params.metaphlan_db}/
+        METAPHLAN_BOWTIE2_DB=${params.metaphlan_db}
+        DEFAULT_DB_FOLDER=${params.metaphlan_db}
 
 
     	humann --input $phlan_single \
@@ -103,11 +95,7 @@
             --threads ${task.cpus} \
             --nucleotide-database ${params.humann_db}/chocophlan \
             --protein-database ${params.humann_db}/uniref \
-            --metaphlan-options "--bowtie2db ${params.metaphlan_db}/ \
-            --index mpa_v31_CHOCOPhlAn_201901 \
-            --stat_q 0.2 \
-            --force \
-            -t rel_ab_w_read_stats \
+            --metaphlan-options "--bowtie2db ${params.metaphlan_db} \
             --nproc ${task.cpus}"
         rm *.fq 
         """
