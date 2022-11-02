@@ -11,13 +11,16 @@ extra_fn_clean_exts:
   - "_L002"
   - ".R1"
   - ".R2"
+  - "_raw"
+  - "_L003"
+  - "_L004"
 
 report_comment: >
     This report has been generated automatically by the IKMB Metagenomic workflows pipeline.
 
 report_header_info:
     - Contact E-mail: "e.wacker@ikmb.uni-kiel.de"
-    - Application Type: "Metagenomic workflows"
+    - Application Type: "Nextflow Pipeline IKMB/metagenomic-workflows"
 
 top_modules:
 - 'fastqc':

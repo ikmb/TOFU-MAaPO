@@ -5,6 +5,7 @@
 
 process COLLECTOR_PE {
 
+	label 'default'
 	scratch params.scratch
 
 	if(params.cleanreads){
@@ -32,6 +33,7 @@ process COLLECTOR_PE {
 
 process COLLECTOR_SE {
 
+	label 'default'
 	scratch params.scratch
 
 	if(params.cleanreads){

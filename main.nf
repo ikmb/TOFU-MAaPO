@@ -24,6 +24,8 @@ if(params.kraken){
 log.info "Kraken DB:      : ${params.kraken2_db}"}
 if(params.humann){
 log.info "HUMAnN DB:      : ${params.humann_db}"}
+if(params.humann){
+log.info "MPA for HUMAnN  : ${params.metaphlan_db}"}
 if(params.metaphlan){
 log.info "Metaphlan DB:   : ${params.metaphlan_db}"}
 if(params.assembly){
@@ -61,7 +63,8 @@ def helpMessage() {
                 --kraken2_db    Set directory of virus/kraken2 database (not needed for medcluster)
 
   Experimental:
-  --assembly    Run Genome Assembly with Megahit, Metabat and GTDBTK
+  --assembly    Run a basic Genome Assembly with Megahit, Metabat and GTDBTK
+  --magscot     Run an extended Genome Assembly with 4 binners and MAGScoT for Bin refinement
 
   Optonal arguments:
   --genome		Remove host contaminations. Use a pre-configured genome sequence by its common name (on medcluster: human, mouse or chimp)
