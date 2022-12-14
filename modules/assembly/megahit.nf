@@ -1,9 +1,8 @@
 process MEGAHIT {
-
-	publishDir "${params.outdir}/${sampleID}/Megahit", mode: 'copy'
 	scratch params.scratch
 	label 'megahit'
 	tag "$sampleID"
+	publishDir {"${params.outdir}/Megahit"}, mode: 'copy', pattern: '*_final.contigs.fa', enabled: params.publish_megahit
 
 	input:
 		tuple val(meta), path(reads)
@@ -36,27 +35,30 @@ process MEGAHIT {
 				-2 $fq_right \
 				-r $fq_single \
 				-o output \
-				-m 0.95 \
+				-m ${task.memory.toBytes()} \
 				-t ${task.cpus}	
 
 		    rm $fq_single
 		    rm $fq_left
 		    rm $fq_right
 
-		    awk '{gsub (/^>k/, "$replacer");print}' output/final.contigs.fa > $output_final_contigs
+		    awk '{gsub (/^>k/, "$replacer");print}' output/final.contigs.fa | awk '{OFS=""} {gsub(/_k[0-9]+_/, "_${params.contig_sep}_");print}' > $output_final_contigs
 		    """
 		} else {
 		    """	
 		    zcat $unpaired_clean > $fq_single
 
 		    megahit	-r $fq_single \
-				-m 0.95 \
 				-o output \
+				-m ${task.memory.toBytes()} \
 				-t ${task.cpus}	
 
 		    rm $fq_single
 
-		    awk '{gsub (/^>k/, "/$replacer");print}' output/final.contigs.fa > $output_final_contigs
+		    #awk '{gsub (/^>k/, "/$replacer");print}' output/final.contigs.fa > $output_final_contigs
+			awk '{gsub (/^>k/, "$replacer");print}' output/final.contigs.fa | awk '{OFS=""} {gsub(/_k[0-9]+_/, "_${params.contig_sep}_");print}' > $output_final_contigs
+		    
 		    """			
 		}
 }
+//-m 0.95 \

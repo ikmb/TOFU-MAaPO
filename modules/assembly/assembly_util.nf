@@ -4,8 +4,8 @@ process getCountTable {
 	publishDir "${params.outdir}/${sampleID}/counttable", mode: 'copy'
 
 	input:
-		tuple val(meta), file(finalbam)
-
+		tuple val(meta), file(finalbam), file(mappingbam_index)
+	
 	output:
 		file("*.txt")
 

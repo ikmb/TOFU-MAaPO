@@ -23,7 +23,7 @@ expected_transcripts_percontig <- (depths$contigLen*depths$totalAvgDepth)/expect
 
 TPMpercontig <- (expected_transcripts_percontig/depths$contigLen)/sum((expected_transcripts_percontig/depths$contigLen))*10^6
 
-contigsTPMtable <- data.table(contigName=depths$contigName, TPMpercontig)
+contigsTPMtable <- data.table(contigName=depths$contigName, TPMpercontig, contigLen=depths$contigLen)
 
 ## Solution with mean avg per contig
 #output <- merge(binstaxcontigs, contigsTPMtable, by.x="contig", by.y="contigName") %>% group_by(binnew) %>% summarise(mean_contigs_TPM_per_bin=(mean(TPMpercontig)),taxa=unique(classification)) %>% rename(bin=binnew)

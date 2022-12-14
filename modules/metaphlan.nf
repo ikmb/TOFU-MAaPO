@@ -27,11 +27,10 @@ process METAPHLAN {
    label 'metaphlan'
    tag "$sampleID"
    scratch params.scratch
-   //scratch false
-   publishDir "${params.outdir}/${sampleID}/Metaphlan4", mode: 'copy'
+   //TODO: remove bam from output
+   //publishDir "${params.outdir}/${sampleID}/Metaphlan4", mode: 'copy'
 
    input:
-   //tuple val(sampleID), file(left_reads), file(right_reads), file(unpaired)
     tuple val(meta), path(reads)
     each ready
 
@@ -39,7 +38,6 @@ process METAPHLAN {
     path(metaphlan_out), emit: outputMetaphlan
     tuple val(sampleID), file(bam_out), emit: outputMetaphlanBowtie
     tuple val(sampleID), file('v_metaphlan.txt'), emit: version_metaphlan
-    //path('*'), emit: metaphlanouts
    script:
     sampleID = meta.id
     metaphlan_out = sampleID + "_metaphlan.out"
@@ -144,7 +142,8 @@ process ABUNDANCE_REL_MERGE {
 	  abundances = "metaphlan_rel_abundances.txt"
 
 	  """
-		merge_metaphlan_tables.py ${results.join(" ")} > $abundances
+    /opt/conda/envs/ikmb-metagenome-1.2/bin/python3 ${baseDir}/bin/merge_rel_reads.py ${results.join(" ")} > $abundances
+		#merge_metaphlan_tables.py ${results.join(" ")} > $abundances
 	  """
 }
 

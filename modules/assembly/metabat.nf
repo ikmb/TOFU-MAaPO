@@ -3,7 +3,7 @@ process METABAT {
     label 'metabat2'
     scratch params.scratch
     tag "$sampleID"
-    publishDir "${params.outdir}/${sampleID}/Metabat2", mode: 'copy'
+    publishDir "${params.outdir}/${sampleID}/Metabat2", mode: 'copy', enabled: params.publish_rawbins
 
     input: 
         tuple val(meta), file(fcontigs), file(depthout)
@@ -23,7 +23,7 @@ process contigs_to_bins {
 	label 'default'
 	scratch params.scratch
 	tag "$sampleID"
-	publishDir "${params.outdir}/${sampleID}/Metabat2", mode: 'copy'
+	publishDir {"${params.outdir}/${sampleID}/Metabat2"}, mode: 'copy', enabled: params.publish_rawbins as boolean
 	
 	input: 
 		tuple val(meta), file(fafile)
@@ -31,9 +31,9 @@ process contigs_to_bins {
 	output:
 		tuple val(meta), file("${sampleID}_metabat2_contigs_to_bins.tsv"), emit: metabat2_contigs_to_bins
 
-	shell:
+	script:
 		sampleID = meta.id
     	"""
-		grep '>' !{fafile} | tr '>' '\t' | tr -d ':' > !{sampleID}_metabat2_contigs_to_bins.tsv
+		grep '>' ${fafile} | tr '>' '\t' | tr -d ':' > ${sampleID}_metabat2_contigs_to_bins.tsv
     	"""
 }
