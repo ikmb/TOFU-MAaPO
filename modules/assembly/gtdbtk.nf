@@ -2,7 +2,6 @@ process GTDBTK {
 
 	label 'gtdbtk'
 	scratch params.scratch
-	//scratch false
 	tag "$sampleID"
 	publishDir "${params.outdir}/${sampleID}/gtdbtk", mode: 'copy'
 

@@ -1,15 +1,13 @@
 process MAXBIN2 {
 
 	label 'maxbin2'
-	//scratch params.scratch
-    scratch false
+	scratch params.scratch
 	tag "$sampleID"
-	//publishDir "${params.outdir}/${sampleID}/maxbin2", mode: 'copy'
-
+	publishDir "${params.outdir}/${sampleID}/maxbin2", mode: 'copy', enabled: params.publish_rawbins
+	
 	input:
 	    tuple val(meta), file(fcontigs), file(depthout)
 	output:
-		//file("*"), emit: all
 		tuple val(meta), file(maxbin2_contigs_to_bin), emit: contigs_to_bin
 
 	script:

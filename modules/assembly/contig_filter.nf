@@ -1,6 +1,7 @@
 process filtercontigs {
 	scratch params.scratch
 	tag "$sampleID"
+	label 'default'
 
 	input:
     	tuple val(meta), file(finalcontigs), path(reads)
@@ -17,6 +18,6 @@ process filtercontigs {
 		fcontigs_filtered = sampleID + '_fcontigsfiltered.fa'
 
 		"""
-		python3 ${baseDir}/bin/contigfilterbylen.py ${params.contigsminlength} $finalcontigs > $fcontigs_filtered
+		/opt/conda/envs/ikmb-metagenome-1.2/bin/python3 ${baseDir}/bin/contigfilterbylen.py ${params.contigsminlength} $finalcontigs > $fcontigs_filtered
 		"""
 }

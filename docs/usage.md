@@ -35,7 +35,8 @@ Both Genome Assembly Modules will run GTDB-TK for taxonomical profiling.<br />
 Skip GTDB-TK with `--skip_gtdbtk`<br />
 Reference database for GTDB-TK needs to be set (already set on Kiel Medcluster):<br />
 GTDB-TK Reference: `--gtdbtk_reference`<br />
-
+Publish results of megahit with `--publish_megahit`.<br />
+Publish the individual results of all binning tools in the extended genome assembly workflow with `--publish_rawbins`.<br />
 
 ## QC options:
 `--genome` Set host genome. On the IKMB Medcluster valid options are human, mouse or chimp. In other cases this needs to be pre-configured.<br />
@@ -50,6 +51,7 @@ GTDB-TK Reference: `--gtdbtk_reference`<br />
 `-work-dir` Set a custom work directory, default is "work"<br />
 `--updatemetaphlan` Update metaphlan databases. Local executor must have access to the internet.<br />
 `--updatehumann` Update humann databases. Local executor must have access to the internet.<br />
+
 ### Bracken options and their default:
 `--bracken_length` = 100<br />
 `--bracken_level` = "S"<br />

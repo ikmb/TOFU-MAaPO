@@ -2,15 +2,13 @@ process CONCOCT {
 
 	label 'concoct'
 	scratch params.scratch
-    //scratch false
 	tag "$sampleID"
-	//publishDir "${params.outdir}/${sampleID}/concoct", mode: 'copy'
+	publishDir {"${params.outdir}/${sampleID}/concoct"}, mode: 'copy', enabled: params.publish_rawbins
 
 	input:
-	    tuple val(meta), file(fcontigs), file(depthout), file(mappingbam)
+	    tuple val(meta), file(fcontigs), file(depthout), file(mappingbam), file(mappingbam_index)
 	
     output:
-		//file("*"), emit: all
 		tuple val(meta), file(concoct_contigs_to_bin), emit: contigs_to_bin
 	
     script:

@@ -1,9 +1,7 @@
 process FORMATTING_CONTIG_TO_BIN {
 	label 'default'
 	scratch params.scratch
-    //scratch false
 	tag "$sampleID"
-	//publishDir "${params.outdir}/${sampleID}/vamb", mode: 'copy'
 
 	input:
         tuple val(meta), file(vamb_cluster_table), file(metabat2_cluster_table), file(maxbin2_cluster_table), file(concoct_cluster_table)
@@ -27,14 +25,12 @@ process MARKER_IDENT {
 
 	label 'magscot'
 	scratch params.scratch
-    //scratch false
 	tag "$sampleID"
-	//publishDir "${params.outdir}/${sampleID}/magscot", mode: 'copy'
+	publishDir "${params.outdir}/magscot/${sampleID}", mode: 'copy'
 
 	input:
 		tuple val(meta), file(fcontigs), file(depthout), file(formatted_contigs_to_bin)
 	output:
-		//tuple val(sampleID), file(formatted_contigs_to_bin), emit: formatted_contigs_to_bin
 		tuple val(meta), file(samplehmm), emit: hmm_output
 	script:
 		sampleID = meta.id
@@ -86,15 +82,13 @@ process MAGSCOT {
 
 	label 'magscot'
 	scratch params.scratch
-    //scratch false
 	tag "$sampleID"
-	publishDir "${params.outdir}/${sampleID}/magscot", mode: 'copy'
+	publishDir "${params.outdir}/magscot/${sampleID}", mode: 'copy'
 
 	input:
 		tuple val(meta), file(formatted_contigs_to_bin), file(samplehmm), file(fcontigs_filtered)
 	output:
-		//tuple val(sampleID), file(formatted_contigs_to_bin), emit: formatted_contigs_to_bin
-		file("*")
+		//file("*"), emit: all_files
 		tuple val(meta), file(refined_contigs_to_bins), file(fcontigs_filtered), emit: refined_contigs_to_bins
 		tuple val(meta), file(refined_contigs_to_bins), emit: contigs_to_bins_table
 	script:
@@ -109,9 +103,8 @@ process MAGSCOT {
 process EXTRACT_REFINED_BINS {
 	label 'default'
 	scratch params.scratch
-    //scratch false
 	tag "$sampleID"
-	publishDir "${params.outdir}/${sampleID}/magscot", mode: 'copy'
+	publishDir "${params.outdir}/magscot/${sampleID}", mode: 'copy'
 
 	input:
 		tuple val(meta), file(refined_contigs_to_bins), file(fcontigs_filtered)
