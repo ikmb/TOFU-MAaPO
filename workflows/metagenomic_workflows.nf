@@ -10,6 +10,7 @@ include { assembly } from '../subworkflows/assembly'
 /* 
  * Main pipeline logic
  */
+
 workflow MW {
     main:
 
@@ -74,4 +75,5 @@ workflow MW {
                 ) 
             }
         }
+
 }

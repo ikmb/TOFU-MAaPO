@@ -3,16 +3,16 @@
 		scratch params.scratch
 
         input:
-            path(contigs)
+            tuple val(vamb_key), val(contigs)
 
         output:
-			path(catalogue), emit: catalogue
+			tuple val(vamb_key), path(catalogue), emit: catalogue
 
         script:
-			catalogue = "collected_catalogue.fna.gz"
+			catalogue = vamb_key + "_collected_catalogue.fna.gz"
 
         	"""
-        	concatenate.py $catalogue ${contigs.join(" ")} --keepnames
+        	concatenate.py $catalogue ${contigs} --keepnames
         	"""
     }
 
@@ -21,11 +21,11 @@
 		scratch params.scratch
 
         input:
-            path(catalogue)
+            tuple val(vamb_key), path(catalogue)
 
         output:
-			tuple path(catalogue), path(catalogue_index), emit: catalogue
-
+			tuple  path(catalogue),val(vamb_key), path(catalogue_index), emit: catalogue
+			tuple  val(vamb_key), path(catalogue), path(catalogue_index), emit: catalogue_indexfirst
         shell:
 			catalogue_index = "catalogue.mmi"
 
@@ -34,7 +34,7 @@
 			# make index #uses default 3 threads
         	"""
     }
-//-I100G
+
 process VAMB_MAPPING{
 
 	label 'bowtie2'
@@ -43,15 +43,16 @@ process VAMB_MAPPING{
 	//publishDir "${params.outdir}/${sampleID}/Mapping", mode: 'copy'
 
 	input:
-		tuple val(meta), file(fcontigs), path(reads)
-		tuple path(catalogue), path(catalogue_index)
+		tuple val(vamb_key), val(meta), file(fcontigs), path(reads), path(catalogue), path(catalogue_index)
+		 
 
 	output:
-		path(depthout), emit: counttable 
+		tuple val(vamb_key), path(depthout), emit: counttable 
 
 		val(meta), emit: sampleid
 		tuple val(meta), file(fcontigs), file(depthout), emit: maps
 		tuple val(meta), file(mappingbam), file(mappingbam_index), emit: bam
+		path("error.log"),    optional: true, emit: errorlog
 
 	script:
 		sampleID = meta.id
@@ -89,13 +90,13 @@ process VAMB_COLLECT_DEPTHS {
 	//publishDir "${params.outdir}/${sampleID}/vamb", mode: 'copy'
 
 	input:
-		path(depthout)
+		tuple val(vamb_key), path(depthout)
 
 	output:
-		path(alldepths), emit: alldepths
+		tuple val(vamb_key), path(alldepths), emit: alldepths
 	script:
 
-		alldepths = 'all_depths.tsv'
+		alldepths = vamb_key + '_all_depths.tsv'
 
 		"""
 		Rscript ${baseDir}/bin/collectmapping.R $alldepths
@@ -107,13 +108,14 @@ process VAMB {
 
 	label 'vamb'
 	scratch params.scratch
+	tag "$vamb_key"
 
 	input:
-        tuple path(catalogue), path(catalogue_index)
-		path(alldepths)
+        tuple val(vamb_key), path(catalogue), path(catalogue_index), path(alldepths)
+
 
 	output:
-		path(cluster_table), emit: all_samples_clustertable
+		tuple val(vamb_key), path(cluster_table), emit: all_samples_clustertable
 
 	script:
 		cluster_table = 'all_vamb_contigs_to_bin.tsv'
@@ -124,8 +126,6 @@ process VAMB {
 		"""
 }
 
-//#_k141_ #--bamfiles mappingbam -o C --minfasta 200000
-
 process VAMB_CONTIGS_SELECTION{
 	
 	label 'default'
@@ -134,8 +134,8 @@ process VAMB_CONTIGS_SELECTION{
 	publishDir "${params.outdir}/${sampleID}/vamb", mode: 'copy', enabled: params.publish_rawbins
 	
 	input:
-		path(all_cluster_table)
-		val(meta)
+		tuple val(vamb_key),val(meta), path(all_cluster_table)
+		
 	output:
 		tuple val(meta), file(persample_clustertable), emit: persample_clustertable
 
@@ -147,4 +147,27 @@ process VAMB_CONTIGS_SELECTION{
 		"""
     	grep $sampleID $all_cluster_table > $persample_clustertable
 		"""
+}
+
+process group_vamb {
+	
+	label 'default'
+	scratch params.scratch
+
+    input:
+    	path(reads_table)
+    output:
+    	path("meta_contigkey.csv"), emit: sample_vambkey
+    	path("contigs_perkey.csv"), emit: contigs_perkey
+    	path("temp2_csv.csv"), emit: overview_csv
+    script:
+    """
+    awk '{print int((NR-1)/${params.vamb_groupsize}) "," \$0}' ${reads_table} | sed 's/\\]//' | sed 's/\\[//' > temp2_csv.csv
+
+    #meta and contig-key:
+    awk -F, '{print \$2","\$3","\$1}' temp2_csv.csv > meta_contigkey.csv
+
+    awk -F, '{OFS=","; a[\$1]=a[\$1]" "\$4} END {for (i in a) print i a[i]}' temp2_csv.csv | sed 's/ /,/' > contigs_perkey.csv
+    
+	"""
 }

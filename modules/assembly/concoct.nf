@@ -1,6 +1,7 @@
 process CONCOCT {
 
 	label 'concoct'
+    cache 'lenient'
 	scratch params.scratch
 	tag "$sampleID"
 	publishDir {"${params.outdir}/${sampleID}/concoct"}, mode: 'copy', enabled: params.publish_rawbins

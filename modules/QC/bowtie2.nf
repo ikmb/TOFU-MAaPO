@@ -1,6 +1,6 @@
 process FILTERREADS_SE {
 
-	label 'bowtie2'
+	label 'bowtie2qc'
 	scratch params.scratch
 
 	if(params.cleanreads){
@@ -38,7 +38,7 @@ process FILTERREADS_SE {
 
 process FILTERREADS_PE {
 
-	label 'bowtie2'
+	label 'bowtie2qc'
 	scratch params.scratch
 
 	if(params.cleanreads){

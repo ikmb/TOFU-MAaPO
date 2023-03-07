@@ -20,6 +20,7 @@
     label 'humann'
     tag "$sampleID"
     scratch params.scratch
+    errorStrategy { (task.exitStatus in [143,137,104,134,139,1] && task.attempt <= maxRetries)  ? 'retry' : 'ignore' }
     //scratch true
     //publishDir "${params.outdir}/${sampleID}/humann", mode: 'copy'
 
@@ -29,10 +30,10 @@
      each readyhumann
 
      output:
-	 path('*_genefamilies.tsv'), emit: genefamilies
-     path('*_pathabundance.tsv'), emit: pathabundance
-     path('*_pathcoverage.tsv'), emit: pathcoverage
-     path('*'), emit: humannouts
+	 path('*_genefamilies.tsv'),    optional: true, emit: genefamilies
+     path('*_pathabundance.tsv'),   optional: true, emit: pathabundance
+     path('*_pathcoverage.tsv'),    optional: true, emit: pathcoverage
+     path('*'),                     optional: true, emit: humannouts
 
      script:
      sampleID = meta.id
