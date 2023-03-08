@@ -3,7 +3,7 @@ process checkm {
 	label 'checkm'
 	scratch params.scratch
 	tag "$sampleID"
-	publishDir "${params.outdir}/${sampleID}/checkm", mode: 'copy'
+	publishDir "${params.outdir}/checkm/${sampleID}", mode: 'copy'
 
 	input: 
 	    tuple val(meta), file(fafile)

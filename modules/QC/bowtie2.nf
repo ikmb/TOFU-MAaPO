@@ -4,7 +4,7 @@ process FILTERREADS_SE {
 	scratch params.scratch
 
 	if(params.cleanreads){
-		publishDir "${params.outdir}/qced_files", mode: 'copy'
+		publishDir "${params.outdir}/qced_fastq", mode: 'copy'
 	}
 
 	input:
