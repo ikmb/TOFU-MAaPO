@@ -131,7 +131,7 @@ process VAMB_CONTIGS_SELECTION{
 	label 'default'
 	scratch params.scratch
 	tag "$sampleID"
-	publishDir "${params.outdir}/${sampleID}/vamb", mode: 'copy', enabled: params.publish_rawbins
+	publishDir "${params.outdir}/vamb/${sampleID}", mode: 'copy', enabled: params.publish_rawbins
 	
 	input:
 		tuple val(vamb_key),val(meta), path(all_cluster_table)

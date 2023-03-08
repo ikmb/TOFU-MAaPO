@@ -4,7 +4,7 @@ process CONCOCT {
     cache 'lenient'
 	scratch params.scratch
 	tag "$sampleID"
-	publishDir {"${params.outdir}/${sampleID}/concoct"}, mode: 'copy', enabled: params.publish_rawbins
+	publishDir {"${params.outdir}/concoct/${sampleID}"}, mode: 'copy', enabled: params.publish_rawbins
 
 	input:
 	    tuple val(meta), file(fcontigs), file(depthout), file(mappingbam), file(mappingbam_index)

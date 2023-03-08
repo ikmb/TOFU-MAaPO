@@ -3,7 +3,7 @@ process METABAT {
     label 'metabat2'
     scratch params.scratch
     tag "$sampleID"
-    publishDir "${params.outdir}/${sampleID}/Metabat2", mode: 'copy', enabled: params.publish_rawbins
+    publishDir "${params.outdir}/Metabat2/${sampleID}", mode: 'copy', enabled: params.publish_rawbins
 
     input: 
         tuple val(meta), file(fcontigs), file(depthout)
@@ -23,7 +23,7 @@ process contigs_to_bins {
 	label 'default'
 	scratch params.scratch
 	tag "$sampleID"
-	publishDir {"${params.outdir}/${sampleID}/Metabat2"}, mode: 'copy', enabled: params.publish_rawbins as boolean
+	publishDir {"${params.outdir}/Metabat2/${sampleID}"}, mode: 'copy', enabled: params.publish_rawbins as boolean
 	
 	input: 
 		tuple val(meta), file(fafile)
