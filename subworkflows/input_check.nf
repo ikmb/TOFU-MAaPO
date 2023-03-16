@@ -77,7 +77,7 @@ workflow input_check_qced {
                 .set { reads }
         } else {
             Channel
-                .fromFilePairs(params.reads, size: params.single_end ? 1 : 3)
+                .fromFilePairs(params.reads, size: params.single_end ? 1 : 2)
                 .ifEmpty { exit 1, "Cannot find any matching reads in ${params.reads}\nPaths must be in enclosed quotes"}
                 .map { row ->
                         def meta = [:]
