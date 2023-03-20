@@ -54,9 +54,6 @@ workflow assembly{
             
             ch_filteredcontigs = filtercontigs.out.contigs
 
-            //CONTIGS_MAPPING(ch_filteredcontigs)
-
-
             MINIMAP2_CATALOGUE(ch_collected_filtered_contigs  )
             MINIMAP2_CATALOGUE_INDEX( MINIMAP2_CATALOGUE.out.catalogue )
 
@@ -86,9 +83,6 @@ workflow assembly{
             FILTERCONTIGS(MEGAHIT.out.contigs)
             
             ch_filteredcontigs = FILTERCONTIGS.out.contigs
-
-            //TODO: Create batches of e.g. 100 samples for vamb; needs same samples in catalogue creation and VAMB_COLLECT_DEPTHS
-            //ch_collected_filtered_contigs = FILTERCONTIGS.out.filteredcontig.collect().flatten().buffer( size: 100, remainder: true )
 
             ch_collected_filtered_contigs = FILTERCONTIGS.out.filteredcontig.collect()
 
@@ -138,7 +132,6 @@ workflow assembly{
                 .splitCsv ( header:false, sep:',' )
                 .map { row -> tuple(row[0], row[1]) }
 
-//TODO: MAKE VAMB OPTIONAL
         // Minimap2 Index from all samples
             VAMB_CATALOGUE(ch_contigs_perkey)
 
@@ -181,9 +174,9 @@ workflow assembly{
     */
 
             if(!params.novamb){
-            ch_per_sample_contigs_to_bins = VAMB_CONTIGS_SELECTION.out.persample_clustertable.join( contigs_to_bins.out.metabat2_contigs_to_bins ).join( MAXBIN2.out.contigs_to_bin).join( CONCOCT.out.contigs_to_bin )
-            FORMATTING_CONTIG_TO_BIN(   ch_per_sample_contigs_to_bins   )
-            ch_contig_to_bin = FORMATTING_CONTIG_TO_BIN.out.formatted_contigs_to_bin
+                ch_per_sample_contigs_to_bins = VAMB_CONTIGS_SELECTION.out.persample_clustertable.join( contigs_to_bins.out.metabat2_contigs_to_bins ).join( MAXBIN2.out.contigs_to_bin).join( CONCOCT.out.contigs_to_bin )
+                FORMATTING_CONTIG_TO_BIN(   ch_per_sample_contigs_to_bins   )
+                ch_contig_to_bin = FORMATTING_CONTIG_TO_BIN.out.formatted_contigs_to_bin
             }else{
                 ch_per_sample_contigs_to_bins = contigs_to_bins.out.metabat2_contigs_to_bins.join( MAXBIN2.out.contigs_to_bin).join( CONCOCT.out.contigs_to_bin )
                 FORMATTING_CONTIG_TO_BIN_NOVAMB(   ch_per_sample_contigs_to_bins   )
