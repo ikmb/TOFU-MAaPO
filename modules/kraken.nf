@@ -3,7 +3,7 @@ process KRAKEN2 {
 
 tag "$sampleID"
 label 'kraken'
-publishDir "${params.outdir}/${sampleID}/Kraken/", mode: 'copy'
+publishDir "${params.outdir}/Kraken/${sampleID}/", mode: 'copy'
 
 input:
 	tuple val(meta), path(reads)

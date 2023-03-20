@@ -27,21 +27,21 @@ For analysis following modules are available:<br />
 `--humann` Run HUMAnN3, a tool for profiling the abundance of microbial metabolic pathways and other molecular functions<br />
 `--kraken` Run Kraken2, a tool for taxonomic classification tool, with a on Medcluster preconfigured RefSeq virus database.<br />
 `--bracken` Run Bracken (Bayesian Reestimation of Abundance with KrakEN) after Kraken2. Kraken2 DB must be [bracken-ready](https://github.com/jenniferlu717/Bracken#step-0-build-a-kraken-10-or-kraken-20-database)<br />
-
-Experimental:<br />
 `--assembly` Run a basic genome assembly workflow.<br />
 `--magscot` Run an extended genome assembly workflow with [MAGScoT](https://github.com/ikmb/MAGScoT) Bin Refinement.<br />
-Both Genome Assembly Modules will run GTDB-TK for taxonomical profiling.<br />
-Skip GTDB-TK with `--skip_gtdbtk`<br />
-Reference database for GTDB-TK needs to be set (already set on Kiel Medcluster):<br />
-GTDB-TK Reference: `--gtdbtk_reference`<br />
-Publish results of megahit with `--publish_megahit`.<br />
-Publish the individual results of all binning tools in the extended genome assembly workflow with `--publish_rawbins`.<br />
 
 ## QC options:
 `--genome` Set host genome. On the IKMB Medcluster valid options are human, mouse or chimp. In other cases this needs to be pre-configured.<br />
 `--cleanreads`  Publish QC'ed fastq.gz files. Disabled by default.<br /> 
 `--no_qc` Skips QC-Module. Only use if your input reads are the output of `--cleanreads`<br /> 
+
+## Assembly options:
+`--skip_gtdbtk` Skip GTDB-TK. Both Genome Assembly Modules will run GTDB-TK for taxonomical profiling as a default. <br />
+`--gtdbtk_reference` GTDB-TK Reference. Reference database for GTDB-TK needs to be set (already set on Kiel Medcluster):<br />
+`--publish_megahit` Publish results of megahit with .<br />
+`--publish_rawbins` Publish the individual results of all binning tools in the extended genome assembly workflow with.<br />
+`--novamb` Deactivate vamb in the magscot workflow. <br />
+`--vamb_groupsize` Set a subgrouping size for vamb, default is 100. This is a temporary fix to enable the pipeline to handle very large cohorts on medium sized nodes. For best results adjust the groupsize to the total sample size of your cohort.<br />
 
 ## Other options:
 `--single_end` Set the pipeline for single end reads.<br />

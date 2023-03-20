@@ -50,6 +50,7 @@ process MINIMAP2_MAPPING{
         tuple val(meta), file(depthout), emit: sample_depth
 		tuple val(meta), file(fcontigs), file(depthout), emit: maps
 		tuple val(meta), file(mappingbam), file(mappingbam_index), emit: bam
+		path("error.log"),    optional: true, emit: errorlog
 
 	script:
 		sampleID = meta.id

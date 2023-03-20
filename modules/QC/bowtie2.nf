@@ -1,10 +1,10 @@
 process FILTERREADS_SE {
 
-	label 'bowtie2'
+	label 'bowtie2qc'
 	scratch params.scratch
 
 	if(params.cleanreads){
-		publishDir "${params.outdir}/qced_files", mode: 'copy'
+		publishDir "${params.outdir}/qced_fastq", mode: 'copy'
 	}
 
 	input:
@@ -38,7 +38,7 @@ process FILTERREADS_SE {
 
 process FILTERREADS_PE {
 
-	label 'bowtie2'
+	label 'bowtie2qc'
 	scratch params.scratch
 
 	if(params.cleanreads){

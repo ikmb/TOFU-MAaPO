@@ -1,4 +1,4 @@
-process filtercontigs {
+process FILTERCONTIGS {
 	scratch params.scratch
 	tag "$sampleID"
 	label 'default'

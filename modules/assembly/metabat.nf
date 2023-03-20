@@ -3,7 +3,7 @@ process METABAT {
     label 'metabat2'
     scratch params.scratch
     tag "$sampleID"
-    publishDir "${params.outdir}/${sampleID}/Metabat2", mode: 'copy', enabled: params.publish_rawbins
+    publishDir "${params.outdir}/Metabat2/${sampleID}", mode: 'copy', enabled: params.publish_rawbins
 
     input: 
         tuple val(meta), file(fcontigs), file(depthout)
@@ -23,7 +23,7 @@ process contigs_to_bins {
 	label 'default'
 	scratch params.scratch
 	tag "$sampleID"
-	publishDir {"${params.outdir}/${sampleID}/Metabat2"}, mode: 'copy', enabled: params.publish_rawbins as boolean
+	publishDir {"${params.outdir}/Metabat2/${sampleID}"}, mode: 'copy', enabled: params.publish_rawbins as boolean
 	
 	input: 
 		tuple val(meta), file(fafile)
@@ -33,7 +33,16 @@ process contigs_to_bins {
 
 	script:
 		sampleID = meta.id
-    	"""
-		grep '>' ${fafile} | tr '>' '\t' | tr -d ':' > ${sampleID}_metabat2_contigs_to_bins.tsv
-    	"""
+		
+		if (fafile instanceof List && fafile.size() > 1) {
+        	"""
+        	echo "Variable contains multiple files"
+			grep '>' ${fafile} | tr '>' '\t' | tr -d ':' > ${sampleID}_metabat2_contigs_to_bins.tsv
+       		"""
+    	} else {
+			"""
+			echo "Variable contains a single file"
+			grep '>' ${fafile} | tr '>' '\t' | tr -d ':' | awk -F'\t' '{OFS="\t"; if (\$1=="") \$1="${fafile}"; print \$0 }' > ${sampleID}_metabat2_contigs_to_bins.tsv
+    		"""
+    	}
 }

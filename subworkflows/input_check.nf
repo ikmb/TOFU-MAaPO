@@ -95,6 +95,28 @@ workflow input_check_qced {
         reads // channel: [ val(meta), [ 0:read1, 1:read2 ] ] or  [ val(meta), [ 0:readsingle ] ]
 }
 
+workflow input_vamb {
+    take: data
+    main:
+        data.splitCsv ( header:false, sep:',' )
+            .map { row ->
+                    def meta = [:]  
+                    meta.id = row[1]
+                    meta.single_end = params.single_end.toBoolean()
+                    meta.vamb_group = row[0]
+                    if (params.single_end)
+                        return [row[1], meta, [ row[3] ] ] 
+                    else  
+                        return [row[1], meta, [ row[3], row[4], row[5] ] ]
+            }
+            .set { reads }
+       
+    
+    emit:
+        reads // channel: [ val(meta), [ 0:read1, 1:read2 ] ] or  [ val(meta), [ 0:readsingle ] ]
+}
+
+
 def hasExtension(it, extension) {
     it.toString().toLowerCase().endsWith(extension.toLowerCase())
 }

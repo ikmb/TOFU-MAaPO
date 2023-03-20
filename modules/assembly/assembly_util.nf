@@ -1,7 +1,7 @@
 process getCountTable {
 	label 'default'
 	tag "$sampleID"
-	publishDir "${params.outdir}/${sampleID}/counttable", mode: 'copy'
+	publishDir "${params.outdir}/counttable/${sampleID}", mode: 'copy'
 
 	input:
 		tuple val(meta), file(finalbam), file(mappingbam_index)
