@@ -143,6 +143,7 @@ workflow assembly{
             //add to ch_vambgroup_contigs the catalogue based on vamb_group
             ch_mapping_vamb_input = ch_vambgroup_contigs.combine( VAMB_CATALOGUE_INDEX.out.catalogue, by: 1 )
 
+
             VAMB_MAPPING( ch_mapping_vamb_input )
             
             VAMB_COLLECT_DEPTHS( VAMB_MAPPING.out.counttable.groupTuple()//.collect() 
@@ -153,9 +154,11 @@ workflow assembly{
 
             ch_vambgroup_sampleid = ch_sample_to_vambgroup.map{ row -> tuple(row[1], row[0]) }.combine(VAMB.out.all_samples_clustertable, by: 0)
             
+
             VAMB_CONTIGS_SELECTION( ch_vambgroup_sampleid )
   
         }
+
     /*
     * MAXBIN2 Workflow
     */
@@ -200,6 +203,8 @@ workflow assembly{
                 /*
                 * Abundance Table for MAGS
                 */
+
+
 
                 //BINCOVERAGE_PERSAMPLE( CONTIGS_MAPPING.out.sample_depth.join( MAGSCOT.out.contigs_to_bins_table ).join( GTDBTK.out.taxonomic_table ) )
                 BINCOVERAGE_PERSAMPLE( MINIMAP2_MAPPING.out.sample_depth.join( MAGSCOT.out.contigs_to_bins_table ).join( GTDBTK.out.taxonomic_table ) )

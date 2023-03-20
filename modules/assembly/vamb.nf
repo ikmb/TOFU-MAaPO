@@ -34,7 +34,7 @@
 			# make index #uses default 3 threads
         	"""
     }
-
+//-I100G
 process VAMB_MAPPING{
 
 	label 'bowtie2'

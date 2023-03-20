@@ -45,5 +45,4 @@ process contigs_to_bins {
 			grep '>' ${fafile} | tr '>' '\t' | tr -d ':' | awk -F'\t' '{OFS="\t"; if (\$1=="") \$1="${fafile}"; print \$0 }' > ${sampleID}_metabat2_contigs_to_bins.tsv
     		"""
     	}
-    	
 }
