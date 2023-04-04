@@ -63,8 +63,10 @@ process METAPHLAN {
       zcat ${left_clean} > $phlan_left
       zcat ${right_clean} > $phlan_right
     
-      #check if unpaired/single reads are present
-      if [ -s ${unpaired_clean} ];then
+      #check if unpaired/single reads are present. 
+      # At least 4 reads in "_single_clean.fastq.gz"
+      zcat ${unpaired_clean} | head -n 4 &> /dev/null
+      if [ $? -eq 0 ];then
         zcat ${unpaired_clean} > $phlan_single
 
         metaphlan $phlan_left,$phlan_right,$phlan_single \
