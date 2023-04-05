@@ -39,4 +39,5 @@ workflow metaphlan{
         }
     emit:
         versions = ch_versions
+        metaphlan_ready = ch_readymetaphlan
 }

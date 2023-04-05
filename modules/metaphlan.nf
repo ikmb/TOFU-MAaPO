@@ -13,8 +13,11 @@ process PREPARE_METAPHLAN {
     
 		cd ${params.metaphlan_db}
 
-    metaphlan --install --force_download --bowtie2db ${params.metaphlan_db} --nproc ${task.cpus}
-    wget http://cmprod1.cibio.unitn.it/biobakery4/metaphlan_databases/mpa_latest
+    #within the humann config the latest version of the metaphlanDB to work is hardcoded to "mpa_vJan21_CHOCOPhlAnSGB_202103", so we need to fake it to be the latest available version
+    metaphlan --install --force_download --index mpa_vJan21_CHOCOPhlAnSGB_202103 --bowtie2db ${params.metaphlan_db} --nproc ${task.cpus}
+    echo "mpa_vJan21_CHOCOPhlAnSGB_202103" > mpa_latest
+
+    #wget http://cmprod1.cibio.unitn.it/biobakery4/metaphlan_databases/mpa_latest
 		##Dropbox mirror
     #wget https://www.dropbox.com/sh/7qze7m7g9fe2xjg/AAAyoJpOgcjop41VIHAGWIVLa/mpa_latest?dl=1
     #mv mpa_latest?dl=1 mpa_latest

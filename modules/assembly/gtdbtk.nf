@@ -7,6 +7,7 @@ process GTDBTK {
 
 	input: 
 	    tuple val(meta), file(fafile)
+		each readygtdbtk
 
 	output:
 	    file("all.bins.gtdbtk_output/*")
@@ -20,4 +21,23 @@ process GTDBTK {
 
 	    awk -F "\t" '{ sub(/.*;s__/, "s__", \$2); print \$1 "\t" \$2 }' all.bins.gtdbtk_output/gtdbtk.bac120.summary.tsv > all.bins.gtdbtk_output/parsed_bac120_summary.tsv
 	    """
+}
+
+    process PREPARE_GTDBTK {
+
+	executor 'local'
+    label 'local_run'
+    output: 
+        val 'true', emit: readystate
+	script:
+
+	"""
+    if [ ! -d ${params.gtdbtk_reference} ]; then
+      mkdir -p ${params.gtdbtk_reference};
+    fi
+	cd ${params.gtdbtk_reference}
+
+    wget https://data.gtdb.ecogenomic.org/releases/release207/207.0/auxillary_files/gtdbtk_r207_v2_data.tar.gz
+	tar -xvzf gtdbtk_v2_data.tar.gz
+	"""
 }

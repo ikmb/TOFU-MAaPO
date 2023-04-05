@@ -5,11 +5,14 @@
 include { CONTIGS_MAPPING } from '../modules/assembly/bowtie2_contigs_mapping.nf'
 include { FILTERCONTIGS } from '../modules/assembly/contig_filter.nf'
 include { MEGAHIT } from '../modules/assembly/megahit.nf'
-include { GTDBTK } from '../modules/assembly/gtdbtk.nf'
 include { checkm } from '../modules/assembly/checkm.nf'
 include { MAXBIN2 } from '../modules/assembly/maxbin2.nf'
 include { CONCOCT } from '../modules/assembly/concoct.nf'
 include { getCountTable } from '../modules/assembly/assembly_util.nf'
+
+include { GTDBTK; 
+          PREPARE_GTDBTK 
+        } from '../modules/assembly/gtdbtk.nf'
 
 include { METABAT;
           contigs_to_bins
@@ -70,10 +73,22 @@ workflow assembly{
             checkm(METABAT.out)
 
             if(!params.skip_gtdbtk){
-                GTDBTK(METABAT.out)
+            
+                if(params.updategtdbtk){
+                    PREPARE_GTDBTK()
+                    ch_readygtdbtk = PREPARE_GTDBTK.out.readystate
+                }else{
+                    ch_readygtdbtk = Channel.of('true')
+                }
+                GTDBTK(METABAT.out, ch_readygtdbtk)
+            }else{
+                ch_readygtdbtk = Channel.of('true')
             }
-        
+            
             getCountTable(ch_bam)
+        
+        
+            
         }else{
 
     /*
@@ -198,24 +213,29 @@ workflow assembly{
             checkm( EXTRACT_REFINED_BINS.out.refined_bins )
 
             if(!params.skip_gtdbtk){
-                GTDBTK( EXTRACT_REFINED_BINS.out.refined_bins_folder )
-                
+            
+                if(params.updategtdbtk){
+                    PREPARE_GTDBTK()
+                    ch_readygtdbtk = PREPARE_GTDBTK.out.readystate
+                }else{
+                    ch_readygtdbtk = Channel.of('true')
+                }
+                GTDBTK(METABAT.out, ch_readygtdbtk)          
+
                 /*
                 * Abundance Table for MAGS
                 */
-
-
-
                 //BINCOVERAGE_PERSAMPLE( CONTIGS_MAPPING.out.sample_depth.join( MAGSCOT.out.contigs_to_bins_table ).join( GTDBTK.out.taxonomic_table ) )
                 BINCOVERAGE_PERSAMPLE( MINIMAP2_MAPPING.out.sample_depth.join( MAGSCOT.out.contigs_to_bins_table ).join( GTDBTK.out.taxonomic_table ) )
-
             
+            }else{
+                ch_readygtdbtk = Channel.of('true')
             }
         
             getCountTable(ch_bam)
 
+        
         }
-
         
         
 }

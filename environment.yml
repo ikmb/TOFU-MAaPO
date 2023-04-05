@@ -9,6 +9,7 @@ dependencies:
   - r-tidyverse
   - r-data.table
   - python=3.10
+  - scikit-learn=1.1.0
   - metabat2
   - metaphlan
   - humann
