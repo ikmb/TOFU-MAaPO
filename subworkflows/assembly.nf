@@ -120,7 +120,7 @@ workflow assembly{
     /*
     * VAMB Workflow
     */
-        if(!params.novamb){
+        if(!params.skip_vamb){
             //create a new csv file to subgroup samples
 
             ch_allcontigs_table = ch_filteredcontigs.collectFile() { item ->
@@ -191,7 +191,7 @@ workflow assembly{
     * MAGScoT Workflow
     */
 
-            if(!params.novamb){
+            if(!params.skip_vamb){
                 ch_per_sample_contigs_to_bins = VAMB_CONTIGS_SELECTION.out.persample_clustertable.join( contigs_to_bins.out.metabat2_contigs_to_bins ).join( MAXBIN2.out.contigs_to_bin).join( CONCOCT.out.contigs_to_bin )
                 FORMATTING_CONTIG_TO_BIN(   ch_per_sample_contigs_to_bins   )
                 ch_contig_to_bin = FORMATTING_CONTIG_TO_BIN.out.formatted_contigs_to_bin
@@ -220,7 +220,7 @@ workflow assembly{
                 }else{
                     ch_readygtdbtk = Channel.of('true')
                 }
-                GTDBTK(METABAT.out, ch_readygtdbtk)          
+                GTDBTK(EXTRACT_REFINED_BINS.out.refined_bins_folder, ch_readygtdbtk)          
 
                 /*
                 * Abundance Table for MAGS

@@ -109,7 +109,7 @@ process BRACKEN {
 
 	tag "$sampleID"
 	label 'bracken'
-	publishDir "${params.outdir}/${sampleID}/Kraken/", mode: 'copy'
+	publishDir "${params.outdir}/Kraken/${sampleID}/", mode: 'copy'
 
 	input:
 		tuple val(sampleID), file(report)

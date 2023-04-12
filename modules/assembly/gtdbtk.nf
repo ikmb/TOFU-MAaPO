@@ -16,8 +16,8 @@ process GTDBTK {
 	shell:
 		sampleID = meta.id
 	    """
-	    export GTDBTK_DATA_PATH=${params.gtdbtk_reference}
-	    gtdbtk classify_wf --cpus ${task.cpus} --genome_dir ./refined_bins --extension fa --out_dir all.bins.gtdbtk_output --pplacer_cpus 1
+	    export GTDBTK_DATA_PATH="${params.gtdbtk_reference}"
+	    gtdbtk classify_wf --cpus ${task.cpus} --genome_dir ./refined_bins --extension fa --out_dir all.bins.gtdbtk_output --pplacer_cpus 1 --skip_ani_screen
 
 	    awk -F "\t" '{ sub(/.*;s__/, "s__", \$2); print \$1 "\t" \$2 }' all.bins.gtdbtk_output/gtdbtk.bac120.summary.tsv > all.bins.gtdbtk_output/parsed_bac120_summary.tsv
 	    """
@@ -38,6 +38,6 @@ process GTDBTK {
 	cd ${params.gtdbtk_reference}
 
     wget https://data.gtdb.ecogenomic.org/releases/release207/207.0/auxillary_files/gtdbtk_r207_v2_data.tar.gz
-	tar -xvzf gtdbtk_v2_data.tar.gz
+	tar -xvzf gtdbtk_r207_v2_data.tar.gz
 	"""
 }

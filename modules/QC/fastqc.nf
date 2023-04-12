@@ -1,7 +1,7 @@
 process FASTQC_raw {
 
 	label 'fastqc'
-
+	tag "$sampleID"
 	publishDir "${params.outdir}/FastQC", mode: 'copy', pattern: "*.zip"
 	publishDir "${params.outdir}/FastQC", mode: 'copy', pattern: "*.html"
 
@@ -34,63 +34,9 @@ process FASTQC_raw {
 		"""
 	  }
 }
-/*
-process FASTQC_clean_PE {
 
-	label 'fastqc'
-
-	publishDir "${params.outdir}/FastQC", mode: 'copy'
-
-	input:
-		tuple val(meta), path(reads), path(unpaired)
-
-	output:
-		path('*_fastqc.{zip,html}'), emit: fastqc
-
-	script:
-		sampleID = meta.id
-
-		leftnewname = sampleID + "_1_clean.fastq.gz"
-    	rightnewname = sampleID + "_2_clean.fastq.gz"
-		unpairednewname = sampleID + "_unpaired_clean.fastq.gz"
-
-		"""
-		[ ! -f  $leftnewname ] && ln -s ${reads[0]} $leftnewname
-    	[ ! -f  $rightnewname ] && ln -s ${reads[1]} $rightnewname
-		[ ! -f  $unpairednewname ] && ln -s ${unpaired} $unpairednewname
-
-		fastqc --quiet --threads ${task.cpus} $leftnewname $rightnewname $unpairednewname
-		"""
-}
-
-process FASTQC_clean_SE {
-
-	label 'fastqc'
-
-	publishDir "${params.outdir}/FastQC", mode: 'copy'
-
-	input:
-		tuple val(meta), path(reads)
-
-	output:
-		path('*_fastqc.{zip,html}'), emit: fastqc
-
-	script:
-		sampleID = meta.id
-
-		leftnewname = sampleID + "_1_clean.fastq.gz"
-    	//rightnewname = sampleID + "_2_clean.fastq.gz"
-		//unpairednewname = sampleID + "_unpaired_clean.fastq.gz"
-
-		"""
-		[ ! -f  $leftnewname ] && ln -s ${reads[0]} $leftnewname
-
-		fastqc --quiet --threads ${task.cpus} $leftnewname
-		"""
-}
-*/
 process FASTQC_clean {
-
+	tag "$sampleID"
 	label 'fastqc'
 
 	publishDir "${params.outdir}/FastQC", mode: 'copy'
