@@ -1,5 +1,6 @@
 process FILTERREADS_SE {
 	tag "$sampleID"
+
 	label 'bowtie2qc'
 	scratch params.scratch
 

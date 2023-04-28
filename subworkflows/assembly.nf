@@ -218,7 +218,7 @@ workflow assembly{
             checkm( EXTRACT_REFINED_BINS.out.refined_bins )
 
             if(!params.skip_gtdbtk){
-            
+           
                 if(params.updategtdbtk){
                     PREPARE_GTDBTK()
                     ch_readygtdbtk = PREPARE_GTDBTK.out.readystate
@@ -230,6 +230,9 @@ workflow assembly{
                 /*
                 * Abundance Table for MAGS
                 */
+
+
+
                 //BINCOVERAGE_PERSAMPLE( CONTIGS_MAPPING.out.sample_depth.join( MAGSCOT.out.contigs_to_bins_table ).join( GTDBTK.out.taxonomic_table ) )
                 BINCOVERAGE_PERSAMPLE( MINIMAP2_MAPPING.out.sample_depth.join( MAGSCOT.out.contigs_to_bins_table ).join( GTDBTK.out.taxonomic_table ) )
             

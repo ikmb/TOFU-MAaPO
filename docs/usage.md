@@ -30,6 +30,7 @@ For analysis following modules are available:<br />
 `--assembly` Run a basic genome assembly workflow.<br />
 `--magscot` Run an extended genome assembly workflow with [MAGScoT](https://github.com/ikmb/MAGScoT) Bin Refinement.<br />
 
+
 ## Initialization options:
 `--updatemetaphlan` Download the Metaphlan4 database to the directory set in parameter metaphlan_db.<br />
 `--updatehumann` Download the HUMAnN3 database to the directory set in parameter humann_db. HUMAnN3 requires the Metaphlan4 database, too.<br />
