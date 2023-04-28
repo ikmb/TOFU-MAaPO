@@ -47,12 +47,12 @@ workflow MW {
             kraken(QCout)
         }
     //metaphlan:
-        if(params.metaphlan){
+        if(params.metaphlan || params.updatemetaphlan){
             metaphlan(QCout)
             //ch_versions = ch_versions.mix(metaphlan.out.versions)
         }
     //humann:
-        if(params.humann){
+        if(params.humann || params.updatehumann){
             humann(QCout)
         }
     //genome assembly:

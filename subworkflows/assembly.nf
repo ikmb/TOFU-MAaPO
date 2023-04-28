@@ -5,11 +5,14 @@
 include { CONTIGS_MAPPING } from '../modules/assembly/bowtie2_contigs_mapping.nf'
 include { FILTERCONTIGS } from '../modules/assembly/contig_filter.nf'
 include { MEGAHIT } from '../modules/assembly/megahit.nf'
-include { GTDBTK } from '../modules/assembly/gtdbtk.nf'
 include { checkm } from '../modules/assembly/checkm.nf'
 include { MAXBIN2 } from '../modules/assembly/maxbin2.nf'
 include { CONCOCT } from '../modules/assembly/concoct.nf'
 include { getCountTable } from '../modules/assembly/assembly_util.nf'
+
+include { GTDBTK; 
+          PREPARE_GTDBTK 
+        } from '../modules/assembly/gtdbtk.nf'
 
 include { METABAT;
           contigs_to_bins
@@ -49,6 +52,9 @@ workflow assembly{
     take: data
     main:
         if(!params.magscot){
+            /*
+             * Basic Genome Assembly:
+             */
             MEGAHIT(data)
             filtercontigs(MEGAHIT.out.contigs)
             
@@ -70,12 +76,26 @@ workflow assembly{
             checkm(METABAT.out)
 
             if(!params.skip_gtdbtk){
-                GTDBTK(METABAT.out)
+            
+                if(params.updategtdbtk){
+                    PREPARE_GTDBTK()
+                    ch_readygtdbtk = PREPARE_GTDBTK.out.readystate
+                }else{
+                    ch_readygtdbtk = Channel.of('true')
+                }
+                GTDBTK(METABAT.out, ch_readygtdbtk)
+            }else{
+                ch_readygtdbtk = Channel.of('true')
             }
-        
+            
             getCountTable(ch_bam)
+        
+        
+            
         }else{
-
+            /*
+             * Extended Genome Assembly:
+             */
     /*
     * Contigs
     */
@@ -105,7 +125,7 @@ workflow assembly{
     /*
     * VAMB Workflow
     */
-        if(!params.novamb){
+        if(!params.skip_vamb){
             //create a new csv file to subgroup samples
 
             ch_allcontigs_table = ch_filteredcontigs.collectFile() { item ->
@@ -176,7 +196,7 @@ workflow assembly{
     * MAGScoT Workflow
     */
 
-            if(!params.novamb){
+            if(!params.skip_vamb){
                 ch_per_sample_contigs_to_bins = VAMB_CONTIGS_SELECTION.out.persample_clustertable.join( contigs_to_bins.out.metabat2_contigs_to_bins ).join( MAXBIN2.out.contigs_to_bin).join( CONCOCT.out.contigs_to_bin )
                 FORMATTING_CONTIG_TO_BIN(   ch_per_sample_contigs_to_bins   )
                 ch_contig_to_bin = FORMATTING_CONTIG_TO_BIN.out.formatted_contigs_to_bin
@@ -198,8 +218,15 @@ workflow assembly{
             checkm( EXTRACT_REFINED_BINS.out.refined_bins )
 
             if(!params.skip_gtdbtk){
-                GTDBTK( EXTRACT_REFINED_BINS.out.refined_bins_folder )
-                
+           
+                if(params.updategtdbtk){
+                    PREPARE_GTDBTK()
+                    ch_readygtdbtk = PREPARE_GTDBTK.out.readystate
+                }else{
+                    ch_readygtdbtk = Channel.of('true')
+                }
+                GTDBTK(EXTRACT_REFINED_BINS.out.refined_bins_folder, ch_readygtdbtk)          
+
                 /*
                 * Abundance Table for MAGS
                 */
@@ -208,14 +235,18 @@ workflow assembly{
 
                 //BINCOVERAGE_PERSAMPLE( CONTIGS_MAPPING.out.sample_depth.join( MAGSCOT.out.contigs_to_bins_table ).join( GTDBTK.out.taxonomic_table ) )
                 BINCOVERAGE_PERSAMPLE( MINIMAP2_MAPPING.out.sample_depth.join( MAGSCOT.out.contigs_to_bins_table ).join( GTDBTK.out.taxonomic_table ) )
-
             
+            }else{
+                ch_readygtdbtk = Channel.of('true')
+                if(params.updategtdbtk){
+                    PREPARE_GTDBTK()
+                }
             }
         
             getCountTable(ch_bam)
 
+        
         }
-
         
         
 }

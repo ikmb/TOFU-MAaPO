@@ -1,4 +1,5 @@
 process FILTERREADS_SE {
+	tag "$sampleID"
 
 	label 'bowtie2qc'
 	scratch params.scratch
@@ -37,7 +38,7 @@ process FILTERREADS_SE {
 }
 
 process FILTERREADS_PE {
-
+	tag "$sampleID"
 	label 'bowtie2qc'
 	scratch params.scratch
 

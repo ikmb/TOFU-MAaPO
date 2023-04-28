@@ -20,7 +20,7 @@ Container Engine: ${workflow.containerEngine}
 =======INPUTS=============================
 Reads:          : ${params.reads}
 Host genome:    : ${params.genome}"""
-if(params.kraken){
+if(params.kraken || params.bracken){
 log.info "Kraken DB:      : ${params.kraken2_db}"}
 if(params.humann){
 log.info "HUMAnN DB:      : ${params.humann_db}"}
@@ -28,7 +28,7 @@ if(params.humann){
 log.info "MPA for HUMAnN  : ${params.metaphlan_db}"}
 if(params.metaphlan){
 log.info "Metaphlan DB:   : ${params.metaphlan_db}"}
-if(params.assembly){
+if(params.assembly || params.magscot){
 log.info "GTDBTK ref.     : ${params.gtdbtk_reference}"}
 log.info "=========================================="
 log.info "Command Line:     $workflow.commandLine"
@@ -50,28 +50,63 @@ def helpMessage() {
 
 
   Analysis Modules:
-  --metaphlan   Run Metaphlan3 for profiling the composition of microbial communities
+  --metaphlan   Run Metaphlan4 for profiling the composition of microbial communities
                 Metaphlan arguments:
-                --metaphlan_db  Set directory of metaphlan database (not needed for medcluster)
+                --metaphlan_db    Set directory of metaphlan database (not needed for medcluster)
 
   --humann      Run HUMAnN3 for profiling the presence/absence and abundance of microbial pathways
                 HUMAnN arguments:
-                --humann_db     Set directory of humann database (not needed for medcluster)
+                --humann_db       Set directory of humann database (not needed for medcluster)
 
-  --virus       Run Kraken2 with a virus database
+  --kraken      Run Kraken2
                 Kraken2 arguments:
-                --kraken2_db    Set directory of virus/kraken2 database (not needed for medcluster)
+                --kraken2_db      Set directory of virus/kraken2 database (not needed for medcluster)
 
-  Experimental:
-  --assembly    Run a basic Genome Assembly with Megahit, Metabat and GTDBTK
-  --magscot     Run an extended Genome Assembly with 4 binners and MAGScoT for Bin refinement
+  --assembly    Run a basic Genome Assembly with Megahit, Metabat and GTDB-Tk
+  --magscot     Run an extended Genome Assembly with 4 binners and MAGScoT for Bin refinement.
+                Assembly arguments:
+                --gtdbtk_reference Set directory of the GTDB-Tk reference data
 
-  Optonal arguments:
-  --genome		Remove host contaminations. Use a pre-configured genome sequence by its common name (on medcluster: human, mouse or chimp)
-  --cleanreads  Publish QCed fastq.gz files. Disabled by default
-  -profile      The nextflow execution profile to use (local or medcluster [default])
-  --single_end  Run the pipeline for single-end metagenomic reads
+  Optional arguments:
+    General:
+      -profile                The nextflow execution profile to use (custom, local or medcluster [default])
+      --single_end            Run the pipeline for single-end metagenomic reads
+      -work-dir               Set a custom work directory, default is "work".
+      --outdir                Set a custom work directory for all outputs, default is "results".
+      -resume                 Resumes pipeline and will continue the run with already completed, cached processes.
 
+    Initialization:
+      --updatemetaphlan       Download the Metaphlan4 database to the directory set in parameter metaphlan_db
+      --updatehumann          Download the HUMAnN3 database to the directory set in parameter humann_db. HUMAnN3 requires the Metaphlan4 database, too.
+      --updategtdbtk          Download the GTDB-Tk reference data to the directory set in parameter gtdbtk_reference.
+
+    QC:
+      --genome		            Remove host contaminations. Use a pre-configured genome sequence by its common name (on medcluster: human, mouse or chimp)
+      --cleanreads            Publish QCed fastq.gz files. Disabled by default.
+      --no_qc                 Skips QC-Module. Only use if your input reads are the output of --cleanreads. Not recommended.
+
+    Kraken2/Bracken:
+      --kraken2_db            Directory of used Kraken2 database. Should be Bracken ready for use with Bracken. REQUIRED!
+      --bracken_length        Read length. Default: 100
+      --bracken_level         Taxonomic level. Options: D,P,C,O,F,G,S,S1. Default: "S"
+      --bracken_threshold     Number of reads required prior to abundance estimation. Default: 0
+    
+    Metaphlan:
+      --metaphlan_db          Directory of Metaphlan database. REQUIRED!
+
+    HUMAnN:
+      --humann_db             Directory of HUMAnN database. REQUIRED!
+      --metaphlan_db          Directory of Metaphlan database. REQUIRED!
+
+    Assembly:
+      --contigsminlength	    Minimum length of contigs. Default: 2000
+      --gtdbtk_reference      Directory of database. REQUIRED for GTDB-Tk!
+      --skip_gtdbtk           Skip GTDB-Tk.
+      --publish_megahit       Publish all megahit contigs. Default: false
+      --publish_rawbins       Publish all raw bins from all binning tools. Default: false
+      --contig_sep            Contig name separator. Default: "megahitcontig"
+      --skip_vamb             Skip Vamb.
+      --vamb_groupsize        Group size of samples to use in one Vamb run. Recommended: Number of all samples in the run. Default: 100.
   """.stripIndent()
 }
 //--email 		An eMail adress to which reports are sent

@@ -7,10 +7,17 @@ process PREPARE_METAPHLAN {
 	script:
 
 	"""
-		cd ${params.metaphlan4_db}
+    if [ ! -d ${params.metaphlan_db} ]; then
+      mkdir -p ${params.metaphlan_db};
+    fi
+    
+		cd ${params.metaphlan_db}
 
-    metaphlan --install --force_download --bowtie2db ${params.metaphlan4_db} --nproc ${task.cpus}
-    wget http://cmprod1.cibio.unitn.it/biobakery4/metaphlan_databases/mpa_latest
+    #within the humann config the latest version of the metaphlanDB to work is hardcoded to "mpa_vJan21_CHOCOPhlAnSGB_202103", so we need to fake it to be the latest available version
+    metaphlan --install --force_download --index mpa_vJan21_CHOCOPhlAnSGB_202103 --bowtie2db ${params.metaphlan_db} --nproc ${task.cpus}
+    echo "mpa_vJan21_CHOCOPhlAnSGB_202103" > mpa_latest
+
+    #wget http://cmprod1.cibio.unitn.it/biobakery4/metaphlan_databases/mpa_latest
 		##Dropbox mirror
     #wget https://www.dropbox.com/sh/7qze7m7g9fe2xjg/AAAyoJpOgcjop41VIHAGWIVLa/mpa_latest?dl=1
     #mv mpa_latest?dl=1 mpa_latest
@@ -35,9 +42,9 @@ process METAPHLAN {
     each ready
 
    output:
-    path(metaphlan_out), emit: outputMetaphlan
-    tuple val(sampleID), file(bam_out), emit: outputMetaphlanBowtie
-    tuple val(sampleID), file('v_metaphlan.txt'), emit: version_metaphlan
+    path(metaphlan_out),                          optional: true, emit: outputMetaphlan
+    tuple val(sampleID), file("*_metaphlan.*am"), optional: true, emit: outputMetaphlanBowtie
+    tuple val(sampleID), file('v_metaphlan.txt'), optional: true, emit: version_metaphlan
    script:
     sampleID = meta.id
     metaphlan_out = sampleID + "_metaphlan.out"
@@ -64,7 +71,7 @@ process METAPHLAN {
       zcat ${right_clean} > $phlan_right
     
       #check if unpaired/single reads are present
-      if [ -s ${unpaired_clean} ];then
+      if [[ -f ${unpaired_clean} && \$(zcat ${unpaired_clean} | wc -l) -ge 4 ]]; then
         zcat ${unpaired_clean} > $phlan_single
 
         metaphlan $phlan_left,$phlan_right,$phlan_single \
@@ -94,9 +101,21 @@ process METAPHLAN {
       fi
       
       rm *.fq
-      samtools view -S -b $sam_out > $bam_out
-      rm $sam_out
 
+      set +e
+      {
+      samtools view -S -b $sam_out > $bam_out
+      if [[ -f ${bam_out} && \$(zcat ${bam_out} | wc -l) -ge 4 ]]; then
+        rm $sam_out
+      else
+        rm $bam_out
+      fi
+      }
+      set -e
+
+      if [ ! -f ${bam_out} ]; then
+        >&2 echo "Warning: ${bam_out} could not be created, please check the file ${sam_out}!"
+      fi
       """
     } else {
       """
@@ -120,9 +139,21 @@ process METAPHLAN {
           --offline
 
       rm *.fq
-      samtools view -S -b $sam_out > $bam_out
-      rm $sam_out
 
+      set +e
+      {
+      samtools view -S -b $sam_out > $bam_out
+      if [[ -f ${bam_out} && \$(zcat ${bam_out} | wc -l) -ge 4 ]]; then
+        rm $sam_out
+      else
+        rm $bam_out
+      fi
+      }
+      set -e
+
+      if [ ! -f ${bam_out} ]; then
+        >&2 echo "Warning: ${bam_out} could not be created, please check the file ${sam_out}!"
+      fi
       """
     }
 }
