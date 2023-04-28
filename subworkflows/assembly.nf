@@ -52,6 +52,9 @@ workflow assembly{
     take: data
     main:
         if(!params.magscot){
+            /*
+             * Basic Genome Assembly:
+             */
             MEGAHIT(data)
             filtercontigs(MEGAHIT.out.contigs)
             
@@ -90,7 +93,9 @@ workflow assembly{
         
             
         }else{
-
+            /*
+             * Extended Genome Assembly:
+             */
     /*
     * Contigs
     */
@@ -230,6 +235,9 @@ workflow assembly{
             
             }else{
                 ch_readygtdbtk = Channel.of('true')
+                if(params.updategtdbtk){
+                    PREPARE_GTDBTK()
+                }
             }
         
             getCountTable(ch_bam)

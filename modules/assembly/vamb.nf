@@ -18,6 +18,7 @@
 
 	process VAMB_CATALOGUE_INDEX {
         label 'default_highmemory'
+		cache 'lenient'
 		scratch params.scratch
 
         input:
@@ -30,13 +31,13 @@
 			catalogue_index = "catalogue.mmi"
 
         	"""
-			minimap2 -d !{catalogue_index} !{catalogue} -m 2000 --print-qname
+			minimap2 -d !{catalogue_index} !{catalogue} -m 2000 --print-qname -I!{params.minimap_indexsize}g
 			# make index #uses default 3 threads
         	"""
     }
 //-I100G
 process VAMB_MAPPING{
-
+	cache 'lenient'
 	label 'bowtie2'
 	scratch params.scratch
 	tag "$sampleID"
@@ -77,7 +78,7 @@ process VAMB_MAPPING{
 		} else {
 			"""	
 				#minimap2 -d catalogue.mmi $catalogue; # make index
-				minimap2 -t ${task.cpus} -N 5 -ax sr $catalogue_index $single_clean | samtools view -F 3584 -b --threads ${task.cpus}| samtools sort  > $mappingbam 2> error.log #-n
+				minimap2 -t ${task.cpus} -N 50 -ax sr $catalogue_index $single_clean | samtools view -F 3584 -b --threads ${task.cpus}| samtools sort  > $mappingbam 2> error.log #-n
 				samtools index $mappingbam
 				jgi_summarize_bam_contig_depths $mappingbam --outputDepth $depthout
 			"""		
@@ -85,6 +86,7 @@ process VAMB_MAPPING{
 }
 
 process VAMB_COLLECT_DEPTHS {
+	cache 'lenient'
 	label 'default'
     scratch params.scratch
 	//publishDir "${params.outdir}/${sampleID}/vamb", mode: 'copy'
@@ -105,7 +107,7 @@ process VAMB_COLLECT_DEPTHS {
 }
 
 process VAMB {
-
+	cache 'lenient'
 	label 'vamb'
 	scratch params.scratch
 	tag "$vamb_key"
