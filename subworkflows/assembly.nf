@@ -214,9 +214,9 @@ workflow assembly{
     /*
     * Quality Check Workflow
     */
-
-            checkm( EXTRACT_REFINED_BINS.out.refined_bins )
-
+            if(!params.skip_checkm){
+                checkm( EXTRACT_REFINED_BINS.out.refined_bins )
+            }
             if(!params.skip_gtdbtk){
            
                 if(params.updategtdbtk){
@@ -247,6 +247,5 @@ workflow assembly{
 
         
         }
-        
         
 }

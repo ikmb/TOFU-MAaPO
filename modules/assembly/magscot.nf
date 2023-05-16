@@ -24,7 +24,8 @@ process FORMATTING_CONTIG_TO_BIN {
 process MARKER_IDENT {
 
 	label 'magscot'
-	scratch params.scratch
+	//scratch params.scratch
+	scratch false
 	tag "$sampleID"
 	publishDir "${params.outdir}/magscot/${sampleID}", mode: 'copy'
 
@@ -71,10 +72,14 @@ process MARKER_IDENT {
 			--cpu ${task.cpus} \
 			/opt/hmm/gtdbtk_rel207_Pfam-A.hmm \
 			$sampleprodigalfaa
-
+		set +e
+		{
 		cat ${sampleID}.hmm.tigr.hit.out | grep -v "^#" | awk '{print \$1"\t"\$3"\t"\$5}' > $sampleptigr
 		cat ${sampleID}.hmm.pfam.hit.out | grep -v "^#" | awk '{print \$1"\t"\$4"\t"\$5}' > $samplepfam
+
 		cat $samplepfam $sampleptigr > $samplehmm
+		}
+		set -e
 	"""
 }
 
@@ -82,6 +87,7 @@ process MAGSCOT {
 
 	label 'magscot'
 	scratch params.scratch
+	errorStrategy  { task.attempt <= maxRetries  ? 'retry' : 'ignore' }
 	tag "$sampleID"
 	publishDir "${params.outdir}/magscot/${sampleID}", mode: 'copy'
 

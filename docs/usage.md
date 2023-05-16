@@ -43,13 +43,15 @@ For analysis following modules are available:<br />
 `--no_qc` Skips QC-Module. Only use if your input reads are the output of `--cleanreads`<br /> 
 
 ## Metaphlan options:
-`--metaphlan_db` Directory of Metaphlan database. REQUIRED!
+`--metaphlan_db` Directory of Metaphlan database. REQUIRED! <br /> 
+`--publish_metaphlanbam` Publish the bam file output of Metaphlan. <br /> 
 ## HUMAnN options:
 `--metaphlan_db` Directory of Metaphlan database. REQUIRED! <br /> 
 `--humann_db` Directory of HUMAnN database. REQUIRED! <br /> 
 ## Assembly options:
 `--contigsminlength` Set a minimum length of contig. Smaller contigs will be discarded. Default: 2000. <br />
 `--skip_gtdbtk` Skip GTDB-TK. Both Genome Assembly Modules will run GTDB-TK for taxonomical profiling as a default. <br />
+`--skip_checkm` Skip Checkm bin quality check. <br />
 `--gtdbtk_reference` GTDB-TK Reference. Reference database for GTDB-TK needs to be set (already set on Kiel Medcluster):<br />
 `--publish_megahit` Publish results of megahit with .<br />
 `--publish_rawbins` Publish the individual results of all binning tools in the extended genome assembly workflow with.<br />

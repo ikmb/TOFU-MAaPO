@@ -42,9 +42,9 @@ process METAPHLAN {
     each ready
 
    output:
-    path(metaphlan_out),                          optional: true, emit: outputMetaphlan
-    tuple val(sampleID), file("*_metaphlan.*am"), optional: true, emit: outputMetaphlanBowtie
-    tuple val(sampleID), file('v_metaphlan.txt'), optional: true, emit: version_metaphlan
+    path(metaphlan_out),                            emit: outputMetaphlan,        optional: true
+    tuple val(sampleID), file("*_metaphlan.*am"),   emit: outputMetaphlanBowtie,  optional: true
+    tuple val(sampleID), file('v_metaphlan.txt'),   emit: version_metaphlan,      optional: true
    script:
     sampleID = meta.id
     metaphlan_out = sampleID + "_metaphlan.out"

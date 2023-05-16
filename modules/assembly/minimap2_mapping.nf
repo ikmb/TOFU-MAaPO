@@ -5,7 +5,7 @@
         input:
 		    tuple val(meta), file(fcontigs), path(reads)
         output:
-			tuple val(meta), path(catalogue), emit: catalogue
+			tuple val(meta), path(catalogue), optional: true, emit: catalogue
 
         script:
 			sampleID = meta.id
@@ -45,12 +45,12 @@ process MINIMAP2_MAPPING{
 		tuple val(meta), file(fcontigs), path(reads), path(catalogue), path(catalogue_index)
 
 	output:
-		path(depthout), emit: counttable 
-		val(meta), emit: sampleid
-        tuple val(meta), file(depthout), emit: sample_depth
-		tuple val(meta), file(fcontigs), file(depthout), emit: maps
-		tuple val(meta), file(mappingbam), file(mappingbam_index), emit: bam
-		path("error.log"),    optional: true, emit: errorlog
+		path(depthout), 											emit: counttable
+		val(meta), 													emit: sampleid
+        tuple val(meta), file(depthout), 							emit: sample_depth
+		tuple val(meta), file(fcontigs), file(depthout), 			emit: maps
+		tuple val(meta), file(mappingbam), file(mappingbam_index), 	emit: bam
+		path("error.log"),    										emit: errorlog
 
 	script:
 		sampleID = meta.id

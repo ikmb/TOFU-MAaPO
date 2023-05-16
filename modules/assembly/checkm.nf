@@ -10,10 +10,11 @@ process checkm {
 
 	output:
 	    file('bins/*')
-
+		file(outputtable)
 	shell:
 		sampleID = meta.id
+		outputtable = sampleID + "_checkm_table.tsv"
 	    """
-	    checkm lineage_wf -t ${task.cpus} -x fa . ./bins
+	    checkm lineage_wf -t ${task.cpus} -x fa . ./bins --tab_table --file ${outputtable}
 	    """
 }

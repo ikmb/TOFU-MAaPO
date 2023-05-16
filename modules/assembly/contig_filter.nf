@@ -7,17 +7,23 @@ process FILTERCONTIGS {
     	tuple val(meta), file(finalcontigs), path(reads)
 
 	output:
-	    tuple val(meta), file(fcontigs_filtered), path(reads), emit: contigs
-	    path(fcontigs_filtered), emit: filteredcontig
-
-	    tuple val(meta), file(fcontigs_filtered), emit: magscot_contigs
+	    tuple val(meta), file(fcontigs_filtered), path(reads), 	emit: contigs, 			optional: true
+	    path(fcontigs_filtered), 								emit: filteredcontig,	optional: true
+	    tuple val(meta), file(fcontigs_filtered), 				emit: magscot_contigs, 	optional: true
 
 	script:
 		sampleID = meta.id
-
 		fcontigs_filtered = sampleID + '_fcontigsfiltered.fa'
 
 		"""
-		/opt/conda/envs/ikmb-metagenome-1.2/bin/python3 ${baseDir}/bin/contigfilterbylen.py ${params.contigsminlength} $finalcontigs > $fcontigs_filtered
+		/opt/conda/envs/ikmb-metagenome-1.2/bin/python3 ${baseDir}/bin/contigfilterbylen.py ${params.contigsminlength} $finalcontigs > intermediate_file.fa
+
+		if [ -s intermediate_file.fa ]; then
+        	# The file is not-empty.
+        	mv intermediate_file.fa $fcontigs_filtered
+		else
+        	# The file is empty.
+			echo "file is empty"
+		fi
 		"""
 }
