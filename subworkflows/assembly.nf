@@ -243,6 +243,5 @@ workflow assembly{
             getCountTable(ch_bam)
         
         }
-        
-        
+    }
 }
