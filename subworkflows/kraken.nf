@@ -9,7 +9,7 @@ include {
   KRAKENMPAMERGE;
   BRACKEN;
   BRACKENMERGE
-  } from '../modules/kraken.nf' 
+} from '../modules/kraken.nf' 
   
 /*
  * Kraken2 pipeline logic

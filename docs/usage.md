@@ -19,7 +19,7 @@ Pipeline is module based and will run in the most basic run only the QC module.
 
 Run the Pipeline with<br />
 ```bash
-nextflow run ikmb/metagenomic-workflows --reads '/path/to/fastqfiles/*_R{1,2}_001.fastq.gz'
+nextflow run ikmb/TOFU-MAaPO --reads '/path/to/fastqfiles/*_R{1,2}_001.fastq.gz'
 ```
 ## Available modules:
 For analysis following modules are available:<br />

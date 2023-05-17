@@ -110,7 +110,6 @@ workflow input_vamb {
                         return [row[1], meta, [ row[3], row[4], row[5] ] ]
             }
             .set { reads }
-       
     
     emit:
         reads // channel: [ val(meta), [ 0:read1, 1:read2 ] ] or  [ val(meta), [ 0:readsingle ] ]

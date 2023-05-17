@@ -1,5 +1,5 @@
 /*
- * METAGENOMIC W O R K F L O W S
+ * TOFU-MAaPO
  * By Eike Matthias Wacker (e.wacker@ikmb.uni-kiel.de)
  * Based on https://github.com/marchoeppner/metagenomic-profiling Release 1.2 by Marc P. Hoeppner (m.hoeppner@ikmb.uni-kiel.de)
  */
@@ -13,7 +13,7 @@ nextflow.enable.dsl = 2
  * Define the default parameters in nextflow.config
  */ 
 log.info """\
-METAGENOMIC W O R K F L O W S  v${workflow.manifest.version}
+TOFU-MAaPO v${workflow.manifest.version}
 ==========================================
 Nextflow Version: $workflow.nextflow.version
 Container Engine: ${workflow.containerEngine}
@@ -40,11 +40,11 @@ log.info "=========================================="
 def helpMessage() {
   log.info"""
   =================================================================
-   IKMB | METAGENOMIC W O R K F L O W S | v${workflow.manifest.version}
+   IKMB | TOFU-MAaPO | v${workflow.manifest.version}
   =================================================================
   Usage:
   The typical command for running the pipeline is as follows:
-  nextflow run ikmb/metagenomic-workflows --reads '/path/to/*_R{1,2}_001.fastq.gz' 
+  nextflow run ikmb/TOFU-MAaPO --reads '/path/to/*_R{1,2}_001.fastq.gz' 
   Mandatory arguments:
   --reads 		The path to the fastq.gz files containing PE metagenomic reads (2 per sample) or SE metagenomic reads (1 per sample, use --single_end) or a csv file with a list of reads
 

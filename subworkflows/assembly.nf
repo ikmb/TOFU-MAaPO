@@ -56,17 +56,15 @@ workflow assembly{
              * Basic Genome Assembly:
              */
             MEGAHIT(data)
-            filtercontigs(MEGAHIT.out.contigs)
+            FILTERCONTIGS(MEGAHIT.out.contigs)
             
-            ch_filteredcontigs = filtercontigs.out.contigs
+            ch_filteredcontigs = FILTERCONTIGS.out.contigs
 
-            MINIMAP2_CATALOGUE(ch_collected_filtered_contigs  )
+            MINIMAP2_CATALOGUE( ch_filteredcontigs )
             MINIMAP2_CATALOGUE_INDEX( MINIMAP2_CATALOGUE.out.catalogue )
 
 
-            MINIMAP2_MAPPING(   ch_filteredcontigs, 
-                                MINIMAP2_CATALOGUE_INDEX.out.catalogue,
-                              )
+            MINIMAP2_MAPPING( ch_filteredcontigs.join( MINIMAP2_CATALOGUE_INDEX.out.catalogue ) )
 
             ch_mapping = MINIMAP2_MAPPING.out.maps
             ch_bam = MINIMAP2_MAPPING.out.bam
@@ -111,7 +109,7 @@ workflow assembly{
             MINIMAP2_CATALOGUE_INDEX( MINIMAP2_CATALOGUE.out.catalogue )
 
             MINIMAP2_MAPPING( ch_filteredcontigs.join( MINIMAP2_CATALOGUE_INDEX.out.catalogue ) )
-                              
+
             ch_mapping = MINIMAP2_MAPPING.out.maps
             ch_bam = MINIMAP2_MAPPING.out.bam
 
@@ -241,11 +239,10 @@ workflow assembly{
                 if(params.updategtdbtk){
                     PREPARE_GTDBTK()
                 }
-            }
         
             getCountTable(ch_bam)
-
         
         }
+        
         
 }
