@@ -1,4 +1,4 @@
-include { input_check; input_check_qced } from '../subworkflows/input_check'
+include { input_check; input_check_qced; input_sra } from '../subworkflows/input_check'
 include { QC_rmHost; QC_noHost } from '../subworkflows/QC'
 include { MULTIQC1; MULTIQC2 } from '../subworkflows/QC'
 include { metaphlan } from '../subworkflows/metaphlan'
@@ -16,12 +16,24 @@ workflow MW {
 
         ch_versions = Channel.empty()
 
-    //QC, either with host contaminations or without:
+    // inputs:
         if(!params.no_qc){
+            if(params.reads && params.sra){
+                exit 1, "Please only declare either --sra or --read. Not both!"
+            }
 
+            if(params.reads){
             input_check()
             ch_raw_reads = input_check.out.reads
-
+            } else {
+                if(params.sra){
+                    input_sra()
+                    ch_raw_reads = input_sra.out.reads
+                }else{
+                    exit 1, "No input in --reads or --sra was declared!"
+                    }
+            }
+    //QC, either with host contaminations or without:
             if(params.genome){
                 QC_rmHost(
                     ch_raw_reads
