@@ -24,8 +24,7 @@ process FORMATTING_CONTIG_TO_BIN {
 process MARKER_IDENT {
 
 	label 'magscot'
-	//scratch params.scratch
-	scratch false
+	scratch params.scratch
 	tag "$sampleID"
 	publishDir "${params.outdir}/magscot/${sampleID}", mode: 'copy'
 
@@ -118,7 +117,7 @@ process EXTRACT_REFINED_BINS {
 		tuple val(meta), file(refined_contigs_to_bins), file(fcontigs_filtered)
 	output:
 		tuple val(meta), file("refined_bins/*"), emit: refined_bins
-		tuple val(meta), file("refined_bins"), emit: refined_bins_folder
+		//tuple val(meta), file("refined_bins"), emit: refined_bins_folder
 	script:
 		sampleID = meta.id
 	"""

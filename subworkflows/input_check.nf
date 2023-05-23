@@ -17,7 +17,7 @@ workflow input_check {
                         def meta = [:]  
                         meta.id = id
                         meta.single_end = params.single_end.toBoolean()
-                         if (params.single_end)
+                        if (params.single_end)
                             return [meta, [ read1 ] ] 
                         else  
                             return [meta, [ read1, read2 ] ]
@@ -44,7 +44,6 @@ workflow input_check {
 }
 
 workflow input_check_qced {
-  
     main:
         if(hasExtension(params.reads, "csv")){
             Channel
@@ -115,6 +114,26 @@ workflow input_vamb {
         reads // channel: [ val(meta), [ 0:read1, 1:read2 ] ] or  [ val(meta), [ 0:readsingle ] ]
 }
 
+workflow input_sra {
+    main: 
+        if(!params.apikey){
+            exit 1, "No SRA apikey was declared."
+        }else{
+            Channel.fromSRA(params.sra, apiKey: params.apikey)
+                .map {row -> 
+                        def meta = [:]
+                        meta.id = row[0]
+                        def singleEnd = row[1].size() == -1
+                        meta.single_end = singleEnd
+                        meta.size = row[1].size()
+                        return [meta,  row[1] ] 
+                }
+                .set { reads }
+        }
+        
+    emit:
+        reads
+}
 
 def hasExtension(it, extension) {
     it.toString().toLowerCase().endsWith(extension.toLowerCase())

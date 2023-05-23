@@ -223,7 +223,7 @@ workflow assembly{
                 }else{
                     ch_readygtdbtk = Channel.of('true')
                 }
-                GTDBTK(EXTRACT_REFINED_BINS.out.refined_bins_folder, ch_readygtdbtk)          
+                GTDBTK(EXTRACT_REFINED_BINS.out.refined_bins, ch_readygtdbtk)          
 
                 /*
                 * Abundance Table for MAGS
