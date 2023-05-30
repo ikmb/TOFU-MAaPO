@@ -11,7 +11,8 @@ input:
 output:
 	path(report), emit: krakenreport
 	//tuple val(sampleID), file(kraken_log), emit: krakenlog
-	tuple val(sampleID), file(report), emit: brackeninput
+	tuple val(sampleID), path(report), emit: brackeninput
+	path('versions.yml'), emit: version
 
 script:
 	sampleID = meta.id
@@ -29,6 +30,11 @@ script:
 		--threads ${task.cpus} \
 		--output $kraken_log \
 		--report $report ${left_clean} ${right_clean} 
+	
+	cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+    Kraken2: \$(kraken2 --version | awk 'FNR==1{print \$0}' | sed -e "s/Kraken version //g" )
+    END_VERSIONS
 	"""
 	} else {
 	"""
@@ -36,6 +42,11 @@ script:
 		--threads ${task.cpus} \
 		--output $kraken_log \
 		--report $report ${unpaired_clean} 
+	
+	cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+    Kraken2: \$(kraken2 --version | awk 'FNR==1{print \$0}' | sed -e "s/Kraken version //g" )
+    END_VERSIONS
 	"""	
 	}
 }
@@ -47,10 +58,16 @@ process KRAKEN2MPA {
 
 	output:
 		path("${report.simpleName}.kraken_mpa.txt"), emit: krakenmpa
+		path('versions.yml'), emit: version
 
 	script:
 		"""
 		kreport2mpa.py -r $report -o ${report.simpleName}.kraken_mpa.txt --percentages --display-header
+
+		cat <<-END_VERSIONS > versions.yml
+    	"${task.process}":
+      	Python: \$(python --version | sed -e "s/Python //g" )
+    	END_VERSIONS
 		"""
 }
 
@@ -60,12 +77,18 @@ process KRAKEN2YAML {
 		path(reports)
 
 	output:
-		file(report_yaml)
+		path(report_yaml), emit: kraken2yaml
+		path('versions.yml'), emit: version
 
 	script:
 		report_yaml = "kraken_report_mqc.yaml"
 		"""	
 		kraken2yaml.pl --outfile $report_yaml
+
+		cat <<-END_VERSIONS > versions.yml
+    	"${task.process}":
+      	Python: \$(python --version | sed -e "s/Python //g" )
+    	END_VERSIONS
 		"""
 }
 
@@ -77,13 +100,19 @@ process KRAKENMERGEREPORTS {
 		path(report)
 
 	output:
-		file(report_combined)
+		path(report_combined), emit: krakencombined
+		path('versions.yml'), emit: version
 
 	script:
 
 		report_combined = "kraken_report_combined.txt"
 		"""	
 		combine_kreports.py -r ${report.join(" ")} -o $report_combined
+
+		cat <<-END_VERSIONS > versions.yml
+    	"${task.process}":
+      	Python: \$(python --version | sed -e "s/Python //g" )
+    	END_VERSIONS
 		"""
 }
 
@@ -95,13 +124,19 @@ process KRAKENMPAMERGE {
 		path(mpaoutput)
 
 	output:
-		file(abundances)
+		path(abundances), emit: krakenmpamerge
+		path('versions.yml'), emit: version
 
 	script:
 		abundances = "kraken2_mpa_abundances.txt"
 
 		"""
-		combine_mpa.py -i ${mpaoutput.join(" ")} -o $abundances 
+		combine_mpa.py -i ${mpaoutput.join(" ")} -o $abundances
+
+		cat <<-END_VERSIONS > versions.yml
+    	"${task.process}":
+      	Python: \$(python --version | sed -e "s/Python //g" )
+    	END_VERSIONS 
 		"""
 }
 
@@ -112,15 +147,21 @@ process BRACKEN {
 	publishDir "${params.outdir}/Kraken/${sampleID}/", mode: 'copy'
 
 	input:
-		tuple val(sampleID), file(report)
+		tuple val(sampleID), path(report)
 
 	output:
-		file(bracken_output)
+		path(bracken_output), emit: brackenoutput
+		path('versions.yml'), emit: version
 
 	script:
 		bracken_output = sampleID + ".bracken"
 		"""
 		bracken -d ${params.kraken2_db} -i ${report} -o ${bracken_output} -r ${params.bracken_length} -l ${params.bracken_level} -t ${params.bracken_threshold}
+
+		cat <<-END_VERSIONS > versions.yml
+    	"${task.process}":
+      	Python: \$(python --version 2>&1 | awk '{print \$2}' )
+    	END_VERSIONS 
 		"""
 }
 
@@ -133,12 +174,18 @@ process BRACKENMERGE {
 		path(bracken_output)
 
 	output:
-		file(bracken_merged)
+		path(bracken_merged), emit: bracken_merged
+		path('versions.yml'), emit: version
 
 	script:
 	
 	bracken_merged = "bracken_merged.txt"
 	"""
-	combine_bracken_outputs.py --files ${bracken_output.join(" ")} -o $bracken_merged 
+	combine_bracken_outputs.py --files ${bracken_output.join(" ")} -o $bracken_merged
+
+	cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+    Python: \$(python --version 2>&1 | awk '{print \$2}' )
+    END_VERSIONS  
 	"""
 }

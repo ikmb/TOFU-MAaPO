@@ -10,6 +10,7 @@ process MEGAHIT {
 	output:
 		path('output/*'), emit: outputfolder
 		tuple val(meta), file(output_final_contigs), path('*_clean.fastq.gz', includeInputs: true), emit: contigs
+        path("versions.yml"),          optional: true, emit: versions
 
 	script:
 		sampleID = meta.id
@@ -43,6 +44,12 @@ process MEGAHIT {
 		    rm $fq_right
 
 		    awk '{gsub (/^>k/, "$replacer");print}' output/final.contigs.fa | awk '{OFS=""} {gsub(/_k[0-9]+_/, "_${params.contig_sep}_");print}' > $output_final_contigs
+
+			cat <<-END_VERSIONS > versions.yml
+        	"${task.process}":
+        	MEGAHIT: \$(megahit --version 2>&1 | | sed -e "s/MEGAHIT v//g")
+        	END_VERSIONS
+        
 		    """
 		} else {
 		    """	
@@ -58,6 +65,10 @@ process MEGAHIT {
 		    #awk '{gsub (/^>k/, "/$replacer");print}' output/final.contigs.fa > $output_final_contigs
 			awk '{gsub (/^>k/, "$replacer");print}' output/final.contigs.fa | awk '{OFS=""} {gsub(/_k[0-9]+_/, "_${params.contig_sep}_");print}' > $output_final_contigs
 		    
+			cat <<-END_VERSIONS > versions.yml
+        	"${task.process}":
+        	MEGAHIT: \$(megahit --version 2>&1 | | sed -e "s/MEGAHIT v//g")
+        	END_VERSIONS
 		    """			
 		}
 }

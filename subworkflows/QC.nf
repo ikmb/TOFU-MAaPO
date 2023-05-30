@@ -26,46 +26,56 @@ workflow QC_rmHost{
             log.info "Using ${params.genome} as host species."
 
             bowtie_base = params.genomes[params.genome].bowtie_index
-        }
+        } 
+        
+        ch_versions = Channel.empty()
 
      //reads_ch = Channel.fromFilePairs(params.reads , flat: true ).ifEmpty {exit 1, "Could not find the specified input reads $params.reads"}
-     FASTQC_raw(ch_raw_reads)
-     if (!params.single_end) {
-         TRIMREADS(ch_raw_reads)
-         CLEANREADS_PE(TRIMREADS.out.filterReads)
-         CLEANREADS_SE(TRIMREADS.out.filterReads)
-         FILTERREADS_PE(
-             CLEANREADS_PE.out.join(CLEANREADS_SE.out),
-             Channel.fromPath("${bowtie_base}*").collect(),         
-             Channel.fromPath(params.genomes[params.genome].bowtie_index).map{index -> index.Name} )  
-         
-         ch_cleaned_reads = FILTERREADS_PE.out.cleaned_reads
+        FASTQC_raw(ch_raw_reads)
+//TODO: CHECK THE SINGLE END STATUS BY SAMPLE
+        if (!params.single_end) {
+            TRIMREADS(ch_raw_reads)
+            CLEANREADS_PE(TRIMREADS.out.filterReads)
+            CLEANREADS_SE(TRIMREADS.out.filterReads)
+            FILTERREADS_PE(
+                CLEANREADS_PE.out.cleanfastq.join(CLEANREADS_SE.out.cleanfastq),
+                Channel.fromPath("${bowtie_base}*").collect(),         
+                Channel.fromPath(params.genomes[params.genome].bowtie_index).map{index -> index.Name} )  
 
-         FASTQC_clean(ch_cleaned_reads)  
+            ch_cleaned_reads = FILTERREADS_PE.out.cleaned_reads
 
-         ch_fastqc_clean_out =  FASTQC_clean.out.fastqc   
+            FASTQC_clean(ch_cleaned_reads)  
 
-     } else {
-         TRIMREADS(ch_raw_reads)
-         CLEANREADS_SE(TRIMREADS.out.filterReads)
-         FILTERREADS_SE(
-             CLEANREADS_SE.out,
-             Channel.fromPath("${bowtie_base}*").collect(),         
-             Channel.fromPath(params.genomes[params.genome].bowtie_index).map{index -> index.Name} )  
-         
-         ch_cleaned_reads = FILTERREADS_SE.out.cleaned_reads
+            ch_fastqc_clean_out =  FASTQC_clean.out.fastqc
 
-         FASTQC_clean(ch_cleaned_reads)  
+            ch_versions = ch_versions.mix(TRIMREADS.out.version.first())
+            ch_versions = ch_versions.mix(CLEANREADS_PE.out.version.first())
+            ch_versions = ch_versions.mix(CLEANREADS_SE.out.version.first())
+            ch_versions = ch_versions.mix(FILTERREADS_PE.out.version.first())
 
-         ch_fastqc_clean_out =  FASTQC_clean.out.fastqc    
-         
-     }    
+        } else {
+            TRIMREADS(ch_raw_reads)
+            CLEANREADS_SE(TRIMREADS.out.filterReads)
+            FILTERREADS_SE(
+                CLEANREADS_SE.out.cleanfastq,
+                Channel.fromPath("${bowtie_base}*").collect(),         
+                Channel.fromPath(params.genomes[params.genome].bowtie_index).map{index -> index.Name} )  
+        
+            ch_cleaned_reads = FILTERREADS_SE.out.cleaned_reads
+
+            FASTQC_clean(ch_cleaned_reads)  
+
+            ch_fastqc_clean_out =  FASTQC_clean.out.fastqc    
+        
+            ch_versions = ch_versions.mix(TRIMREADS.out.version.first())
+            ch_versions = ch_versions.mix(CLEANREADS_SE.out.version.first())
+            ch_versions = ch_versions.mix(FILTERREADS_SE.out.version.first())
+        }    
     emit:
-     qcedreads = ch_cleaned_reads
-     
-     fastqcoutput = FASTQC_raw.out.fastqc.collect()
-     fastqcoutputclean = ch_fastqc_clean_out.collect()
-     
+        qcedreads = ch_cleaned_reads
+        fastqcoutput = FASTQC_raw.out.fastqc.collect()
+        fastqcoutputclean = ch_fastqc_clean_out.collect()
+        versions = ch_versions
 }
 
 workflow QC_noHost{
@@ -73,39 +83,49 @@ workflow QC_noHost{
         ch_raw_reads
     main:
         
-    println "No Host genome was specified, so NO decontamination will be performed!"
+        println "No Host genome was specified, so NO decontamination will be performed!"
+        ch_versions = Channel.empty()
 
-     FASTQC_raw(ch_raw_reads)
+        FASTQC_raw(ch_raw_reads)
 
-     if (!params.single_end) {
-         TRIMREADS(ch_raw_reads)
-         CLEANREADS_PE(TRIMREADS.out.filterReads)
-         CLEANREADS_SE(TRIMREADS.out.filterReads)
-         COLLECTOR_PE(CLEANREADS_PE.out.join( CLEANREADS_SE.out) )  
-         
-         ch_cleaned_reads = COLLECTOR_PE.out.cleaned_reads
+        if (!params.single_end) {
+            TRIMREADS(ch_raw_reads)
+            CLEANREADS_PE(TRIMREADS.out.filterReads)
+            CLEANREADS_SE(TRIMREADS.out.filterReads)
+            COLLECTOR_PE(CLEANREADS_PE.out.cleanfastq.join( CLEANREADS_SE.out.cleanfastq) )  
 
-         FASTQC_clean(ch_cleaned_reads)  
+            ch_cleaned_reads = COLLECTOR_PE.out.cleaned_reads
 
-         ch_fastqc_clean_out =  FASTQC_clean.out.fastqc   
+            FASTQC_clean(ch_cleaned_reads)  
 
-     } else {
-         TRIMREADS(ch_raw_reads)
-         CLEANREADS_SE(TRIMREADS.out.filterReads)
-         COLLECTOR_SE( CLEANREADS_SE.out )  
-         
-         ch_cleaned_reads = COLLECTOR_SE.out.cleaned_reads
+            ch_fastqc_clean_out =  FASTQC_clean.out.fastqc
 
-         FASTQC_clean(ch_cleaned_reads)  
+            ch_versions = ch_versions.mix(FASTQC_raw.out.version.first())
+            ch_versions = ch_versions.mix(FASTQC_clean.out.version.first())
+            ch_versions = ch_versions.mix(TRIMREADS.out.version.first())
+            ch_versions = ch_versions.mix(CLEANREADS_PE.out.version.first())
+            ch_versions = ch_versions.mix(CLEANREADS_SE.out.version.first())   
 
-         ch_fastqc_clean_out =  FASTQC_clean.out.fastqc    
-         
-     }         
+        } else {
+            TRIMREADS(ch_raw_reads)
+            CLEANREADS_SE(TRIMREADS.out.filterReads)
+            COLLECTOR_SE( CLEANREADS_SE.out.cleanfastq )  
+
+            ch_cleaned_reads = COLLECTOR_SE.out.cleaned_reads
+
+            FASTQC_clean(ch_cleaned_reads)  
+
+            ch_fastqc_clean_out =  FASTQC_clean.out.fastqc
+
+            ch_versions = ch_versions.mix(FASTQC_clean.out.version.first())
+            ch_versions = ch_versions.mix(TRIMREADS.out.version.first())
+            ch_versions = ch_versions.mix(CLEANREADS_SE.out.version.first())
+
+    }         
 
     emit:
-    
-     qcedreads = ch_cleaned_reads
-
-     fastqcoutput = FASTQC_raw.out.fastqc.collect()
-     fastqcoutputclean = ch_fastqc_clean_out.collect()
+        qcedreads = ch_cleaned_reads
+        fastqcoutput = FASTQC_raw.out.fastqc.collect()
+        fastqcoutputclean = ch_fastqc_clean_out.collect()
+        versions = ch_versions
 }

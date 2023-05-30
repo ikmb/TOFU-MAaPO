@@ -10,13 +10,13 @@ include { MAXBIN2 } from '../modules/assembly/maxbin2.nf'
 include { CONCOCT } from '../modules/assembly/concoct.nf'
 include { getCountTable } from '../modules/assembly/assembly_util.nf'
 
-include { GTDBTK; 
-          PREPARE_GTDBTK 
-        } from '../modules/assembly/gtdbtk.nf'
+include {   GTDBTK; 
+            PREPARE_GTDBTK 
+} from '../modules/assembly/gtdbtk.nf'
 
-include { METABAT;
-          contigs_to_bins
-        } from '../modules/assembly/metabat.nf'
+include {   METABAT;
+            contigs_to_bins
+} from '../modules/assembly/metabat.nf'
 
 include {
     VAMB_CATALOGUE;
@@ -51,12 +51,17 @@ include {
 workflow assembly{
     take: data
     main:
+        ch_versions = Channel.empty()
+
         if(!params.magscot){
             /*
              * Basic Genome Assembly:
              */
             MEGAHIT(data)
+            ch_versions = ch_versions.mix(MEGAHIT.out.versions.first() )
+
             FILTERCONTIGS(MEGAHIT.out.contigs)
+            ch_versions = ch_versions.mix(FILTERCONTIGS.out.versions.first() )
             
             ch_filteredcontigs = FILTERCONTIGS.out.contigs
 
@@ -98,7 +103,10 @@ workflow assembly{
     * Contigs
     */
             MEGAHIT(data)
+            ch_versions = ch_versions.mix(MEGAHIT.out.versions.first() )
+
             FILTERCONTIGS(MEGAHIT.out.contigs)
+            ch_versions = ch_versions.mix(FILTERCONTIGS.out.versions.first() )
             
             ch_filteredcontigs = FILTERCONTIGS.out.contigs
 
@@ -168,13 +176,13 @@ workflow assembly{
             )
 
             VAMB(   VAMB_CATALOGUE_INDEX.out.catalogue_indexfirst.join( VAMB_COLLECT_DEPTHS.out.alldepths )                    
-                 )
+                )
 
             ch_vambgroup_sampleid = ch_sample_to_vambgroup.map{ row -> tuple(row[1], row[0]) }.combine(VAMB.out.all_samples_clustertable, by: 0)
             
 
             VAMB_CONTIGS_SELECTION( ch_vambgroup_sampleid )
-  
+
         }
 
     /*
@@ -216,7 +224,7 @@ workflow assembly{
                 checkm( EXTRACT_REFINED_BINS.out.refined_bins )
             }
             if(!params.skip_gtdbtk){
-           
+
                 if(params.updategtdbtk){
                     PREPARE_GTDBTK()
                     ch_readygtdbtk = PREPARE_GTDBTK.out.readystate
@@ -244,4 +252,6 @@ workflow assembly{
         
         }
     }
+    emit:
+        versions = ch_versions
 }

@@ -118,13 +118,13 @@ if (params.help){
 	exit 0
 }
 
-include { MW } from './workflows/metagenomic_workflows' 
+include { tofumaapo } from './workflows/tofumaapo' 
 
 //params(params)
 
 workflow {
 
-  MW()
+  tofumaapo()
 
 }
 

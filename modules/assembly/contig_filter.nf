@@ -10,6 +10,7 @@ process FILTERCONTIGS {
 	    tuple val(meta), file(fcontigs_filtered), path(reads), 	emit: contigs, 			optional: true
 	    path(fcontigs_filtered), 								emit: filteredcontig,	optional: true
 	    tuple val(meta), file(fcontigs_filtered), 				emit: magscot_contigs, 	optional: true
+        path("versions.yml"),  									emit: versions,			optional: true
 
 	script:
 		sampleID = meta.id
@@ -25,5 +26,10 @@ process FILTERCONTIGS {
         	# The file is empty.
 			echo "file is empty"
 		fi
+
+		cat <<-END_VERSIONS > versions.yml
+        "${task.process}":
+        Python: \$(/opt/conda/envs/ikmb-metagenome-1.2/bin/python3 --version | sed -e "s/Python //g" )
+        END_VERSIONS
 		"""
 }

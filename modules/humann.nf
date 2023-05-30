@@ -8,7 +8,7 @@
 
 	"""
     if [ ! -d ${params.humann_db} ]; then
-      mkdir -p ${params.humann_db};
+        mkdir -p ${params.humann_db};
     fi
 	cd ${params.humann_db}
 
@@ -24,37 +24,37 @@
     tag "$sampleID"
     scratch params.scratch
     errorStrategy { (task.exitStatus in [143,137,104,134,139,1] && task.attempt <= maxRetries)  ? 'retry' : 'ignore' }
-    //scratch true
     //publishDir "${params.outdir}/${sampleID}/humann", mode: 'copy'
 
-     input:
-     tuple val(meta),path(reads)
-     each readymetaphlan
-     each readyhumann
+    input:
+        tuple val(meta),path(reads)
+        each readymetaphlan
+        each readyhumann
 
-     output:
-	 path('*_genefamilies.tsv'),    optional: true, emit: genefamilies
-     path('*_pathabundance.tsv'),   optional: true, emit: pathabundance
-     path('*_pathcoverage.tsv'),    optional: true, emit: pathcoverage
-     path('*'),                     optional: true, emit: humannouts
+    output:
+	    path('*_genefamilies.tsv'),    optional: true, emit: genefamilies
+        path('*_pathabundance.tsv'),   optional: true, emit: pathabundance
+        path('*_pathcoverage.tsv'),    optional: true, emit: pathcoverage
+        path('*'),                     optional: true, emit: humannouts
+        path("versions.yml"),          optional: true, emit: versions
 
-     script:
-     sampleID = meta.id
+    script:
+        sampleID = meta.id
 
-	left_clean = sampleID + "_R1_clean.fastq.gz"
-	right_clean = sampleID + "_R2_clean.fastq.gz"
-	unpaired_clean = sampleID + "_single_clean.fastq.gz"
+	    left_clean = sampleID + "_R1_clean.fastq.gz"
+	    right_clean = sampleID + "_R2_clean.fastq.gz"
+	    unpaired_clean = sampleID + "_single_clean.fastq.gz"
 
-    phlan_left = sampleID + "_1.fq"
-    phlan_right = sampleID + "_2.fq"
-    phlan_single = sampleID + "_single.fq"
+        phlan_left = sampleID + "_1.fq"
+        phlan_right = sampleID + "_2.fq"
+        phlan_single = sampleID + "_single.fq"
 
-    genefamilies = sampleID + '_genefamilies.tsv'
-    pathabundance = sampleID + '_pathabundance.tsv'
-    pathcoverage = sampleID + '_pathcoverage.tsv'
-	merged = sampleID + '.fq'
+        genefamilies = sampleID + '_genefamilies.tsv'
+        pathabundance = sampleID + '_pathabundance.tsv'
+        pathcoverage = sampleID + '_pathcoverage.tsv'
+	    merged = sampleID + '.fq'
 
-    if (!params.single_end) {
+        if (!params.single_end) {
         """
 		zcat ${left_clean} > $phlan_left
     	zcat ${right_clean} > $phlan_right
@@ -81,16 +81,19 @@
             --nproc ${task.cpus}" \
             --output-basename $sampleID
         rm *.fq
+
+        cat <<-END_VERSIONS > versions.yml
+        "${task.process}":
+        humann: \$(humann --version 2>&1 | sed -e "s/humann v//g")
+        END_VERSIONS
         """
 
-	} else {
+	    } else {
         """
         zcat ${unpaired_clean} > $phlan_single
         
-        
         METAPHLAN_BOWTIE2_DB=${params.metaphlan_db}
         DEFAULT_DB_FOLDER=${params.metaphlan_db}
-
 
     	humann --input $phlan_single \
             --output . \
@@ -101,9 +104,14 @@
             --protein-database ${params.humann_db}/uniref \
             --metaphlan-options "--bowtie2db ${params.metaphlan_db} \
             --nproc ${task.cpus}"
-        rm *.fq 
+        rm *.fq
+
+        cat <<-END_VERSIONS > versions.yml
+        "${task.process}":
+        humann: \$(humann --version 2>&1 | sed -e "s/humann v//g")
+        END_VERSIONS
         """
-    }
+        }
 }
 
 process JOINgenefamilies {
@@ -116,13 +124,19 @@ process JOINgenefamilies {
 	path('*')
 
     output:
-        file(mergedtable)
+        path(mergedtable),     emit: abundances
+        path("versions.yml"),  emit: versions
 
     script:
         mergedtable = "humann_merged_genefamilies.tsv"
 
         """
-            humann_join_tables --input . --output $mergedtable
+        humann_join_tables --input . --output $mergedtable
+
+        cat <<-END_VERSIONS > versions.yml
+        "${task.process}":
+        Python: \$(python --version | sed -e "s/Python //g" )
+        END_VERSIONS
         """
 }
 
@@ -132,18 +146,23 @@ process JOINpathabundance {
     publishDir "${params.outdir}/humann", mode: 'copy'
     scratch params.scratch
     
-
     input:
 	path('*')
 
     output:
-        file(mergedtable)
+        path(mergedtable),     emit: abundances
+        path("versions.yml"),  emit: versions
 
     script:
         mergedtable = "humann_merged_pathabundance.tsv"
 
         """
-            humann_join_tables --input . --output $mergedtable
+        humann_join_tables --input . --output $mergedtable
+        
+        cat <<-END_VERSIONS > versions.yml
+        "${task.process}":
+        Python: \$(python --version | sed -e "s/Python //g" )
+        END_VERSIONS
         """
 }
 
@@ -152,18 +171,23 @@ process JOINpathcoverage {
     label 'humann'
     publishDir "${params.outdir}/humann", mode: 'copy'
     scratch params.scratch
-    
 
     input:
 	path('*')
 
     output:
-        file(mergedtable)
+        path(mergedtable),     emit: abundances
+        path("versions.yml"),  emit: versions
 
     script:
         mergedtable = "humann_merged_pathcoverage.tsv"
 
         """
-            humann_join_tables --input . --output $mergedtable
+        humann_join_tables --input . --output $mergedtable
+
+        cat <<-END_VERSIONS > versions.yml
+        "${task.process}":
+        Python: \$(python --version | sed -e "s/Python //g" )
+        END_VERSIONS
         """
 }       

@@ -5,16 +5,17 @@ include { metaphlan } from '../subworkflows/metaphlan'
 include { kraken } from '../subworkflows/kraken'
 include { humann } from '../subworkflows/humann'
 include { assembly } from '../subworkflows/assembly'
+include { SOFTWARE_VERSIONS } from '../modules/software_versions'
 
 
 /* 
  * Main pipeline logic
  */
 
-workflow MW {
+workflow tofumaapo {
     main:
 
-        ch_versions = Channel.empty()
+        ch_versions = Channel.from([])
 
     // inputs:
         if(!params.no_qc){
@@ -41,6 +42,8 @@ workflow MW {
                 QCout = QC_rmHost.out.qcedreads
                 Fastqcoutput = QC_rmHost.out.fastqcoutput.collect()
                 FASTqccleanout = QC_rmHost.out.fastqcoutputclean.collect()
+
+                ch_versions = ch_versions.mix( QC_rmHost.out.versions )
             }else{
                 QC_noHost(
                     ch_raw_reads
@@ -48,6 +51,8 @@ workflow MW {
                 QCout = QC_noHost.out.qcedreads
                 Fastqcoutput = QC_noHost.out.fastqcoutput.collect()
                 FASTqccleanout = QC_noHost.out.fastqcoutputclean.collect()
+
+                ch_versions = ch_versions.mix( QC_noHost.out.versions )
                 }
         }else{
             input_check_qced()
@@ -57,19 +62,26 @@ workflow MW {
     //kraken:
         if(params.virus || params.kraken || params.bracken){
             kraken(QCout)
+
+            ch_versions = ch_versions.mix( kraken.out.versions )
         }
     //metaphlan:
         if(params.metaphlan || params.updatemetaphlan){
             metaphlan(QCout)
-            //ch_versions = ch_versions.mix(metaphlan.out.versions)
+
+            ch_versions = ch_versions.mix( metaphlan.out.versions )
         }
     //humann:
         if(params.humann || params.updatehumann){
             humann(QCout)
+
+            ch_versions = ch_versions.mix( humann.out.versions )
         }
     //genome assembly:
         if( params.assembly || params.magscot ){
             assembly(QCout)
+
+            ch_versions = ch_versions.mix( assembly.out.versions )
         }
 
     //multiqc, collecting all fastqc- and kraken-files; change this when optional inputs are doable:
@@ -78,7 +90,7 @@ workflow MW {
                 MULTIQC2(
                     Fastqcoutput.collect(),
                     FASTqccleanout.collect(),
-                    kraken.out.collect()
+                    kraken.out.kraken_data.collect()
                 )    
             }else{
                 MULTIQC1(
@@ -88,4 +100,7 @@ workflow MW {
             }
         }
 
+    SOFTWARE_VERSIONS (
+        ch_versions.unique().collectFile(name: 'collated_versions.yml')
+    )
 }

@@ -13,8 +13,9 @@ process FILTERREADS_SE {
 		path(bwt_files)
 		each genome
 	output:
-		tuple val(meta), path(unpaired_clean), emit: cleaned_reads
-		path(bowtie_log), emit: filterlog
+		tuple val(meta), path(unpaired_clean), 		   emit: cleaned_reads
+		path(bowtie_log), 							   emit: filterlog
+        path("versions.yml"),          optional: true, emit: versions
 
 	script:
 		sampleID = meta.id
@@ -34,6 +35,11 @@ process FILTERREADS_SE {
 				--un-gz $unpaired_clean \
 				--un-conc-gz ${sampleID}_R%_clean.fastq.gz \
 				2> $bowtie_log
+
+		cat <<-END_VERSIONS > versions.yml
+        "${task.process}":
+		bowtie2: \$(bowtie2 --version | awk 'FNR==1' |sed 's/.* //')
+		END_VERSIONS
 		"""
 }
 
@@ -51,8 +57,9 @@ process FILTERREADS_PE {
 		path(bwt_files)
 		each genome
 	output:
-		tuple val(meta), path("*_clean.fastq.gz"), emit: cleaned_reads
-		path(bowtie_log), emit: filterlog
+		tuple val(meta), path("*_clean.fastq.gz"), 		emit: cleaned_reads
+		path(bowtie_log), 								emit: filterlog
+        path("versions.yml"),          optional: true, 	emit: version
 
 	script:
 		sampleID = meta.id
@@ -74,5 +81,10 @@ process FILTERREADS_PE {
 				--un-gz $unpaired_clean \
 				--un-conc-gz ${sampleID}_R%_clean.fastq.gz \
 				2> $bowtie_log
+
+		cat <<-END_VERSIONS > versions.yml
+        "${task.process}":
+		bowtie2: \$(bowtie2 --version | awk 'FNR==1' |sed 's/.* //')
+		END_VERSIONS
 		"""
 }

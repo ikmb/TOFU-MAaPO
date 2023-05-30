@@ -8,8 +8,8 @@ process CLEANREADS_PE {
 		tuple val(meta), path(reads)
 
 	output:
-		tuple val(meta), path('*_cleanwithhost.fastq.gz')
-
+		tuple val(meta), path('*_cleanwithhost.fastq.gz'), emit: cleanfastq
+		path('versions.yml'), emit: version
 	script:
 		sampleID = meta.id
 		leftnewname = sampleID + "_1_raw.fastq.gz"
@@ -26,6 +26,10 @@ process CLEANREADS_PE {
 
 		"""
 		bbduk.sh stats=$artifact_stats threads=${task.cpus} in=${left_trimmed} in2=${right_trimmed} k=31 ref=artifacts,phix ordered cardinality out1=${left_clean} out2=${right_clean} minlength=${params.min_read_length}
+		cat <<-END_VERSIONS > versions.yml
+    	"${task.process}":
+      		BBMap: \$(bbduk.sh --version 2>&1 | awk 'FNR==2{print \$0}' | sed -e "s/BBMap //g" | sed -e "s/version //g" )
+    	END_VERSIONS
 		"""
 }
 
@@ -39,7 +43,8 @@ process CLEANREADS_SE {
 		tuple val(meta), path(reads)
 
 	output:
-		tuple val(meta),path(unpaired_clean), emit: cleanseouts
+		tuple val(meta),path(unpaired_clean), emit: cleanfastq
+		path('versions.yml'), emit: version
 
 	script:
 		sampleID = meta.id
@@ -52,7 +57,10 @@ process CLEANREADS_SE {
 
 		"""
 		bbduk.sh threads=${task.cpus} in=$unpaired  k=31 ref=artifacts,phix ordered cardinality out1=${unpaired_clean} minlength=${params.min_read_length}
-
+		cat <<-END_VERSIONS > versions.yml
+    	"${task.process}":
+      	  BBMap: \$(bbduk.sh --version 2>&1 | awk 'FNR==2{print \$0}' | sed -e "s/BBMap //g" | sed -e "s/version //g" )
+    	END_VERSIONS
 		"""
 }
 
@@ -68,7 +76,7 @@ process TRIMREADS {
 	output:
 		
 		tuple val(meta), path('*_trimmed.fastq.gz'), emit: filterReads
-					
+		path('versions.yml'), emit: version
 	script:
 		sampleID = meta.id
 
@@ -99,6 +107,11 @@ process TRIMREADS {
 				tpe \
 				tbo
 		rm ${left_trimmed}
+
+		cat <<-END_VERSIONS > versions.yml
+    	"${task.process}":
+      	  BBMap: \$(bbduk.sh --version 2>&1 | awk 'FNR==2{print \$0}' | sed -e "s/BBMap //g" | sed -e "s/version //g" )
+    	END_VERSIONS
 		"""
 		} else {
 		"""
@@ -120,6 +133,11 @@ process TRIMREADS {
 				minlength=${params.min_read_length} \
 				tpe \
 				tbo
+
+		cat <<-END_VERSIONS > versions.yml
+    	"${task.process}":
+      	  BBMap: \$(bbduk.sh --version 2>&1 | awk 'FNR==2{print \$0}' | sed -e "s/BBMap //g" | sed -e "s/version //g" )
+    	END_VERSIONS
 		"""
 		}
 }

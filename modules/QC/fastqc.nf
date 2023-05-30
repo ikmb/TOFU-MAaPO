@@ -7,9 +7,11 @@ process FASTQC_raw {
 
 	input:
 	tuple val(meta), path(reads)
+	
 
 	output:
 	path('*_fastqc.{zip,html}'), emit: fastqc
+	path('versions.yml'), emit: version
 	//tuple val(meta), path("*_raw.fastq.gz") , emit: reads
 
 	script:
@@ -24,6 +26,10 @@ process FASTQC_raw {
 
 		fastqc --quiet --threads ${task.cpus} $leftnewname 
 
+		cat <<-END_VERSIONS > versions.yml
+    	"${task.process}":
+        FastQC: \$(fastqc --version 2>&1 | sed -e "s/FastQC v//g" )
+    	END_VERSIONS
 	    """
       } else {
 		"""
@@ -31,8 +37,13 @@ process FASTQC_raw {
         [ ! -f  $rightnewname ] && ln -s ${reads[1]} $rightnewname
 
 		fastqc --quiet --threads ${task.cpus} $leftnewname $rightnewname
+
+		cat <<-END_VERSIONS > versions.yml
+    	"${task.process}":
+        FastQC: \$(fastqc --version 2>&1 | sed -e "s/FastQC v//g" )
+    	END_VERSIONS
 		"""
-	  }
+	}
 }
 
 process FASTQC_clean {
@@ -46,6 +57,7 @@ process FASTQC_clean {
 
 	output:
 		path('*_fastqc.{zip,html}'), emit: fastqc
+		path('versions.yml'), emit: version
 
 	script:
 		sampleID = meta.id
@@ -63,12 +75,21 @@ process FASTQC_clean {
 			[ ! -f  $unpairednewname ] && ln -s ${reads[2]} $unpairednewname
 
 			fastqc --quiet --threads ${task.cpus} $leftnewname $rightnewname $unpairednewname
+			cat <<-END_VERSIONS > versions.yml
+    		"${task.process}":
+        	FastQC: \$(fastqc --version 2>&1 | sed -e "s/FastQC v//g" )
+    		END_VERSIONS
 		"""
 		} else {
 		"""
 			[ ! -f  $singlenewname ] && ln -s ${reads[0]} $singlenewname
 
 			fastqc --quiet --threads ${task.cpus} $singlenewname
+
+			cat <<-END_VERSIONS > versions.yml
+    		"${task.process}":
+        	FastQC: \$(fastqc --version 2>&1 | sed -e "s/FastQC v//g" )
+    		END_VERSIONS
 		"""
 		}
 }

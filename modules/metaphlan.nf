@@ -31,21 +31,21 @@ process PREPARE_METAPHLAN {
 
 process METAPHLAN {
 
-   label 'metaphlan'
-   tag "$sampleID"
-   scratch params.scratch
+  label 'metaphlan'
+  tag "$sampleID"
+  scratch params.scratch
    //TODO: remove bam from output
    //publishDir "${params.outdir}/${sampleID}/Metaphlan4", mode: 'copy'
 
-   input:
+  input:
     tuple val(meta), path(reads)
     each ready
 
-   output:
+  output:
     path(metaphlan_out),                          optional: true, emit: outputMetaphlan
     tuple val(sampleID), file("*_metaphlan.*am"), optional: true, emit: outputMetaphlanBowtie
-    tuple val(sampleID), file('v_metaphlan.txt'), optional: true, emit: version_metaphlan
-   script:
+    path("versions.yml"),                         optional: true, emit: versions
+  script:
     sampleID = meta.id
     metaphlan_out = sampleID + "_metaphlan.out"
     bowtie_out = sampleID + "_metaphlan_bowtie2.txt"
@@ -64,9 +64,7 @@ process METAPHLAN {
       """
       METAPHLAN_BOWTIE2_DB=${params.metaphlan_db}
       DEFAULT_DB_FOLDER=${params.metaphlan_db}
-
-      metaphlan --version &> v_metaphlan.txt
-     
+    
       zcat ${left_clean} > $phlan_left
       zcat ${right_clean} > $phlan_right
     
@@ -116,13 +114,16 @@ process METAPHLAN {
       if [ ! -f ${bam_out} ]; then
         >&2 echo "Warning: ${bam_out} could not be created, please check the file ${sam_out}!"
       fi
+
+      cat <<-END_VERSIONS > versions.yml
+      "${task.process}":
+        metaphlan4: \$(metaphlan --version 2>&1 | awk '{print \$3}')
+      END_VERSIONS
       """
     } else {
       """
       METAPHLAN_BOWTIE2_DB=${params.metaphlan_db}
       DEFAULT_DB_FOLDER=${params.metaphlan_db}
-
-      metaphlan --version &> v_metaphlan.txt
       
       zcat ${unpaired_clean} > $phlan_single
 
@@ -154,20 +155,26 @@ process METAPHLAN {
       if [ ! -f ${bam_out} ]; then
         >&2 echo "Warning: ${bam_out} could not be created, please check the file ${sam_out}!"
       fi
+
+      cat <<-END_VERSIONS > versions.yml
+      "${task.process}":
+        metaphlan4: \$(metaphlan --version 2>&1 | awk '{print \$3}')
+      END_VERSIONS
       """
     }
 }
 
 process ABUNDANCE_REL_MERGE {
   label 'default'
-	publishDir "${params.outdir}/Metaphlan4", mode: 'copy'
+	publishDir "${params.outdir}/Metaphlan4", mode: 'copy', pattern: "*.txt"
   scratch params.scratch
 
 	input:
 	  path(results)
 
 	output:
-	  file(abundances)
+	  path(abundances),     emit: abundances
+    path("versions.yml"), emit: versions
 
 	script:
 	  abundances = "metaphlan_rel_abundances.txt"
@@ -175,24 +182,34 @@ process ABUNDANCE_REL_MERGE {
 	  """
     /opt/conda/envs/ikmb-metagenome-1.2/bin/python3 ${baseDir}/bin/merge_rel_reads.py ${results.join(" ")} > $abundances
 		#merge_metaphlan_tables.py ${results.join(" ")} > $abundances
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+      Python: \$(python --version | sed -e "s/Python //g" )
+    END_VERSIONS
 	  """
 }
 
 process ABUNDANCE_ABS_MERGE {
   label 'default'
-	publishDir "${params.outdir}/Metaphlan4", mode: 'copy'
+	publishDir "${params.outdir}/Metaphlan4", mode: 'copy', pattern: "*.txt"
   scratch params.scratch
 
 	input:
 	  path(results)
 
 	output:
-	  file(abundances)
+	  path(abundances),     emit: abundances
+    path("versions.yml"), emit: versions
 
 	script:
 	  abundances = "metaphlan_abs_abundances.txt"
 
 	  """
 		/opt/conda/envs/ikmb-metagenome-1.2/bin/python3 ${baseDir}/bin/merge_abs_reads.py ${results.join(" ")} > $abundances
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+      Python: \$(python --version | sed -e "s/Python //g" )
+    END_VERSIONS
 	  """
 }

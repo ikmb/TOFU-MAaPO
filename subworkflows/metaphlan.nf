@@ -3,11 +3,11 @@
  * Import metaphlan modules 
  */
 include {
-  PREPARE_METAPHLAN;
-  METAPHLAN;
-  ABUNDANCE_REL_MERGE;
-  ABUNDANCE_ABS_MERGE
-  } from '../modules/metaphlan.nf'
+    PREPARE_METAPHLAN;
+    METAPHLAN;
+    ABUNDANCE_REL_MERGE;
+    ABUNDANCE_ABS_MERGE
+} from '../modules/metaphlan.nf'
 
 /*
  * Metaphlan3 pipeline logic
@@ -30,12 +30,18 @@ workflow metaphlan{
         }
         METAPHLAN(data, ch_readymetaphlan)
         ch_metaphout = METAPHLAN.out.outputMetaphlan
-        ch_versions = ch_versions.mix(METAPHLAN.out.version_metaphlan.first() )
+        ch_versions = ch_versions.mix(METAPHLAN.out.versions.first() )
+
         if(params.metaphlan_analysis_type == "rel_ab_w_read_stats"){
             ABUNDANCE_REL_MERGE(ch_metaphout.collect() )
             ABUNDANCE_ABS_MERGE(ch_metaphout.collect() )
+
+            ch_versions = ch_versions.mix(ABUNDANCE_REL_MERGE.out.versions )
+            ch_versions = ch_versions.mix(ABUNDANCE_ABS_MERGE.out.versions )
         } else if (params.metaphlan_analysis_type == "rel_ab") {
             ABUNDANCE_REL_MERGE(ch_metaphout.collect() )
+
+            ch_versions = ch_versions.mix(ABUNDANCE_REL_MERGE.out.versions )
         }
     emit:
         versions = ch_versions
