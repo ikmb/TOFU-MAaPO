@@ -10,9 +10,9 @@ process GTDBTK {
 		each readygtdbtk
 
 	output:
-	    file("all.bins.gtdbtk_output/*")
+	    path("all.bins.gtdbtk_output/*"), emit: gtdbtk_outputfoldercontent
 		tuple val(meta), file("all.bins.gtdbtk_output/gtdbtk.bac120.summary.tsv"), emit: taxonomic_table
-	
+		path("versions.yml"),          optional: true, emit: versions
 	shell:
 		sampleID = meta.id
 	    """
@@ -20,6 +20,11 @@ process GTDBTK {
 	    gtdbtk classify_wf --cpus ${task.cpus} --genome_dir . --extension fa --out_dir all.bins.gtdbtk_output --pplacer_cpus 1 --skip_ani_screen #/refined_bins
 
 	    awk -F "\t" '{ sub(/.*;s__/, "s__", \$2); print \$1 "\t" \$2 }' all.bins.gtdbtk_output/gtdbtk.bac120.summary.tsv > all.bins.gtdbtk_output/parsed_bac120_summary.tsv
+
+		cat <<-END_VERSIONS > versions.yml
+        "${task.process}":
+        GTDB-Tk: \$(gtdbtk -version | head -1 | awk '{print \$3}')
+        END_VERSIONS
 	    """
 }
 

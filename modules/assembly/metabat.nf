@@ -9,12 +9,19 @@ process METABAT {
         tuple val(meta), file(fcontigs), file(depthout)
 
     output:
-    	tuple val(meta), file("${sampleID}_bin.*.fa")
+    	tuple val(meta), file("${sampleID}_bin.*.fa"), emit:metabatout
+		path("versions.yml"),          optional: true, emit: versions
 
 	script:
 		sampleID = meta.id
     	"""
     	metabat2 -i $fcontigs -a ${sampleID}_depth.txt -o ${sampleID}_bin -t ${task.cpus} -m ${params.contigsminlength}
+
+		
+		cat <<-END_VERSIONS > versions.yml
+        "${task.process}":
+        METABAT: \$(metabat2 --help 2>&1 | awk 'NR==2{print}' | sed -n -e 's/^.*version //p' | awk '{print \$1}')
+        END_VERSIONS
     	"""
 }
 

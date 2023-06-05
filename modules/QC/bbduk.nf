@@ -28,7 +28,7 @@ process CLEANREADS_PE {
 		bbduk.sh stats=$artifact_stats threads=${task.cpus} in=${left_trimmed} in2=${right_trimmed} k=31 ref=artifacts,phix ordered cardinality out1=${left_clean} out2=${right_clean} minlength=${params.min_read_length}
 		cat <<-END_VERSIONS > versions.yml
     	"${task.process}":
-      		BBMap: \$(bbduk.sh --version 2>&1 | awk 'FNR==2{print \$0}' | sed -e "s/BBMap //g" | sed -e "s/version //g" )
+      	BBMap: \$(bbduk.sh --version 2>&1 | awk 'FNR==2{print \$0}' | sed -e "s/BBMap //g" | sed -e "s/version //g" )
     	END_VERSIONS
 		"""
 }
@@ -59,7 +59,7 @@ process CLEANREADS_SE {
 		bbduk.sh threads=${task.cpus} in=$unpaired  k=31 ref=artifacts,phix ordered cardinality out1=${unpaired_clean} minlength=${params.min_read_length}
 		cat <<-END_VERSIONS > versions.yml
     	"${task.process}":
-      	  BBMap: \$(bbduk.sh --version 2>&1 | awk 'FNR==2{print \$0}' | sed -e "s/BBMap //g" | sed -e "s/version //g" )
+      	BBMap: \$(bbduk.sh --version 2>&1 | awk 'FNR==2{print \$0}' | sed -e "s/BBMap //g" | sed -e "s/version //g" )
     	END_VERSIONS
 		"""
 }
@@ -110,7 +110,7 @@ process TRIMREADS {
 
 		cat <<-END_VERSIONS > versions.yml
     	"${task.process}":
-      	  BBMap: \$(bbduk.sh --version 2>&1 | awk 'FNR==2{print \$0}' | sed -e "s/BBMap //g" | sed -e "s/version //g" )
+      	BBMap: \$(bbduk.sh --version 2>&1 | awk 'FNR==2{print \$0}' | sed -e "s/BBMap //g" | sed -e "s/version //g" )
     	END_VERSIONS
 		"""
 		} else {
@@ -136,7 +136,7 @@ process TRIMREADS {
 
 		cat <<-END_VERSIONS > versions.yml
     	"${task.process}":
-      	  BBMap: \$(bbduk.sh --version 2>&1 | awk 'FNR==2{print \$0}' | sed -e "s/BBMap //g" | sed -e "s/version //g" )
+      	BBMap: \$(bbduk.sh --version 2>&1 | awk 'FNR==2{print \$0}' | sed -e "s/BBMap //g" | sed -e "s/version //g" )
     	END_VERSIONS
 		"""
 		}

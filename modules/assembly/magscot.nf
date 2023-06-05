@@ -12,13 +12,13 @@ process FORMATTING_CONTIG_TO_BIN {
 	script:
 		sampleID = meta.id
 		formatted_contigs_to_bin = sampleID + '_contigs_to_bin.tsv'
-	"""
+		"""
     	gawk '{print \$1"\t"\$2"\tvamb"}'  $vamb_cluster_table > $formatted_contigs_to_bin
 		gawk '{print \$1"\t"\$2"\tmetabat2"}'  $metabat2_cluster_table >> $formatted_contigs_to_bin
 		gawk '{print \$1"\t"\$2"\tmaxbin2"}'  $maxbin2_cluster_table >> $formatted_contigs_to_bin
 		gawk '{print \$1"\t"\$2"\tconcoct"}'  $concoct_cluster_table >> $formatted_contigs_to_bin
 
-	"""
+		"""
 }
 
 process MARKER_IDENT {
@@ -32,6 +32,7 @@ process MARKER_IDENT {
 		tuple val(meta), file(fcontigs), file(depthout), file(formatted_contigs_to_bin)
 	output:
 		tuple val(meta), file(samplehmm), emit: hmm_output
+		path("versions.yml"),          optional: true, emit: versions
 	script:
 		sampleID = meta.id
 
@@ -41,7 +42,7 @@ process MARKER_IDENT {
 		sampleprodigalfaa = sampleID + '.prodigal.faa'
 		sampleprodigalffn = sampleID + '.prodigal.ffn'
 		sample_tmp = sampleID + '_tmp'
-	"""
+		"""
 		### ORF detection with prodigal
 		cat $fcontigs | prodigal -p meta -a $sampleprodigalfaa -d $sampleprodigalffn -o $sample_tmp
 
@@ -79,7 +80,15 @@ process MARKER_IDENT {
 		cat $samplepfam $sampleptigr > $samplehmm
 		}
 		set -e
-	"""
+
+
+		cat <<-END_VERSIONS > versions.yml
+        "${task.process}":
+        hhmsearch: \$(hmmsearch -h 2>&1 | awk 'NR==2{print \$3}')
+		Prodigal: \$(prodigal -v 2>&1 | awk 'NR==2{print\$2}' | sed -e 's/V//g' | sed -e 's/://g')
+		R: \$(Rscript --version | awk '{print \$4}')
+        END_VERSIONS
+		"""
 }
 
 process MAGSCOT {
@@ -97,6 +106,7 @@ process MAGSCOT {
 		tuple val(meta), file(refined_contigs_to_bins), file(fcontigs_filtered), emit: refined_contigs_to_bins
 		tuple val(meta), file(refined_contigs_to_bins), emit: contigs_to_bins_table
 		tuple val(meta), file(stats_outfile), emit: stats_outfile_table
+		path("versions.yml"),          optional: true, emit: versions
 	script:
 		sampleID = meta.id
 		refined_contigs_to_bins = sampleID + '.refined.contig_to_bin.out'
@@ -104,6 +114,11 @@ process MAGSCOT {
 	"""
 		Rscript /opt/MAGScoT.R -i $formatted_contigs_to_bin --hmm $samplehmm -o $sampleID -s ${params.magscot_min_sharing}
 
+		cat <<-END_VERSIONS > versions.yml
+        "${task.process}":
+		MAGScoT: 1.0.0
+		R: \$(Rscript --version | awk '{print \$4}')
+        END_VERSIONS
 	"""
 }
 
@@ -117,6 +132,7 @@ process EXTRACT_REFINED_BINS {
 		tuple val(meta), file(refined_contigs_to_bins), file(fcontigs_filtered)
 	output:
 		tuple val(meta), file("refined_bins/*"), emit: refined_bins
+		path("versions.yml"),          optional: true, emit: versions
 		//tuple val(meta), file("refined_bins"), emit: refined_bins_folder
 	script:
 		sampleID = meta.id
@@ -124,6 +140,11 @@ process EXTRACT_REFINED_BINS {
 		mkdir -p refined_bins
 		
 		cat $refined_contigs_to_bins | awk '{if(NR==1){print "contig_id,cluster_id"; next}; print \$2","\$1}' | sed 's/[.]fasta//' | extract_fasta_bins.py $fcontigs_filtered /dev/stdin  --output_path refined_bins
+
+		cat <<-END_VERSIONS > versions.yml
+    	"${task.process}":
+      	Python: \$(python --version | sed -e "s/Python //g" )
+    	END_VERSIONS
 	"""
 }
 

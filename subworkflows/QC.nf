@@ -4,7 +4,6 @@
  */
 
 include {  FILTERREADS_SE;  FILTERREADS_PE } from '../modules/QC/bowtie2'
-include {  MULTIQC1;  MULTIQC2 } from '../modules/QC/multiqc'
 include {  FASTQC_raw; FASTQC_clean } from '../modules/QC/fastqc'
 include {  TRIMREADS; CLEANREADS_PE; CLEANREADS_SE } from '../modules/QC/bbduk'
 include {  COLLECTOR_PE; COLLECTOR_SE } from '../modules/QC/collect'

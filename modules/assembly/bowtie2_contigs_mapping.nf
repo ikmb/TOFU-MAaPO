@@ -12,6 +12,7 @@ process CONTIGS_MAPPING{
 		tuple val(meta), file(fcontigs), file(depthout), emit: maps
 		tuple val(meta), file(mappingbam), emit: bam
 		tuple val(meta), file(depthout), file(sample_total_reads), emit: sample_depth
+		path("versions.yml"),	optional: true, emit: versions
 
 	script:
 		sampleID = meta.id
@@ -33,6 +34,13 @@ process CONTIGS_MAPPING{
 			grep "reads; of these:" ${sampleID}.txt | sed 's/ reads; of these://' > $sample_total_reads
 
 			jgi_summarize_bam_contig_depths $mappingbam --outputDepth $depthout
+
+			cat <<-END_VERSIONS > versions.yml
+    		"${task.process}":
+      		bowtie2: \$(bowtie2 --version | awk 'FNR==1' |sed 's/.* //')
+			samtools: \$(samtools --version | head -1 | sed -e "s/samtools //g")
+			jgi_summarize_bam_contig_depths: \$(jgi_summarize_bam_contig_depths 2>&1 | head -1 | awk '{print \$2}')
+    		END_VERSIONS
 			"""
 		} else {
 			"""
@@ -44,6 +52,13 @@ process CONTIGS_MAPPING{
 			grep "reads; of these:" ${sampleID}.txt | sed 's/ reads; of these://' > $sample_total_reads
 
 			jgi_summarize_bam_contig_depths $mappingbam --outputDepth $depthout
+
+			cat <<-END_VERSIONS > versions.yml
+    		"${task.process}":
+      		bowtie2: \$(bowtie2 --version | awk 'FNR==1' |sed 's/.* //')
+			samtools: \$(samtools --version | head -1 | sed -e "s/samtools //g")
+			jgi_summarize_bam_contig_depths: \$(jgi_summarize_bam_contig_depths 2>&1 | head -1 | awk '{print \$2}')
+    		END_VERSIONS
 			"""		
 		}
 }

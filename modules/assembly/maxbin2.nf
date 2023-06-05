@@ -9,7 +9,7 @@ process MAXBIN2 {
 	    tuple val(meta), file(fcontigs), file(depthout)
 	output:
 		tuple val(meta), file(maxbin2_contigs_to_bin), emit: contigs_to_bin
-
+		path("versions.yml"),          optional: true, emit: versions
 	script:
 		sampleID = meta.id
     	abundance_table = sampleID + '.abu'
@@ -29,5 +29,10 @@ process MAXBIN2 {
             -min_contig_length 2000
 		
 		grep '>' maxbin2_out/*fasta | cut -d '/' -f 2 | sed 's/:>/\\ /' > $maxbin2_contigs_to_bin
+
+		cat <<-END_VERSIONS > versions.yml
+        "${task.process}":
+        maxbin2: \$(run_MaxBin.pl -v 2>&1 | tail -1 | sed -e 's/MaxBin //g')
+        END_VERSIONS
 	"""
 }

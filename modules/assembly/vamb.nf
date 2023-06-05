@@ -1,18 +1,24 @@
 	process VAMB_CATALOGUE {
         label 'vamb'
 		scratch params.scratch
+		tag "$vamb_key"
 
         input:
             tuple val(vamb_key), val(contigs)
 
         output:
 			tuple val(vamb_key), path(catalogue), emit: catalogue
-
+			path("versions.yml"), emit: versions
         script:
 			catalogue = vamb_key + "_collected_catalogue.fna.gz"
 
         	"""
         	concatenate.py $catalogue ${contigs} --keepnames
+
+			cat <<-END_VERSIONS > versions.yml
+    		"${task.process}":
+      		Python: \$(python --version | sed -e "s/Python //g" )
+    		END_VERSIONS
         	"""
     }
 
@@ -20,6 +26,7 @@
         label 'default_highmemory'
 		cache 'lenient'
 		scratch params.scratch
+		tag "$vamb_key"
 
         input:
             tuple val(vamb_key), path(catalogue)
@@ -27,12 +34,18 @@
         output:
 			tuple  path(catalogue),val(vamb_key), path(catalogue_index), emit: catalogue
 			tuple  val(vamb_key), path(catalogue), path(catalogue_index), emit: catalogue_indexfirst
+			path("versions.yml"), emit: versions
         shell:
 			catalogue_index = "catalogue.mmi"
 
         	"""
 			minimap2 -d !{catalogue_index} !{catalogue} -m 2000 --print-qname -I!{params.minimap_indexsize}g
 			# make index #uses default 3 threads
+
+			cat <<-END_VERSIONS > versions.yml
+    		"${task.process}":
+      		minimap2: \$(minimap2 --version)
+    		END_VERSIONS
         	"""
     }
 //-I100G
@@ -45,15 +58,14 @@ process VAMB_MAPPING{
 
 	input:
 		tuple val(vamb_key), val(meta), file(fcontigs), path(reads), path(catalogue), path(catalogue_index)
-		 
 
 	output:
 		tuple val(vamb_key), path(depthout), emit: counttable 
-
 		val(meta), emit: sampleid
 		tuple val(meta), file(fcontigs), file(depthout), emit: maps
 		tuple val(meta), file(mappingbam), file(mappingbam_index), emit: bam
 		path("error.log"),    optional: true, emit: errorlog
+		path("versions.yml"), emit: versions
 
 	script:
 		sampleID = meta.id
@@ -69,18 +81,31 @@ process VAMB_MAPPING{
 		sample_total_reads = sampleID + '_totalreads.txt'
 		if (!params.single_end) {  
     		"""
-				#minimap2 -I100G -d catalogue.mmi $catalogue; # make index
-				minimap2 -t ${task.cpus} -N 50 -ax sr  $catalogue_index $left_clean $right_clean | samtools view -F 3584 -b --threads ${task.cpus} | samtools sort > $mappingbam 2> error.log # -n 
-				samtools index $mappingbam
-				jgi_summarize_bam_contig_depths $mappingbam --outputDepth $depthout
+			#minimap2 -I100G -d catalogue.mmi $catalogue; # make index
+			minimap2 -t ${task.cpus} -N 50 -ax sr  $catalogue_index $left_clean $right_clean | samtools view -F 3584 -b --threads ${task.cpus} | samtools sort > $mappingbam 2> error.log # -n 
+			samtools index $mappingbam
+			jgi_summarize_bam_contig_depths $mappingbam --outputDepth $depthout
 
+			cat <<-END_VERSIONS > versions.yml
+    		"${task.process}":
+      		minimap2: \$(minimap2 --version)
+			samtools: \$(samtools --version | head -1 | sed -e "s/samtools //g")
+			jgi_summarize_bam_contig_depths: \$(jgi_summarize_bam_contig_depths 2>&1 | head -1 | awk '{print \$2}' )
+    		END_VERSIONS
 			"""
 		} else {
 			"""	
-				#minimap2 -d catalogue.mmi $catalogue; # make index
-				minimap2 -t ${task.cpus} -N 50 -ax sr $catalogue_index $single_clean | samtools view -F 3584 -b --threads ${task.cpus}| samtools sort  > $mappingbam 2> error.log #-n
-				samtools index $mappingbam
-				jgi_summarize_bam_contig_depths $mappingbam --outputDepth $depthout
+			#minimap2 -d catalogue.mmi $catalogue; # make index
+			minimap2 -t ${task.cpus} -N 50 -ax sr $catalogue_index $single_clean | samtools view -F 3584 -b --threads ${task.cpus}| samtools sort  > $mappingbam 2> error.log #-n
+			samtools index $mappingbam
+			jgi_summarize_bam_contig_depths $mappingbam --outputDepth $depthout
+
+			cat <<-END_VERSIONS > versions.yml
+    		"${task.process}":
+      		minimap2: \$(minimap2 --version)
+			samtools: \$(samtools --version | head -1 | sed -e "s/samtools //g")
+			jgi_summarize_bam_contig_depths: \$(jgi_summarize_bam_contig_depths 2>&1 | head -1 | awk '{print \$2}')
+    		END_VERSIONS
 			"""		
 		}
 }
@@ -89,6 +114,7 @@ process VAMB_COLLECT_DEPTHS {
 	cache 'lenient'
 	label 'default'
     scratch params.scratch
+	tag "$vamb_key"
 	//publishDir "${params.outdir}/${sampleID}/vamb", mode: 'copy'
 
 	input:
@@ -96,6 +122,7 @@ process VAMB_COLLECT_DEPTHS {
 
 	output:
 		tuple val(vamb_key), path(alldepths), emit: alldepths
+		path("versions.yml"), emit: versions
 	script:
 
 		alldepths = vamb_key + '_all_depths.tsv'
@@ -103,6 +130,11 @@ process VAMB_COLLECT_DEPTHS {
 		"""
 		Rscript ${baseDir}/bin/collectmapping.R $alldepths
 		sed -i "s/[.]var/-var/g" $alldepths
+
+		cat <<-END_VERSIONS > versions.yml
+        "${task.process}":
+        R: \$(Rscript --version | awk '{print \$4}')
+        END_VERSIONS
 		"""
 }
 
@@ -118,6 +150,7 @@ process VAMB {
 
 	output:
 		tuple val(vamb_key), path(cluster_table), emit: all_samples_clustertable
+		path("versions.yml"), emit: versions
 
 	script:
 		cluster_table = 'all_vamb_contigs_to_bin.tsv'
@@ -125,6 +158,12 @@ process VAMB {
 		"""
     	vamb --outdir bin --fasta $catalogue --jgi $alldepths -o _${params.contig_sep}_ 
 		mv bin/clusters.tsv $cluster_table
+
+		cat <<-END_VERSIONS > versions.yml
+    	"${task.process}":
+      	Python: \$(python --version | sed -e "s/Python //g" )
+		Vamb: 3.0.2
+    	END_VERSIONS
 		"""
 }
 

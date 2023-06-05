@@ -117,7 +117,7 @@ process METAPHLAN {
 
       cat <<-END_VERSIONS > versions.yml
       "${task.process}":
-        metaphlan4: \$(metaphlan --version 2>&1 | awk '{print \$3}')
+      metaphlan4: \$(metaphlan --version 2>&1 | awk '{print \$3}')
       END_VERSIONS
       """
     } else {
@@ -158,7 +158,7 @@ process METAPHLAN {
 
       cat <<-END_VERSIONS > versions.yml
       "${task.process}":
-        metaphlan4: \$(metaphlan --version 2>&1 | awk '{print \$3}')
+      metaphlan4: \$(metaphlan --version 2>&1 | awk '{print \$3}')
       END_VERSIONS
       """
     }
@@ -184,7 +184,7 @@ process ABUNDANCE_REL_MERGE {
 		#merge_metaphlan_tables.py ${results.join(" ")} > $abundances
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-      Python: \$(python --version | sed -e "s/Python //g" )
+    Python: \$(python --version | sed -e "s/Python //g" )
     END_VERSIONS
 	  """
 }
@@ -209,7 +209,7 @@ process ABUNDANCE_ABS_MERGE {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-      Python: \$(python --version | sed -e "s/Python //g" )
+    Python: \$(python --version | sed -e "s/Python //g" )
     END_VERSIONS
 	  """
 }

@@ -6,6 +6,7 @@
 		    tuple val(meta), file(fcontigs), path(reads)
         output:
 			tuple val(meta), path(catalogue), optional: true, emit: catalogue
+			path("versions.yml"), emit: versions
 
         script:
 			sampleID = meta.id
@@ -13,6 +14,11 @@
 
         	"""
         	concatenate.py $catalogue ${fcontigs.join(" ")} --keepnames
+
+			cat <<-END_VERSIONS > versions.yml
+    		"${task.process}":
+      		Python: \$(python --version | sed -e "s/Python //g" )
+    		END_VERSIONS
         	"""
     }
 
@@ -25,6 +31,7 @@
 
         output:
 			tuple val(meta), path(catalogue), path(catalogue_index), emit: catalogue
+			path("versions.yml"), emit: versions
 
         script:
 			sampleID = meta.id
@@ -32,6 +39,11 @@
 
         	"""
 			minimap2 -I100G -d $catalogue_index $catalogue -m 2000 # make index
+
+			cat <<-END_VERSIONS > versions.yml
+    		"${task.process}":
+      		minimap2: \$(minimap2 --version)
+    		END_VERSIONS
         	"""
     }
 process MINIMAP2_MAPPING{
@@ -51,6 +63,7 @@ process MINIMAP2_MAPPING{
 		tuple val(meta), file(fcontigs), file(depthout), 			emit: maps
 		tuple val(meta), file(mappingbam), file(mappingbam_index), 	emit: bam
 		path("error.log"),    										emit: errorlog
+		path("versions.yml"), emit: versions
 
 	script:
 		sampleID = meta.id
@@ -66,18 +79,32 @@ process MINIMAP2_MAPPING{
 		sample_total_reads = sampleID + '_totalreads.txt'
 		if (!params.single_end) {  
     		"""
-				#minimap2 -I100G -d catalogue.mmi $catalogue; # make index
-				minimap2 -t ${task.cpus} -N 50 -ax sr  $catalogue_index $left_clean $right_clean | samtools view -F 3584 -b --threads ${task.cpus} | samtools sort > $mappingbam 2> error.log # -n 
-				samtools index $mappingbam
-				jgi_summarize_bam_contig_depths $mappingbam --outputDepth $depthout
+			#minimap2 -I100G -d catalogue.mmi $catalogue; # make index
+			minimap2 -t ${task.cpus} -N 50 -ax sr  $catalogue_index $left_clean $right_clean | samtools view -F 3584 -b --threads ${task.cpus} | samtools sort > $mappingbam 2> error.log # -n 
+			samtools index $mappingbam
+			jgi_summarize_bam_contig_depths $mappingbam --outputDepth $depthout
+
+			cat <<-END_VERSIONS > versions.yml
+    		"${task.process}":
+      		minimap2: \$(minimap2 --version)
+			samtools: \$(samtools --version | head -1 | sed -e "s/samtools //g")
+			jgi_summarize_bam_contig_depths: \$(jgi_summarize_bam_contig_depths 2>&1 | head -1 | awk '{print \$2}' )
+    		END_VERSIONS
 
 			"""
 		} else {
 			"""	
-				#minimap2 -d catalogue.mmi $catalogue; # make index
-				minimap2 -t ${task.cpus} -N 5 -ax sr $catalogue_index $single_clean | samtools view -F 3584 -b --threads ${task.cpus}| samtools sort  > $mappingbam 2> error.log #-n
-				samtools index $mappingbam
-				jgi_summarize_bam_contig_depths $mappingbam --outputDepth $depthout
+			#minimap2 -d catalogue.mmi $catalogue; # make index
+			minimap2 -t ${task.cpus} -N 5 -ax sr $catalogue_index $single_clean | samtools view -F 3584 -b --threads ${task.cpus}| samtools sort  > $mappingbam 2> error.log #-n
+			samtools index $mappingbam
+			jgi_summarize_bam_contig_depths $mappingbam --outputDepth $depthout
+
+			cat <<-END_VERSIONS > versions.yml
+    		"${task.process}":
+      		minimap2: \$(minimap2 --version)
+			samtools: \$(samtools --version | head -1 | sed -e "s/samtools //g")
+			jgi_summarize_bam_contig_depths: \$(jgi_summarize_bam_contig_depths 2>&1 | head -1 | awk '{print \$2}')
+    		END_VERSIONS
 			"""		
 		}
 }

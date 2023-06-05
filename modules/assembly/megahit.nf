@@ -47,7 +47,7 @@ process MEGAHIT {
 
 			cat <<-END_VERSIONS > versions.yml
         	"${task.process}":
-        	MEGAHIT: \$(megahit --version 2>&1 | | sed -e "s/MEGAHIT v//g")
+        	MEGAHIT: \$(megahit --version 2>&1 | sed -e "s/MEGAHIT v//g")
         	END_VERSIONS
         
 		    """
@@ -67,7 +67,7 @@ process MEGAHIT {
 		    
 			cat <<-END_VERSIONS > versions.yml
         	"${task.process}":
-        	MEGAHIT: \$(megahit --version 2>&1 | | sed -e "s/MEGAHIT v//g")
+        	MEGAHIT: \$(megahit --version 2>&1 | sed -e "s/MEGAHIT v//g")
         	END_VERSIONS
 		    """			
 		}

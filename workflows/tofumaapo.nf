@@ -1,6 +1,6 @@
 include { input_check; input_check_qced; input_sra } from '../subworkflows/input_check'
 include { QC_rmHost; QC_noHost } from '../subworkflows/QC'
-include { MULTIQC1; MULTIQC2 } from '../subworkflows/QC'
+include { MULTIQC } from '../modules/QC/multiqc'
 include { metaphlan } from '../subworkflows/metaphlan'
 include { kraken } from '../subworkflows/kraken'
 include { humann } from '../subworkflows/humann'
@@ -84,20 +84,16 @@ workflow tofumaapo {
             ch_versions = ch_versions.mix( assembly.out.versions )
         }
 
-    //multiqc, collecting all fastqc- and kraken-files; change this when optional inputs are doable:
+    //multiqc, collecting all fastqc- and kraken-files
         if(!params.no_qc){
             if(params.virus || params.kraken || params.bracken){
-                MULTIQC2(
-                    Fastqcoutput.collect(),
-                    FASTqccleanout.collect(),
-                    kraken.out.kraken_data.collect()
-                )    
+                ch_multiqcinputs = Fastqcoutput.collect().mix( FASTqccleanout.collect() ).collect().mix( kraken.out.kraken_data.collect() ).collect()
             }else{
-                MULTIQC1(
-                    Fastqcoutput.collect(),
-                    FASTqccleanout.collect()
-                ) 
+                ch_multiqcinputs = Fastqcoutput.collect().mix( FASTqccleanout.collect() ).collect()
             }
+
+            MULTIQC( ch_multiqcinputs )
+            ch_versions = ch_versions.mix( MULTIQC.out.versions )
         }
 
     SOFTWARE_VERSIONS (
