@@ -21,6 +21,12 @@ Run the Pipeline with<br />
 ```bash
 nextflow run ikmb/TOFU-MAaPO --reads '/path/to/fastqfiles/*_R{1,2}_001.fastq.gz'
 ```
+## Input:
+Either use:<br />
+`--reads` With a glob to your fastq.gz files or to a csv-file containing the columns id, read1,read2 that lists all samples that you want to process. For single-end mode, use only columns "id" and "read1".<br />
+or:<br />
+`--sra` NCBI SRA Accession ID. Pipeline will download automatically all fastq files for your query. It is mandatory to provide your personal API key for your NCBI account with `--apikey`. Also lists are possible: "--sra ['ERR908507', 'ERR908506', 'ERR908505']". <br />
+
 ## Available modules:
 For analysis following modules are available:<br />
 `--metaphlan` Run Metaphlan4, a tool for profiling the composition of microbial communities<br />

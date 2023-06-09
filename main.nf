@@ -24,10 +24,10 @@ if(params.kraken || params.bracken){
 log.info "Kraken DB:      : ${params.kraken2_db}"}
 if(params.humann){
 log.info "HUMAnN DB:      : ${params.humann_db}"}
-if(params.humann){
-log.info "MPA for HUMAnN  : ${params.metaphlan_db}"}
 if(params.metaphlan){
 log.info "Metaphlan DB:   : ${params.metaphlan_db}"}
+if(params.humann){
+log.info "MPdb for HUMAnN  : ${params.metaphlan_db}"}
 if(params.assembly || params.magscot){
 log.info "GTDBTK ref.     : ${params.gtdbtk_reference}"}
 log.info "=========================================="
@@ -47,6 +47,10 @@ def helpMessage() {
   nextflow run ikmb/TOFU-MAaPO --reads '/path/to/*_R{1,2}_001.fastq.gz' 
   Mandatory arguments:
   --reads 		The path to the fastq.gz files containing PE metagenomic reads (2 per sample) or SE metagenomic reads (1 per sample, use --single_end) or a csv file with a list of reads
+  or
+  --sra       Use SRA Accession ID to automatically download the queried fastq files.
+              Mandatory:
+              --apikey    Your personal NCBI API key.
 
 
   Analysis Modules:
@@ -63,7 +67,7 @@ def helpMessage() {
                 --kraken2_db      Set directory of virus/kraken2 database (not needed for medcluster)
 
   --assembly    Run a basic Genome Assembly with Megahit, Metabat and GTDB-Tk
-  --magscot     Run an extended Genome Assembly with 4 binners and MAGScoT for Bin refinement.
+  --magscot     Run an extended Genome Assembly with 4 binning tools and MAGScoT for bin refinement.
                 Assembly arguments:
                 --gtdbtk_reference Set directory of the GTDB-Tk reference data
 
@@ -119,12 +123,15 @@ if (params.help){
 }
 
 include { tofumaapo } from './workflows/tofumaapo' 
-
+include { tofumaapo_salmon } from './workflows/tofumaapo_salmon' 
 //params(params)
 
 workflow {
-
-  tofumaapo()
+  if(!params.salmon_processing){
+    tofumaapo()
+  }else{
+    tofumaapo_salmon()
+  }
 
 }
 

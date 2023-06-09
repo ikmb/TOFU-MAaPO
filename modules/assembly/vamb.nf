@@ -133,7 +133,7 @@ process VAMB_COLLECT_DEPTHS {
 
 		cat <<-END_VERSIONS > versions.yml
         "${task.process}":
-        R: \$(Rscript --version | awk '{print \$4}')
+        R: \$(Rscript --version 2>&1 | awk '{print \$4}')
         END_VERSIONS
 		"""
 }
