@@ -17,9 +17,12 @@ TOFU-MAaPO v${workflow.manifest.version}
 ==========================================
 Nextflow Version: $workflow.nextflow.version
 Container Engine: ${workflow.containerEngine}
-=======INPUTS=============================
-Reads:          : ${params.reads}
-Host genome:    : ${params.genome}"""
+=======INPUTS============================="""
+if(params.reads){
+log.info "Reads:          : ${params.reads}"}
+if(params.sra){
+log.info "Accession ID:   : ${params.sra}"}
+log.info "Host genome:    : ${params.genome}"
 if(params.kraken || params.bracken){
 log.info "Kraken DB:      : ${params.kraken2_db}"}
 if(params.humann){
@@ -27,7 +30,7 @@ log.info "HUMAnN DB:      : ${params.humann_db}"}
 if(params.metaphlan){
 log.info "Metaphlan DB:   : ${params.metaphlan_db}"}
 if(params.humann){
-log.info "MPdb for HUMAnN  : ${params.metaphlan_db}"}
+log.info "MPdb for HUMAnN : ${params.metaphlan_db}"}
 if(params.assembly || params.magscot){
 log.info "GTDBTK ref.     : ${params.gtdbtk_reference}"}
 log.info "=========================================="
@@ -40,7 +43,7 @@ log.info "=========================================="
 def helpMessage() {
   log.info"""
   =================================================================
-   IKMB | TOFU-MAaPO | v${workflow.manifest.version}
+  IKMB | TOFU-MAaPO | v${workflow.manifest.version}
   =================================================================
   Usage:
   The typical command for running the pipeline is as follows:

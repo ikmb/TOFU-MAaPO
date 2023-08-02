@@ -119,7 +119,8 @@ workflow input_sra {
         if(!params.apikey){
             exit 1, "No SRA apikey was declared."
         }else{
-            Channel.fromSRA(params.sra, apiKey: params.apikey)
+            ids = params.sra.split(',').collect()
+            Channel.fromSRA(ids, apiKey: params.apikey)
                 .map {row -> 
                         def meta = [:]
                         meta.id = row[0]

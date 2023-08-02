@@ -1,17 +1,16 @@
 
-process KRAKEN2 {
-
+process SALMON {
+scratch params.scratch
 tag "$sampleID"
-label 'kraken'
-publishDir "${params.outdir}/Kraken/${sampleID}/", mode: 'copy'
+label 'salmon'
+publishDir "${params.outdir}/salmon", mode: 'copy', pattern: "*.sf"
+publishDir "${params.outdir}/salmon", mode: 'copy', pattern: "*.log"
 
 input:
 	tuple val(meta), path(reads)
 
 output:
-	path(report), emit: krakenreport
-	//tuple val(sampleID), file(kraken_log), emit: krakenlog
-	tuple val(sampleID), path(report), emit: brackeninput
+	tuple val(sampleID), path(report), path(salmon_log), emit: salmonout
 	path('versions.yml'), emit: version
 
 script:
@@ -19,7 +18,7 @@ script:
 	report = sampleID + ".quant.sf"
 	salmon_log = sampleID + "_salmon.log"
 
-    if (!params.single_end) {  
+    if (!params.single_end) {
 	"""
     salmon quant -i ${params.salmon_db} \
         -l IU \
@@ -35,7 +34,7 @@ script:
 
 	cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-    salmon: \$(salmon --version 2>&1 | | sed -e "s/salmon //g" )
+    salmon: \$(salmon --version 2>&1 | sed -e "s/salmon //g" )
     END_VERSIONS
 	"""
 	} else {
@@ -51,10 +50,9 @@ script:
     mv quant.sf $report
     mv logs/salmon_quant.log $salmon_log
 
-
 	cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-    Kraken2: \$(kraken2 --version | awk 'FNR==1{print \$0}' | sed -e "s/Kraken version //g" )
+    salmon: \$(salmon --version 2>&1 | sed -e "s/salmon //g" )
     END_VERSIONS
 	"""	
 	}
