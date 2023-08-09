@@ -24,7 +24,6 @@
     tag "$sampleID"
     scratch params.scratch
     errorStrategy { (task.exitStatus in [143,137,104,134,139,1] && task.attempt <= maxRetries)  ? 'retry' : 'ignore' }
-    //publishDir "${params.outdir}/${sampleID}/humann", mode: 'copy'
 
     input:
         tuple val(meta),path(reads)
@@ -117,7 +116,7 @@
 process JOINgenefamilies {
     
     label 'humann'
-    publishDir "${params.outdir}/humann", mode: 'copy'
+    publishDir "${params.outdir}/humann", mode: 'copy', pattern: "*.tsv"
     scratch params.scratch
     
     input:
@@ -143,7 +142,7 @@ process JOINgenefamilies {
 process JOINpathabundance {
 
     label 'humann'
-    publishDir "${params.outdir}/humann", mode: 'copy'
+    publishDir "${params.outdir}/humann", mode: 'copy', pattern: "*.tsv"
     scratch params.scratch
     
     input:
@@ -169,7 +168,7 @@ process JOINpathabundance {
 process JOINpathcoverage {
 
     label 'humann'
-    publishDir "${params.outdir}/humann", mode: 'copy'
+    publishDir "${params.outdir}/humann", mode: 'copy', pattern: "*.tsv"
     scratch params.scratch
 
     input:

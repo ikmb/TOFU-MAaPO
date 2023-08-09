@@ -3,7 +3,7 @@ process KRAKEN2 {
 
 tag "$sampleID"
 label 'kraken'
-publishDir "${params.outdir}/Kraken/${sampleID}/", mode: 'copy'
+publishDir "${params.outdir}/Kraken/${sampleID}/", mode: 'copy', pattern: "*.txt"
 
 input:
 	tuple val(meta), path(reads)
@@ -23,31 +23,31 @@ script:
 	right_clean = sampleID + "_R2_clean.fastq.gz"
 	unpaired_clean = sampleID + "_single_clean.fastq.gz"
 
-    if (!params.single_end) {  
-	"""
-	kraken2 --db ${params.kraken2_db} \
-		--paired \
-		--threads ${task.cpus} \
-		--output $kraken_log \
-		--report $report ${left_clean} ${right_clean} 
-	
-	cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-    Kraken2: \$(kraken2 --version | awk 'FNR==1{print \$0}' | sed -e "s/Kraken version //g" )
-    END_VERSIONS
+    if (!meta.single_end) {  
+		"""
+		kraken2 --db ${params.kraken2_db} \
+			--paired \
+			--threads ${task.cpus} \
+			--output $kraken_log \
+			--report $report ${left_clean} ${right_clean} 
+		
+		cat <<-END_VERSIONS > versions.yml
+		"${task.process}":
+		Kraken2: \$(kraken2 --version | awk 'FNR==1{print \$0}' | sed -e "s/Kraken version //g" )
+		END_VERSIONS
 	"""
 	} else {
-	"""
-	kraken2 --db ${params.kraken2_db} \
-		--threads ${task.cpus} \
-		--output $kraken_log \
-		--report $report ${unpaired_clean} 
-	
-	cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-    Kraken2: \$(kraken2 --version | awk 'FNR==1{print \$0}' | sed -e "s/Kraken version //g" )
-    END_VERSIONS
-	"""	
+		"""
+		kraken2 --db ${params.kraken2_db} \
+			--threads ${task.cpus} \
+			--output $kraken_log \
+			--report $report ${unpaired_clean} 
+		
+		cat <<-END_VERSIONS > versions.yml
+		"${task.process}":
+		Kraken2: \$(kraken2 --version | awk 'FNR==1{print \$0}' | sed -e "s/Kraken version //g" )
+		END_VERSIONS
+		"""	
 	}
 }
 
@@ -94,7 +94,7 @@ process KRAKEN2YAML {
 
 process KRAKENMERGEREPORTS {
 	label 'default'
-	publishDir "${params.outdir}/Kraken", mode: 'copy'
+	publishDir "${params.outdir}/Kraken", mode: 'copy', pattern: "*.txt"
 
 	input:
 		path(report)
@@ -118,7 +118,7 @@ process KRAKENMERGEREPORTS {
 
 process KRAKENMPAMERGE {
 	label 'default'
-	publishDir "${params.outdir}/Kraken", mode: 'copy'
+	publishDir "${params.outdir}/Kraken", mode: 'copy', pattern: "*.txt"
 
 	input:
 		path(mpaoutput)
@@ -144,7 +144,7 @@ process BRACKEN {
 
 	tag "$sampleID"
 	label 'bracken'
-	publishDir "${params.outdir}/Kraken/${sampleID}/", mode: 'copy'
+	publishDir "${params.outdir}/Kraken/${sampleID}/", mode: 'copy', pattern: "*.bracken"
 
 	input:
 		tuple val(sampleID), path(report)
@@ -168,7 +168,7 @@ process BRACKEN {
 process BRACKENMERGE {
 
 	label 'bracken'
-	publishDir "${params.outdir}/Kraken", mode: 'copy'
+	publishDir "${params.outdir}/Kraken", mode: 'copy', pattern: "*.txt"
 
 	input:
 		path(bracken_output)

@@ -4,6 +4,7 @@ include { MULTIQC } from '../modules/QC/multiqc'
 include { metaphlan } from '../subworkflows/metaphlan'
 include { kraken } from '../subworkflows/kraken'
 include { humann } from '../subworkflows/humann'
+include { SALMON } from '../modules/salmon'
 include { assembly } from '../subworkflows/assembly'
 include { SOFTWARE_VERSIONS } from '../modules/software_versions'
 
@@ -64,6 +65,12 @@ workflow tofumaapo {
             kraken(QCout)
 
             ch_versions = ch_versions.mix( kraken.out.versions )
+        }
+    //salmon:
+        if(params.salmon){
+            SALMON(QCout)
+
+            ch_versions = ch_versions.mix( SALMON.out.version)
         }
     //metaphlan:
         if(params.metaphlan || params.updatemetaphlan){

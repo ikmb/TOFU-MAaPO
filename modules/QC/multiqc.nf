@@ -1,6 +1,6 @@
 process MULTIQC {
 
-	publishDir "${params.outdir}/MultiQC", mode: 'copy'
+	publishDir "${params.outdir}/MultiQC", mode: 'copy', pattern: "*.html"
 	scratch params.scratch
 	label 'multiqc'
 

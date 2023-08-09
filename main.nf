@@ -25,6 +25,8 @@ log.info "Accession ID:   : ${params.sra}"}
 log.info "Host genome:    : ${params.genome}"
 if(params.kraken || params.bracken){
 log.info "Kraken DB:      : ${params.kraken2_db}"}
+if(params.salmon){
+log.info "Salmon DB:   : ${params.salmon_db}"}
 if(params.humann){
 log.info "HUMAnN DB:      : ${params.humann_db}"}
 if(params.metaphlan){
@@ -68,6 +70,10 @@ def helpMessage() {
   --kraken      Run Kraken2
                 Kraken2 arguments:
                 --kraken2_db      Set directory of virus/kraken2 database (not needed for medcluster)
+
+  --salmon      Run Salmon
+                Salmon arguments:
+                --salmon_db       Set directory of salmon database
 
   --assembly    Run a basic Genome Assembly with Megahit, Metabat and GTDB-Tk
   --magscot     Run an extended Genome Assembly with 4 binning tools and MAGScoT for bin refinement.

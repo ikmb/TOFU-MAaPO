@@ -33,6 +33,7 @@ For analysis following modules are available:<br />
 `--humann` Run HUMAnN3, a tool for profiling the abundance of microbial metabolic pathways and other molecular functions<br />
 `--kraken` Run Kraken2, a tool for taxonomic classification tool, with a on Medcluster preconfigured RefSeq virus database.<br />
 `--bracken` Run Bracken (Bayesian Reestimation of Abundance with KrakEN) after Kraken2. Kraken2 DB must be [bracken-ready](https://github.com/jenniferlu717/Bracken#step-0-build-a-kraken-10-or-kraken-20-database)<br />
+`--salmon` Run salmon.<br />
 `--assembly` Run a basic genome assembly workflow.<br />
 `--magscot` Run an extended genome assembly workflow with [MAGScoT](https://github.com/ikmb/MAGScoT) Bin Refinement.<br />
 
@@ -74,6 +75,10 @@ For analysis following modules are available:<br />
 
 ### Kraken2 options:
 `--kraken2_db` Directory of used Kraken2 database. Should be Bracken ready for use with Bracken. REQUIRED! <br />
+
+### Salmon options:
+`--salmon_db` Directory of used salmon database. REQUIRED! <br />
+`--salmon_processing` NOT RECOMMENDED! Shortcut for high-throughput data processing with salmon, skips qc, no other modules available in this mode.  <br />
 
 ### Bracken options and their default:
 `--bracken_length` = 100<br />

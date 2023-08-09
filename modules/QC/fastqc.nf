@@ -50,7 +50,8 @@ process FASTQC_clean {
 	tag "$sampleID"
 	label 'fastqc'
 
-	publishDir "${params.outdir}/FastQC", mode: 'copy'
+	publishDir "${params.outdir}/FastQC", mode: 'copy', pattern: "*.zip"
+	publishDir "${params.outdir}/FastQC", mode: 'copy', pattern: "*.html"
 
 	input:
 		tuple val(meta), path(reads)
