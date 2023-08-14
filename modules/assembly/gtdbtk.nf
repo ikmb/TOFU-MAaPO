@@ -25,6 +25,7 @@ process GTDBTK {
         "${task.process}":
         GTDB-Tk: \$(gtdbtk -version | head -1 | awk '{print \$3}')
         END_VERSIONS
+		
 	    """
 }
 

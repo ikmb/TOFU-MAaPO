@@ -26,7 +26,7 @@ log.info "Host genome:    : ${params.genome}"
 if(params.kraken || params.bracken){
 log.info "Kraken DB:      : ${params.kraken2_db}"}
 if(params.salmon){
-log.info "Salmon DB:   : ${params.salmon_db}"}
+log.info "Salmon DB:      : ${params.salmon_db}"}
 if(params.humann){
 log.info "HUMAnN DB:      : ${params.humann_db}"}
 if(params.metaphlan){

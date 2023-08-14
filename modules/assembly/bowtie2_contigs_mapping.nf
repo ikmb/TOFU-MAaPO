@@ -24,7 +24,7 @@ process CONTIGS_MAPPING{
 		mappingbam = sampleID + '_mapping_final.bam'
 		sample_total_reads = sampleID + '_totalreads.txt'
 
-		if (!params.single_end) {  
+		if (!meta.single_end) {  
     		"""
 			#build and index
 			bowtie2-build $fcontigs ${sampleID}_mapping --threads ${task.cpus}

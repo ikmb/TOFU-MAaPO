@@ -35,7 +35,8 @@ script:
 		"${task.process}":
 		Kraken2: \$(kraken2 --version | awk 'FNR==1{print \$0}' | sed -e "s/Kraken version //g" )
 		END_VERSIONS
-	"""
+
+		"""
 	} else {
 		"""
 		kraken2 --db ${params.kraken2_db} \
@@ -47,6 +48,7 @@ script:
 		"${task.process}":
 		Kraken2: \$(kraken2 --version | awk 'FNR==1{print \$0}' | sed -e "s/Kraken version //g" )
 		END_VERSIONS
+
 		"""	
 	}
 }
@@ -68,6 +70,7 @@ process KRAKEN2MPA {
     	"${task.process}":
       	Python: \$(python --version | sed -e "s/Python //g" )
     	END_VERSIONS
+
 		"""
 }
 
@@ -89,6 +92,7 @@ process KRAKEN2YAML {
     	"${task.process}":
       	Python: \$(python --version | sed -e "s/Python //g" )
     	END_VERSIONS
+
 		"""
 }
 
@@ -113,6 +117,7 @@ process KRAKENMERGEREPORTS {
     	"${task.process}":
       	Python: \$(python --version | sed -e "s/Python //g" )
     	END_VERSIONS
+
 		"""
 }
 
@@ -136,7 +141,8 @@ process KRAKENMPAMERGE {
 		cat <<-END_VERSIONS > versions.yml
     	"${task.process}":
       	Python: \$(python --version | sed -e "s/Python //g" )
-    	END_VERSIONS 
+    	END_VERSIONS
+
 		"""
 }
 
@@ -161,7 +167,8 @@ process BRACKEN {
 		cat <<-END_VERSIONS > versions.yml
     	"${task.process}":
       	Python: \$(python --version 2>&1 | awk '{print \$2}' )
-    	END_VERSIONS 
+    	END_VERSIONS
+
 		"""
 }
 
@@ -186,6 +193,7 @@ process BRACKENMERGE {
 	cat <<-END_VERSIONS > versions.yml
     "${task.process}":
     Python: \$(python --version 2>&1 | awk '{print \$2}' )
-    END_VERSIONS  
+    END_VERSIONS
+	
 	"""
 }

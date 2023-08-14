@@ -53,7 +53,7 @@
         pathcoverage = sampleID + '_pathcoverage.tsv'
 	    merged = sampleID + '.fq'
 
-        if (!params.single_end) {
+        if (!meta.single_end) {
         """
 		zcat ${left_clean} > $phlan_left
     	zcat ${right_clean} > $phlan_right
@@ -85,6 +85,7 @@
         "${task.process}":
         humann: \$(humann --version 2>&1 | sed -e "s/humann v//g")
         END_VERSIONS
+
         """
 
 	    } else {
@@ -109,6 +110,7 @@
         "${task.process}":
         humann: \$(humann --version 2>&1 | sed -e "s/humann v//g")
         END_VERSIONS
+
         """
         }
 }
@@ -136,6 +138,7 @@ process JOINgenefamilies {
         "${task.process}":
         Python: \$(python --version | sed -e "s/Python //g" )
         END_VERSIONS
+
         """
 }
 
@@ -162,6 +165,7 @@ process JOINpathabundance {
         "${task.process}":
         Python: \$(python --version | sed -e "s/Python //g" )
         END_VERSIONS
+
         """
 }
 
@@ -188,5 +192,6 @@ process JOINpathcoverage {
         "${task.process}":
         Python: \$(python --version | sed -e "s/Python //g" )
         END_VERSIONS
+        
         """
 }       

@@ -88,6 +88,7 @@ process MARKER_IDENT {
 		Prodigal: \$(prodigal -v 2>&1 | awk 'NR==2{print\$2}' | sed -e 's/V//g' | sed -e 's/://g')
 		R: \$(Rscript --version | awk '{print \$4}')
         END_VERSIONS
+
 		"""
 }
 
@@ -119,6 +120,7 @@ process MAGSCOT {
 		MAGScoT: 1.0.0
 		R: \$(Rscript --version | awk '{print \$4}')
         END_VERSIONS
+
 	"""
 }
 
@@ -145,6 +147,7 @@ process EXTRACT_REFINED_BINS {
     	"${task.process}":
       	Python: \$(python --version | sed -e "s/Python //g" )
     	END_VERSIONS
+		
 	"""
 }
 

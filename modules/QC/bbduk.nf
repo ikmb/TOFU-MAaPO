@@ -35,6 +35,7 @@ process CLEANREADS {
     		"${task.process}":
       		BBMap: \$(bbduk.sh --version 2>&1 | awk 'FNR==2{print \$0}' | sed -e "s/BBMap //g" | sed -e "s/version //g" )
     		END_VERSIONS
+
 			"""
 		} else {
 			"""
@@ -46,6 +47,7 @@ process CLEANREADS {
     		"${task.process}":
       		BBMap: \$(bbduk.sh --version 2>&1 | awk 'FNR==2{print \$0}' | sed -e "s/BBMap //g" | sed -e "s/version //g" )
     		END_VERSIONS
+			
 			"""
 		}
 }

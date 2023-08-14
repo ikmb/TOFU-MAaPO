@@ -42,6 +42,7 @@ process FILTERREADS {
 			"${task.process}":
 			bowtie2: \$(bowtie2 --version | awk 'FNR==1' |sed 's/.* //')
 			END_VERSIONS
+
 			"""
 		}else{
 			"""
@@ -59,6 +60,7 @@ process FILTERREADS {
 			"${task.process}":
 			bowtie2: \$(bowtie2 --version | awk 'FNR==1' |sed 's/.* //')
 			END_VERSIONS
+			
 			"""
 		}
 }

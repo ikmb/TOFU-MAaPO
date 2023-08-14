@@ -31,5 +31,6 @@ process FILTERCONTIGS {
         "${task.process}":
         Python: \$(/opt/conda/envs/ikmb-metagenome-1.2/bin/python3 --version | sed -e "s/Python //g" )
         END_VERSIONS
+		
 		"""
 }

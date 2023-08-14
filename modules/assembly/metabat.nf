@@ -22,6 +22,7 @@ process METABAT {
         "${task.process}":
         METABAT: \$(metabat2 --help 2>&1 | awk 'NR==2{print}' | sed -n -e 's/^.*version //p' | awk '{print \$1}')
         END_VERSIONS
+		
     	"""
 }
 

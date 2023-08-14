@@ -126,8 +126,7 @@ workflow input_sra {
                         meta.id = row[0]
                         def singleEnd = row[1].size() == -1
                         meta.single_end = singleEnd
-                        meta.size = row[1].size()
-                        if( meta.size == 3){
+                        if( row[1].size() == 3){
                             fastq = row[1]
                             //order shall be: meta, forward, reversed, unpaired
                             return [meta, [fastq[1], fastq[2], fastq[0]] ]

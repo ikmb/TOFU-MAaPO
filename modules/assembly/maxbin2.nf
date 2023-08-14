@@ -34,5 +34,6 @@ process MAXBIN2 {
         "${task.process}":
         maxbin2: \$(run_MaxBin.pl -v 2>&1 | tail -1 | sed -e 's/MaxBin //g')
         END_VERSIONS
+		
 	"""
 }

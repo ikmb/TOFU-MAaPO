@@ -22,5 +22,6 @@ process getCountTable {
       	Python: \$(/opt/conda/envs/ikmb-metagenome-1.2/bin/python3 --version | sed -e "s/Python //g" )
 		samtools: \$(samtools --version | head -1 | sed -e "s/samtools //g")
     	END_VERSIONS
+		
 		"""
 }

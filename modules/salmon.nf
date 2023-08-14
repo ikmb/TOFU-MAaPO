@@ -18,7 +18,7 @@ script:
 	report = sampleID + ".quant.sf"
 	salmon_log = sampleID + "_salmon.log"
 
-    if (!params.single_end) {
+    if (!meta.single_end) {
 	"""
     salmon quant -i ${params.salmon_db} \
         -l IU \
@@ -36,6 +36,7 @@ script:
     "${task.process}":
     salmon: \$(salmon --version 2>&1 | sed -e "s/salmon //g" )
     END_VERSIONS
+
 	"""
 	} else {
 	"""
@@ -54,6 +55,7 @@ script:
     "${task.process}":
     salmon: \$(salmon --version 2>&1 | sed -e "s/salmon //g" )
     END_VERSIONS
+    
 	"""	
 	}
 }

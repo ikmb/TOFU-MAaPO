@@ -60,7 +60,7 @@ process METAPHLAN {
     phlan_right = sampleID + "_2.fq"
     phlan_single = sampleID + "_single.fq"
 
-    if (!params.single_end) {  
+    if (!meta.single_end) {  
       """
       METAPHLAN_BOWTIE2_DB=${params.metaphlan_db}
       DEFAULT_DB_FOLDER=${params.metaphlan_db}
@@ -119,6 +119,7 @@ process METAPHLAN {
       "${task.process}":
       metaphlan4: \$(metaphlan --version 2>&1 | awk '{print \$3}')
       END_VERSIONS
+
       """
     } else {
       """
@@ -160,6 +161,7 @@ process METAPHLAN {
       "${task.process}":
       metaphlan4: \$(metaphlan --version 2>&1 | awk '{print \$3}')
       END_VERSIONS
+
       """
     }
 }
@@ -186,6 +188,7 @@ process ABUNDANCE_REL_MERGE {
     "${task.process}":
     Python: \$(python --version | sed -e "s/Python //g" )
     END_VERSIONS
+
 	  """
 }
 
@@ -211,5 +214,6 @@ process ABUNDANCE_ABS_MERGE {
     "${task.process}":
     Python: \$(python --version | sed -e "s/Python //g" )
     END_VERSIONS
+    
 	  """
 }

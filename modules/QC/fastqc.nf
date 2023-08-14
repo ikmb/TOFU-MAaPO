@@ -30,6 +30,7 @@ process FASTQC_raw {
     	"${task.process}":
         FastQC: \$(fastqc --version 2>&1 | sed -e "s/FastQC v//g" )
     	END_VERSIONS
+
 	    """
       } else {
 		"""
@@ -42,6 +43,7 @@ process FASTQC_raw {
     	"${task.process}":
         FastQC: \$(fastqc --version 2>&1 | sed -e "s/FastQC v//g" )
     	END_VERSIONS
+
 		"""
 	}
 }
@@ -70,7 +72,7 @@ process FASTQC_clean {
 
 		
 		if (!meta.single_end) {
-		"""
+			"""
 			[ ! -f  $leftnewname ] && ln -s ${reads[0]} $leftnewname
     		[ ! -f  $rightnewname ] && ln -s ${reads[1]} $rightnewname
 			[ ! -f  $unpairednewname ] && ln -s ${reads[2]} $unpairednewname
@@ -80,9 +82,10 @@ process FASTQC_clean {
     		"${task.process}":
         	FastQC: \$(fastqc --version 2>&1 | sed -e "s/FastQC v//g" )
     		END_VERSIONS
-		"""
+
+			"""
 		} else {
-		"""
+			"""
 			[ ! -f  $singlenewname ] && ln -s ${reads[0]} $singlenewname
 
 			fastqc --quiet --threads ${task.cpus} $singlenewname
@@ -91,6 +94,7 @@ process FASTQC_clean {
     		"${task.process}":
         	FastQC: \$(fastqc --version 2>&1 | sed -e "s/FastQC v//g" )
     		END_VERSIONS
-		"""
+
+			"""
 		}
 }

@@ -1,5 +1,4 @@
 process CONCOCT {
-
 	label 'concoct'
     cache 'lenient'
 	scratch params.scratch
@@ -14,10 +13,10 @@ process CONCOCT {
         path("versions.yml"),          optional: true, emit: versions
     script:
         sampleID = meta.id
-
         bed_file = sampleID + '.bed'
 	    concoct_contigs_to_bin = sampleID + '_concoct_contigs_to_bin.tsv'
-	"""
+
+	    """
         cut_up_fasta.py $fcontigs -c 10000 -o 0 --merge_last -b $bed_file > ${sampleID}.filtered.10k.fna
 
         samtools index $mappingbam
@@ -43,5 +42,5 @@ process CONCOCT {
         "${task.process}":
         concoct: \$(concoct -v |  awk '{print \$2}')
         END_VERSIONS
-"""
+        """
 }

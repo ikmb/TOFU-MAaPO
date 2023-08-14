@@ -19,6 +19,7 @@
     		"${task.process}":
       		Python: \$(python --version | sed -e "s/Python //g" )
     		END_VERSIONS
+
         	"""
     }
 
@@ -32,7 +33,7 @@
             tuple val(vamb_key), path(catalogue)
 
         output:
-			tuple  path(catalogue),val(vamb_key), path(catalogue_index), emit: catalogue
+			tuple  path(catalogue), val(vamb_key), path(catalogue_index), emit: catalogue
 			tuple  val(vamb_key), path(catalogue), path(catalogue_index), emit: catalogue_indexfirst
 			path("versions.yml"), emit: versions
         shell:
@@ -46,6 +47,7 @@
     		"${task.process}":
       		minimap2: \$(minimap2 --version)
     		END_VERSIONS
+
         	"""
     }
 //-I100G
@@ -79,7 +81,7 @@ process VAMB_MAPPING{
 		mappingbam_index = sampleID + '_mapping_minimap.bam.bai'
 
 		sample_total_reads = sampleID + '_totalreads.txt'
-		if (!params.single_end) {  
+		if (!meta.single_end) {  
     		"""
 			#minimap2 -I100G -d catalogue.mmi $catalogue; # make index
 			minimap2 -t ${task.cpus} -N 50 -ax sr  $catalogue_index $left_clean $right_clean | samtools view -F 3584 -b --threads ${task.cpus} | samtools sort > $mappingbam 2> error.log # -n 
@@ -92,6 +94,7 @@ process VAMB_MAPPING{
 			samtools: \$(samtools --version | head -1 | sed -e "s/samtools //g")
 			jgi_summarize_bam_contig_depths: \$(jgi_summarize_bam_contig_depths 2>&1 | head -1 | awk '{print \$2}' )
     		END_VERSIONS
+
 			"""
 		} else {
 			"""	
@@ -106,6 +109,7 @@ process VAMB_MAPPING{
 			samtools: \$(samtools --version | head -1 | sed -e "s/samtools //g")
 			jgi_summarize_bam_contig_depths: \$(jgi_summarize_bam_contig_depths 2>&1 | head -1 | awk '{print \$2}')
     		END_VERSIONS
+
 			"""		
 		}
 }
@@ -135,6 +139,7 @@ process VAMB_COLLECT_DEPTHS {
         "${task.process}":
         R: \$(Rscript --version 2>&1 | awk '{print \$4}')
         END_VERSIONS
+
 		"""
 }
 
@@ -164,6 +169,7 @@ process VAMB {
       	Python: \$(python --version | sed -e "s/Python //g" )
 		Vamb: 3.0.2
     	END_VERSIONS
+
 		"""
 }
 

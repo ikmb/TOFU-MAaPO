@@ -26,7 +26,7 @@ process MEGAHIT {
 		replacer = ">" + sampleID + "_k"
 		output_final_contigs = sampleID + "_final.contigs.fa"
 
-		if (!params.single_end) {  
+		if (!meta.single_end) {  
 		    """
 		    zcat $unpaired_clean > $fq_single
 		    zcat $left_clean > $fq_left
@@ -69,6 +69,7 @@ process MEGAHIT {
         	"${task.process}":
         	MEGAHIT: \$(megahit --version 2>&1 | sed -e "s/MEGAHIT v//g")
         	END_VERSIONS
+			
 		    """			
 		}
 }
