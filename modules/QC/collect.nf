@@ -7,6 +7,7 @@ process COLLECTOR {
 
 	label 'default'
 	scratch params.scratch
+	tag "$sampleID"
 
 	if(params.cleanreads){
 		publishDir "${params.outdir}/reads_clean", mode: 'copy'
