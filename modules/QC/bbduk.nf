@@ -21,7 +21,7 @@ process CLEANREADS {
 		unpaired_clean = sampleID + "_single_cleanwithhost.fastq.gz"
 
 		leftnewname = sampleID + "_1_raw.fastq.gz"
-    	rightnewname = sampleID + "_2_raw.fastq.gz"
+		rightnewname = sampleID + "_2_raw.fastq.gz"
 
 		left_clean = sampleID + "_R1_cleanwithhost.fastq.gz"
 		right_clean = sampleID + "_R2_cleanwithhost.fastq.gz"
@@ -32,9 +32,9 @@ process CLEANREADS {
 			bbduk.sh threads=${task.cpus} in=$unpaired  k=31 ref=artifacts,phix ordered cardinality out1=${unpaired_clean} minlength=${params.min_read_length}
 
 			cat <<-END_VERSIONS > versions.yml
-    		"${task.process}":
-      		BBMap: \$(bbduk.sh --version 2>&1 | awk 'FNR==2{print \$0}' | sed -e "s/BBMap //g" | sed -e "s/version //g" )
-    		END_VERSIONS
+			"${task.process}":
+			BBMap: \$(bbduk.sh --version 2>&1 | awk 'FNR==2{print \$0}' | sed -e "s/BBMap //g" | sed -e "s/version //g" )
+			END_VERSIONS
 
 			"""
 		} else {
@@ -44,9 +44,9 @@ process CLEANREADS {
 			bbduk.sh threads=${task.cpus} in=$unpaired  k=31 ref=artifacts,phix ordered cardinality out1=${unpaired_clean} minlength=${params.min_read_length}
 
 			cat <<-END_VERSIONS > versions.yml
-    		"${task.process}":
-      		BBMap: \$(bbduk.sh --version 2>&1 | awk 'FNR==2{print \$0}' | sed -e "s/BBMap //g" | sed -e "s/version //g" )
-    		END_VERSIONS
+			"${task.process}":
+			BBMap: \$(bbduk.sh --version 2>&1 | awk 'FNR==2{print \$0}' | sed -e "s/BBMap //g" | sed -e "s/version //g" )
+			END_VERSIONS
 			
 			"""
 		}
@@ -71,7 +71,7 @@ process TRIMREADS {
 		bbduk_adapter_stats = sampleID + ".bbduk.adapter.stats"
 
 		leftnewname = sampleID + "_1_raw.fastq.gz"
-    	rightnewname = sampleID + "_2_raw.fastq.gz"
+		rightnewname = sampleID + "_2_raw.fastq.gz"
 
 		left_trimmed = sampleID + "_1_trimmed.fastq.gz"
 		right_trimmed = sampleID + "_2_trimmed.fastq.gz"

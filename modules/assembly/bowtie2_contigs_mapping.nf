@@ -25,7 +25,7 @@ process CONTIGS_MAPPING{
 		sample_total_reads = sampleID + '_totalreads.txt'
 
 		if (!meta.single_end) {  
-    		"""
+			"""
 			#build and index
 			bowtie2-build $fcontigs ${sampleID}_mapping --threads ${task.cpus}
 			bowtie2 -p ${task.cpus} -x ${sampleID}_mapping -1 $left_clean -2 $right_clean -U $single_clean -S ${sampleID}_mapped.sam |& tee -a ${sampleID}.txt
@@ -36,11 +36,11 @@ process CONTIGS_MAPPING{
 			jgi_summarize_bam_contig_depths $mappingbam --outputDepth $depthout
 
 			cat <<-END_VERSIONS > versions.yml
-    		"${task.process}":
+			"${task.process}":
       		bowtie2: \$(bowtie2 --version | awk 'FNR==1' |sed 's/.* //')
 			samtools: \$(samtools --version | head -1 | sed -e "s/samtools //g")
 			jgi_summarize_bam_contig_depths: \$(jgi_summarize_bam_contig_depths 2>&1 | head -1 | awk '{print \$2}')
-    		END_VERSIONS
+			END_VERSIONS
 			"""
 		} else {
 			"""
@@ -54,11 +54,11 @@ process CONTIGS_MAPPING{
 			jgi_summarize_bam_contig_depths $mappingbam --outputDepth $depthout
 
 			cat <<-END_VERSIONS > versions.yml
-    		"${task.process}":
+			"${task.process}":
       		bowtie2: \$(bowtie2 --version | awk 'FNR==1' |sed 's/.* //')
 			samtools: \$(samtools --version | head -1 | sed -e "s/samtools //g")
 			jgi_summarize_bam_contig_depths: \$(jgi_summarize_bam_contig_depths 2>&1 | head -1 | awk '{print \$2}')
-    		END_VERSIONS
+			END_VERSIONS
 			"""		
 		}
 }

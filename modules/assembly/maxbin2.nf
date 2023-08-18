@@ -30,10 +30,10 @@ process MAXBIN2 {
 		
 		grep '>' maxbin2_out/*fasta | cut -d '/' -f 2 | sed 's/:>/\\ /' > $maxbin2_contigs_to_bin
 
-		cat <<-END_VERSIONS > versions.yml
-        "${task.process}":
-        maxbin2: \$(run_MaxBin.pl -v 2>&1 | tail -1 | sed -e 's/MaxBin //g')
-        END_VERSIONS
+		cat <<-END_VERSIONS> versions.yml
+		"${task.process}":
+		maxbin2: \$(run_MaxBin.pl -v 2>&1 | tail -1 | sed -e 's/MaxBin //g')
+		END_VERSIONS
 		
 	"""
 }

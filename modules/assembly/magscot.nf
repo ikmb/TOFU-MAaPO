@@ -4,7 +4,7 @@ process FORMATTING_CONTIG_TO_BIN {
 	tag "$sampleID"
 
 	input:
-        tuple val(meta), file(vamb_cluster_table), file(metabat2_cluster_table), file(maxbin2_cluster_table), file(concoct_cluster_table)
+		tuple val(meta), file(vamb_cluster_table), file(metabat2_cluster_table), file(maxbin2_cluster_table), file(concoct_cluster_table)
 
 	output:
 		tuple val(meta), file(formatted_contigs_to_bin), emit: formatted_contigs_to_bin
@@ -13,7 +13,7 @@ process FORMATTING_CONTIG_TO_BIN {
 		sampleID = meta.id
 		formatted_contigs_to_bin = sampleID + '_contigs_to_bin.tsv'
 		"""
-    	gawk '{print \$1"\t"\$2"\tvamb"}'  $vamb_cluster_table > $formatted_contigs_to_bin
+		gawk '{print \$1"\t"\$2"\tvamb"}'  $vamb_cluster_table > $formatted_contigs_to_bin
 		gawk '{print \$1"\t"\$2"\tmetabat2"}'  $metabat2_cluster_table >> $formatted_contigs_to_bin
 		gawk '{print \$1"\t"\$2"\tmaxbin2"}'  $maxbin2_cluster_table >> $formatted_contigs_to_bin
 		gawk '{print \$1"\t"\$2"\tconcoct"}'  $concoct_cluster_table >> $formatted_contigs_to_bin
@@ -83,11 +83,11 @@ process MARKER_IDENT {
 
 
 		cat <<-END_VERSIONS > versions.yml
-        "${task.process}":
-        hhmsearch: \$(hmmsearch -h 2>&1 | awk 'NR==2{print \$3}')
+		"${task.process}":
+		hhmsearch: \$(hmmsearch -h 2>&1 | awk 'NR==2{print \$3}')
 		Prodigal: \$(prodigal -v 2>&1 | awk 'NR==2{print\$2}' | sed -e 's/V//g' | sed -e 's/://g')
 		R: \$(Rscript --version | awk '{print \$4}')
-        END_VERSIONS
+		END_VERSIONS
 
 		"""
 }
@@ -116,10 +116,10 @@ process MAGSCOT {
 		Rscript /opt/MAGScoT.R -i $formatted_contigs_to_bin --hmm $samplehmm -o $sampleID -s ${params.magscot_min_sharing}
 
 		cat <<-END_VERSIONS > versions.yml
-        "${task.process}":
+		"${task.process}":
 		MAGScoT: 1.0.0
 		R: \$(Rscript --version | awk '{print \$4}')
-        END_VERSIONS
+		END_VERSIONS
 
 	"""
 }
@@ -144,9 +144,9 @@ process EXTRACT_REFINED_BINS {
 		cat $refined_contigs_to_bins | awk '{if(NR==1){print "contig_id,cluster_id"; next}; print \$2","\$1}' | sed 's/[.]fasta//' | extract_fasta_bins.py $fcontigs_filtered /dev/stdin  --output_path refined_bins
 
 		cat <<-END_VERSIONS > versions.yml
-    	"${task.process}":
-      	Python: \$(python --version | sed -e "s/Python //g" )
-    	END_VERSIONS
+		"${task.process}":
+		Python: \$(python --version | sed -e "s/Python //g" )
+		END_VERSIONS
 		
 	"""
 }
@@ -157,7 +157,7 @@ process FORMATTING_CONTIG_TO_BIN_NOVAMB {
 	tag "$sampleID"
 
 	input:
-        tuple val(meta), file(metabat2_cluster_table), file(maxbin2_cluster_table), file(concoct_cluster_table)
+		tuple val(meta), file(metabat2_cluster_table), file(maxbin2_cluster_table), file(concoct_cluster_table)
 
 	output:
 		tuple val(meta), file(formatted_contigs_to_bin), emit: formatted_contigs_to_bin

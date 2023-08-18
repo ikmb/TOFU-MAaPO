@@ -18,44 +18,44 @@ script:
 	report = sampleID + ".quant.sf"
 	salmon_log = sampleID + "_salmon.log"
 
-    if (!meta.single_end) {
+	if (!meta.single_end) {
 	"""
-    salmon quant -i ${params.salmon_db} \
-        -l IU \
-        -1 ${reads[0]} \
-        -2 ${reads[1]} \
-        --validateMappings \
-        -o . \
-        -p ${task.cpus} \
-        --meta
+	salmon quant -i ${params.salmon_db} \
+		-l IU \
+		-1 ${reads[0]} \
+		-2 ${reads[1]} \
+		--validateMappings \
+		-o . \
+		-p ${task.cpus} \
+		--meta
 	
-    mv quant.sf $report
-    mv logs/salmon_quant.log $salmon_log
+	mv quant.sf $report
+	mv logs/salmon_quant.log $salmon_log
 
 	cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-    salmon: \$(salmon --version 2>&1 | sed -e "s/salmon //g" )
-    END_VERSIONS
+	"${task.process}":
+	salmon: \$(salmon --version 2>&1 | sed -e "s/salmon //g" )
+	END_VERSIONS
 
 	"""
 	} else {
 	"""
 	salmon quant -i ${params.salmon_db} \
-        -l IU \
-        -1 ${reads[0]} \
-        --validateMappings \
-        -o . \
-        -p ${task.cpus} \
-        --meta
+		-l IU \
+		-1 ${reads[0]} \
+		--validateMappings \
+		-o . \
+		-p ${task.cpus} \
+		--meta
 	
-    mv quant.sf $report
-    mv logs/salmon_quant.log $salmon_log
+	mv quant.sf $report
+	mv logs/salmon_quant.log $salmon_log
 
 	cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-    salmon: \$(salmon --version 2>&1 | sed -e "s/salmon //g" )
-    END_VERSIONS
-    
+	"${task.process}":
+	salmon: \$(salmon --version 2>&1 | sed -e "s/salmon //g" )
+	END_VERSIONS
+	
 	"""	
 	}
 }

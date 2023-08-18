@@ -18,10 +18,10 @@ process getCountTable {
 		/opt/conda/envs/ikmb-metagenome-1.2/bin/python3 ${baseDir}/bin/get_count_table.py ${sampleID}_idxstats.txt > counts_${sampleID}.txt
 
 		cat <<-END_VERSIONS > versions.yml
-    	"${task.process}":
+		"${task.process}":
       	Python: \$(/opt/conda/envs/ikmb-metagenome-1.2/bin/python3 --version | sed -e "s/Python //g" )
 		samtools: \$(samtools --version | head -1 | sed -e "s/samtools //g")
-    	END_VERSIONS
+		END_VERSIONS
 		
 		"""
 }

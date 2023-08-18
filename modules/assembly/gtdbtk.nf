@@ -6,27 +6,27 @@ process GTDBTK {
 	publishDir "${params.outdir}/GTDBTK/${sampleID}", mode: 'copy'
 
 	input: 
-	    tuple val(meta), file(fafile)
+		tuple val(meta), file(fafile)
 		each readygtdbtk
 
 	output:
-	    path("all.bins.gtdbtk_output/*"), emit: gtdbtk_outputfoldercontent
+		path("all.bins.gtdbtk_output/*"), emit: gtdbtk_outputfoldercontent
 		tuple val(meta), file("all.bins.gtdbtk_output/gtdbtk.bac120.summary.tsv"), emit: taxonomic_table
 		path("versions.yml"),          optional: true, emit: versions
 	shell:
 		sampleID = meta.id
-	    """
-	    export GTDBTK_DATA_PATH="${params.gtdbtk_reference}"
-	    gtdbtk classify_wf --cpus ${task.cpus} --genome_dir . --extension fa --out_dir all.bins.gtdbtk_output --pplacer_cpus 1 --skip_ani_screen #/refined_bins
+		"""
+		export GTDBTK_DATA_PATH="${params.gtdbtk_reference}"
+		gtdbtk classify_wf --cpus ${task.cpus} --genome_dir . --extension fa --out_dir all.bins.gtdbtk_output --pplacer_cpus 1 --skip_ani_screen #/refined_bins
 
-	    awk -F "\t" '{ sub(/.*;s__/, "s__", \$2); print \$1 "\t" \$2 }' all.bins.gtdbtk_output/gtdbtk.bac120.summary.tsv > all.bins.gtdbtk_output/parsed_bac120_summary.tsv
+		awk -F "\t" '{ sub(/.*;s__/, "s__", \$2); print \$1 "\t" \$2 }' all.bins.gtdbtk_output/gtdbtk.bac120.summary.tsv > all.bins.gtdbtk_output/parsed_bac120_summary.tsv
 
 		cat <<-END_VERSIONS > versions.yml
-        "${task.process}":
-        GTDB-Tk: \$(gtdbtk -version | head -1 | awk '{print \$3}')
-        END_VERSIONS
+		"${task.process}":
+		GTDB-Tk: \$(gtdbtk -version | head -1 | awk '{print \$3}')
+		END_VERSIONS
 		
-	    """
+		"""
 }
 
     process PREPARE_GTDBTK {
@@ -39,7 +39,7 @@ process GTDBTK {
 
 	"""
     if [ ! -d ${params.gtdbtk_reference} ]; then
-      mkdir -p ${params.gtdbtk_reference};
+		mkdir -p ${params.gtdbtk_reference};
     fi
 	cd ${params.gtdbtk_reference}
 

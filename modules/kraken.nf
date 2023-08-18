@@ -191,9 +191,9 @@ process BRACKENMERGE {
 	combine_bracken_outputs.py --files ${bracken_output.join(" ")} -o $bracken_merged
 
 	cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-    Python: \$(python --version 2>&1 | awk '{print \$2}' )
-    END_VERSIONS
+	"${task.process}":
+	Python: \$(python --version 2>&1 | awk '{print \$2}' )
+	END_VERSIONS
 	
 	"""
 }
