@@ -16,19 +16,24 @@ extra_fn_clean_exts:
   - "_L004"
 
 report_comment: >
-    This report has been generated automatically by the IKMB Metagenomic workflows pipeline.
+    This report has been generated automatically by the IKMB TOFU-MAaPO pipeline.
 
 report_header_info:
     - Contact E-mail: "e.wacker@ikmb.uni-kiel.de"
-    - Application Type: "Nextflow Pipeline IKMB/metagenomic-workflows"
+    - Application Type: "Nextflow Pipeline github.com/ikmb/TOFU-MAaPO"
 
 top_modules:
 - 'fastqc':
     name: 'FastQC: raw reads'
     path_filters_exclude:
         - '*clean*'
+        - '*trimmed'
 - 'fastqc':
     name: 'FastQC: after QC'
     info: 'Reads after trimming and, if requested, host removal.'
     path_filters:
         - '*clean*'
+        - '*trimmed'
+- 'fastp':
+    name: 'fastp'
+    info: 'Fastp quality control'
