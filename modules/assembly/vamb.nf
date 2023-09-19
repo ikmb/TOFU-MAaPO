@@ -192,7 +192,7 @@ process VAMB_CONTIGS_SELECTION{
 		persample_clustertable = sampleID + '_vamb_contigs_to_bin.tsv'
 
 		"""
-		grep $sampleID $all_cluster_table > $persample_clustertable
+		grep ${meta.coassemblygroup}_ $all_cluster_table > $persample_clustertable
 		"""
 }
 
@@ -212,9 +212,9 @@ process group_vamb {
     awk '{print int((NR-1)/${params.vamb_groupsize}) "," \$0}' ${reads_table} | sed 's/\\]//' | sed 's/\\[//' > temp2_csv.csv
 
     #meta and contig-key:
-    awk -F, '{print \$2","\$3","\$1}' temp2_csv.csv > meta_contigkey.csv
+    awk -F, '{print \$2","\$3","\$4","\$1}' temp2_csv.csv > meta_contigkey.csv
 
-    awk -F, '{OFS=","; a[\$1]=a[\$1]" "\$4} END {for (i in a) print i a[i]}' temp2_csv.csv | sed 's/ /,/' > contigs_perkey.csv
+    awk -F, '{OFS=","; a[\$1]=a[\$1]" "\$5} END {for (i in a) print i a[i]}' temp2_csv.csv | sed 's/ /,/' > contigs_perkey.csv
     
 	"""
 }

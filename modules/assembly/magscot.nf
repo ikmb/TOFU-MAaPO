@@ -101,7 +101,7 @@ process MAGSCOT {
 	publishDir "${params.outdir}/magscot/${sampleID}", mode: 'copy'
 
 	input:
-		tuple val(meta), file(formatted_contigs_to_bin), file(samplehmm), file(fcontigs_filtered)
+		tuple val(coassemblygroup), val(meta), file(formatted_contigs_to_bin), file(samplehmm), file(fcontigs_filtered)
 	output:
 		//file("*"), emit: all_files
 		tuple val(meta), file(refined_contigs_to_bins), file(fcontigs_filtered), emit: refined_contigs_to_bins

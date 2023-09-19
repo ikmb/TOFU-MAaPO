@@ -21,9 +21,18 @@ workflow input_check {
 						def meta = [:]  
 						meta.id = id
 						meta.single_end = params.single_end.toBoolean()
-						if(params.coassembly){
+						if(params.assemblymode == "group"){
+							def coassemblygroup = row.group //.ifEmpty(exit 1, "Invalid input samplesheet: No group column for coassembly was found")
+							if ( coassemblygroup == "null" || coassemblygroup == "") exit 1, "Invalid input samplesheet: No group column for coassembly was found or contains empty fields"
+							meta.coassemblygroup = coassemblygroup
+						}else if(params.assemblymode == "all"){
 							meta.coassemblygroup = 1
+						}else if(params.assemblymode == "single"){
+							meta.coassemblygroup = meta.id
+						}else{ 
+							exit 1, "Only allowed modes for coassembly are all, group or single"
 						}
+						
 						if (params.single_end)
 							return [meta, [ read1 ] ] 
 						else  
@@ -38,7 +47,13 @@ workflow input_check {
 						def meta = [:]
 						meta.id = row[0]
 						meta.single_end = params.single_end.toBoolean()
-						if(params.coassembly){meta.coassemblygroup = 1}
+						if(params.assemblymode == "single"){
+							meta.coassemblygroup = meta.id
+						}else if( params.assemblymode == "all"){
+							meta.coassemblygroup = 1
+						}else{ 
+							exit 1, "Cannot use other modes than single or all for coassembly with this inputmode"
+						}
 						if (params.single_end)
 							return [meta,  row[1] ] 
 						else  
@@ -76,13 +91,22 @@ workflow input_check_qced {
 						def meta = [:]  
 						meta.id = id
 						meta.single_end = params.single_end.toBoolean()
-						if(params.coassembly){
+						if(params.assemblymode == "group"){
+							def coassemblygroup = row.group.ifEmpty(exit 1, "Invalid input samplesheet: No group column for coassembly was found")
+							meta.coassemblygroup = coassemblygroup
+						}else if(params.assemblymode == "all"){
 							meta.coassemblygroup = 1
+						}else if(params.assemblymode == "single"){
+							meta.coassemblygroup = meta.id
+						}else{ 
+							exit 1, "Only allowed modes for coassembly are all, group or single"
 						}
-						if (params.single_end)
+
+						if (params.single_end){
 							return [meta, [ read1 ] ] 
-						else  
+						}else{
 							return [meta, [ read1, read2, read3 ] ]
+						}
 				}
 				.set { reads }
 		} else {
@@ -93,37 +117,23 @@ workflow input_check_qced {
 						def meta = [:]
 						meta.id = row[0]
 						meta.single_end = params.single_end.toBoolean()
-						if(params.coassembly){
+						if(params.assemblymode == "single"){
+							meta.coassemblygroup = meta.id
+						}else if( params.assemblymode == "all"){
 							meta.coassemblygroup = 1
+						}else{ 
+							exit 1, "Cannot use other modes than single or all for coassembly with this inputmode"
 						}
-						if (params.single_end)
+
+						if (params.single_end){
 							return [meta,  row[1] ] 
-						else  
+						}else{  
 							return [meta,  row[1] ]
+						}
 				}
 				.set { reads }
 		}
-	
-	emit:
-		reads // channel: [ val(meta), [ 0:read1, 1:read2 ] ] or  [ val(meta), [ 0:readsingle ] ]
-}
 
-workflow input_vamb {
-	take: data
-	main:
-		data.splitCsv ( header:false, sep:',' )
-			.map { row ->
-					def meta = [:]  
-					meta.id = row[1]
-					meta.single_end = params.single_end.toBoolean()
-					meta.vamb_group = row[0]
-					if (params.single_end)
-						return [row[1], meta, [ row[3] ] ] 
-					else  
-						return [row[1], meta, [ row[3], row[4], row[5] ] ]
-			}
-			.set { reads }
-	
 	emit:
 		reads // channel: [ val(meta), [ 0:read1, 1:read2 ] ] or  [ val(meta), [ 0:readsingle ] ]
 }
@@ -138,13 +148,19 @@ workflow input_sra {
 				.map {row -> 
 						def meta = [:]
 						meta.id = row[0]
-						def singleEnd = row[1].size() == -1
-						meta.single_end = singleEnd
-						if(params.coassembly){
+
+						if(params.assemblymode == "single"){
+							meta.coassemblygroup = meta.id
+						}else if( params.assemblymode == "all"){
 							meta.coassemblygroup = 1
+						}else{ 
+							exit 1, "Cannot use other modes than single or all for coassembly with this SRA input"
 						}
+
+						def singleEnd = row[1].size() == -1
+						meta.single_end = singleEnd.toBoolean()
 						if( row[1].size() == 3){
-							fastq = row[1]
+							fastq = row[1]							
 							//order shall be: meta, forward, reversed, unpaired
 							return [meta, [fastq[1], fastq[2], fastq[0]] ]
 						}else{

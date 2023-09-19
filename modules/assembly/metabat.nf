@@ -17,7 +17,8 @@ process METABAT {
 		"""
 		metabat2 -i $fcontigs -a ${sampleID}_depth.txt -o ${sampleID}_bin -t ${task.cpus} -m ${params.contigsminlength}
 
-		
+		touch ${sampleID}_bin.emptydummy.fa
+
 		cat <<-END_VERSIONS> versions.yml
 		"${task.process}":
 		METABAT: \$(metabat2 --help 2>&1 | awk 'NR==2{print}' | sed -n -e 's/^.*version //p' | awk '{print \$1}')
@@ -50,7 +51,11 @@ process contigs_to_bins {
 		} else {
 			"""
 			echo "Variable contains a single file"
-			grep '>' ${fafile} | tr '>' '\t' | tr -d ':' | awk -F'\t' '{OFS="\t"; if (\$1=="") \$1="${fafile}"; print \$0 }' > ${sampleID}_metabat2_contigs_to_bin.tsv
+			set +e
+			{
+				grep '>' ${fafile} | tr '>' '\t' | tr -d ':' | awk -F'\t' '{OFS="\t"; if (\$1=="") \$1="${fafile}"; print \$0 }' > ${sampleID}_metabat2_contigs_to_bin.tsv
+			}
+			set -e
 			"""
 		}
 }

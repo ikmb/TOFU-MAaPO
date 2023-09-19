@@ -56,6 +56,7 @@ For analysis following modules are available:<br />
 `--metaphlan_db` Directory of Metaphlan database. REQUIRED! <br /> 
 `--humann_db` Directory of HUMAnN database. REQUIRED! <br /> 
 ## Assembly options:
+`--assemblymode` Set the mode, if co-assembly (**group** or **all**) or single (**single**, default mode) sample assembly should be performed. The option **group** is only available, if the input is a csv-file with a column "group". In case of co-assembly, only up to 100 samples per group (in "group" mode) or run (in "all" mode) are recommended due to hardware restrictions.<br />
 `--contigsminlength` Set a minimum length of contig. Smaller contigs will be discarded. Default: 2000. <br />
 `--skip_gtdbtk` Skip GTDB-TK. Both Genome Assembly Modules will run GTDB-TK for taxonomical profiling as a default. <br />
 `--skip_checkm` Skip Checkm bin quality check. <br />
@@ -63,15 +64,16 @@ For analysis following modules are available:<br />
 `--publish_megahit` Publish results of megahit with .<br />
 `--publish_rawbins` Publish the individual results of all binning tools in the extended genome assembly workflow with.<br />
 `--skip_vamb` Deactivate vamb in the magscot workflow. <br />
-`--vamb_groupsize` Set a subgrouping size for vamb, default is 100. This is a temporary fix to enable the pipeline to handle very large cohorts on medium sized nodes. For best results adjust the groupsize to the total sample size of your cohort.<br />
+`--vamb_groupsize` Only used when assemblymode is "single". Set a subgrouping size for vamb, default is 100. This is a temporary fix to enable the pipeline to handle very large cohorts on medium sized hardware. For best results adjust the groupsize to the total sample size of your cohort.<br />
 
 ## Other options:
 `--single_end` Set the pipeline for single end reads.<br />
 `--outdir` Set a custom output directory, default is "results".<br />
 `-resume` Resumes pipeline and will continue the run with already completed, cached processes.<br />
 `-profile` Change the configuration of the pipeline. Valid options are medcluster (default), local or custom. You can add a new profile for your compute system by editing the file custom.config in the folder conf or create a new one and add it in the file nextflow.config under 'profiles'.<br />
-`-work-dir` Set a custom work directory, default is "work"<br />
+`-work-dir` Set a custom work directory, default is "work".<br />
 `-r` Use a specific branch or release version of the pipeline.<br />
+`--publish_rawreads` Publish unprocessed/raw files downloaded from SRA in the output directory.<br />
 
 ### Kraken2 options:
 `--kraken2_db` Directory of used Kraken2 database. Should be Bracken ready for use with Bracken. REQUIRED! <br />

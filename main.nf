@@ -34,6 +34,7 @@ log.info "Metaphlan DB:   : ${params.metaphlan_db}"}
 if(params.humann){
 log.info "MPdb for HUMAnN : ${params.metaphlan_db}"}
 if(params.assembly || params.magscot){
+log.info "Assembly mode:  : ${params.assemblymode}"
 log.info "GTDBTK ref.     : ${params.gtdbtk_reference}"}
 log.info "=========================================="
 log.info "Command Line:     $workflow.commandLine"
@@ -56,6 +57,8 @@ def helpMessage() {
 	--sra       Use SRA Accession ID to automatically download the queried fastq files.
 				Mandatory:
 				--apikey    Your personal NCBI API key.
+				Optonial:
+				--publish_rawreads	If downloaded SRA files should be copied to the result directry.
 
 
 	Analysis Modules:
@@ -112,6 +115,7 @@ def helpMessage() {
 		--metaphlan_db          Directory of Metaphlan database. REQUIRED!
 
 	Assembly:
+		--assemblymode			Select an assembly mode, can be "single" or for co-assembly "all". Also possible: "group" if input is a csv-file that contains a column "group"
 		--contigsminlength	    Minimum length of contigs. Default: 2000
 		--gtdbtk_reference      Directory of database. REQUIRED for GTDB-Tk!
 		--skip_gtdbtk           Skip GTDB-Tk.
@@ -119,7 +123,7 @@ def helpMessage() {
 		--publish_rawbins       Publish all raw bins from all binning tools. Default: false
 		--contig_sep            Contig name separator. Default: "megahitcontig"
 		--skip_vamb             Skip Vamb.
-		--vamb_groupsize        Group size of samples to use in one Vamb run. Recommended: Number of all samples in the run. Default: 100.
+		--vamb_groupsize        Group size of samples to use in one Vamb run if assembly mode is "single". Recommended: Number of all samples in the run. Default: 100.
 	""".stripIndent()
 }
 //--email 		An eMail adress to which reports are sent

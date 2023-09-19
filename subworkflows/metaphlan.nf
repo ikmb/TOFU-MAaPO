@@ -43,6 +43,8 @@ workflow metaphlan{
 
 			ch_versions = ch_versions.mix(ABUNDANCE_REL_MERGE.out.versions )
 		}
+
+		//TODO: For better taxonomy compability towards dada2: Introduce sgb_to_gtdb_profile.py and merge_metaphlan_tables.py ${OUTDIR}/*/metaphlan4_out/*.excl.viruses.gtdb.txt --gtdb_profiles 
 	emit:
 		versions = ch_versions
 		metaphlan_ready = ch_readymetaphlan

@@ -1,25 +1,21 @@
 process FILTERCONTIGS {
-	//scratch params.scratch
-	scratch false
-	tag "$sampleID"
+	scratch params.scratch
+	tag "$coassemblygroup"
 	label 'default'
 
 	input:
-		tuple val(meta), file(finalcontigs), path(reads)
+		tuple val(coassemblygroup), file(finalcontigs)
 
 	output:
-		tuple val(meta), file(fcontigs_filtered), path(reads), 	emit: contigs, 			optional: true
+		tuple val(coassemblygroup), file(fcontigs_filtered),	emit: contigs, 			optional: true
 		path(fcontigs_filtered), 								emit: filteredcontig,	optional: true
-		tuple val(meta), file(fcontigs_filtered), 				emit: magscot_contigs, 	optional: true
+		tuple val(coassemblygroup), file(fcontigs_filtered), 	emit: magscot_contigs, 	optional: true
 		path("versions.yml"),  									emit: versions,			optional: true
 
 	script:
-		sampleID = meta.id
-		if(params.coassembly){
-			fcontigs_filtered = meta.coassemblygroup + '_fcontigsfiltered.fa'
-		}else{
-			fcontigs_filtered = sampleID + '_fcontigsfiltered.fa'
-		}
+
+		fcontigs_filtered = coassemblygroup + '_fcontigsfiltered.fa'
+
 		"""
 		/opt/conda/envs/ikmb-metagenome-1.2/bin/python3 ${baseDir}/bin/contigfilterbylen.py ${params.contigsminlength} $finalcontigs > intermediate_file.fa
 
