@@ -8,14 +8,15 @@ process MAXBIN2 {
 	input:
 		tuple val(meta), file(fcontigs), file(depthout)
 	output:
-		tuple val(meta), file(maxbin2_contigs_to_bin), emit: contigs_to_bin
+		tuple val(meta), file(maxbin2_contigs_to_bin), optional: true, emit: contigs_to_bin
+		tuple val(meta), file(formatted_contigs_to_bin), optional: true, emit: magscot_contigbinlist
 		path("versions.yml"),          optional: true, emit: versions
 	script:
 		sampleID = meta.id
 		abundance_table = sampleID + '.abu'
 		maxbin2output = 'maxbin2_out/' + sampleID + '.maxbin2'
 		maxbin2_contigs_to_bin = sampleID + '_maxbin2_contigs_to_bin.tsv'
-
+		formatted_contigs_to_bin = sampleID + '_maxbin2_magscot_contigs_to_bin.tsv'
 	"""
 		awk '{if(NR>1) print \$1"\\t"\$3}' $depthout > $abundance_table
 		
@@ -34,6 +35,8 @@ process MAXBIN2 {
 		set +e
 		{
 			grep '>' maxbin2_out/*fasta | cut -d '/' -f 2 | sed 's/:>/\\ /' > $maxbin2_contigs_to_bin
+
+			awk '{print \$1"\t"\$2"\tmaxbin2"}' $maxbin2_contigs_to_bin > $formatted_contigs_to_bin
 		}
 		set -e
 

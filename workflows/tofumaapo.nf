@@ -75,7 +75,7 @@ workflow tofumaapo {
 		}
 		
 	//genome assembly:
-		if( params.assembly || params.magscot || params.coassembly ){
+		if( params.assembly || params.coassembly ){
 			assembly(QCout)
 
 			ch_versions = ch_versions.mix( assembly.out.versions )

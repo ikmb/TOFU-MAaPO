@@ -4,10 +4,11 @@
 
 //include { CONTIGS_MAPPING } from '../modules/assembly/bowtie2_contigs_mapping.nf' //Currently unused, interchangeable with MINIMAP2_MAPPING
 include { FILTERCONTIGS } from '../modules/assembly/contig_filter.nf'
-include { MEGAHIT; MEGAHIT_assembly } from '../modules/assembly/megahit.nf'
+include { MEGAHIT_assembly } from '../modules/assembly/megahit.nf'
 include { checkm } from '../modules/assembly/checkm.nf'
 include { MAXBIN2 } from '../modules/assembly/maxbin2.nf'
 include { CONCOCT } from '../modules/assembly/concoct.nf'
+include { SEMIBIN } from '../modules/assembly/semibin.nf'
 include { getCountTable } from '../modules/assembly/assembly_util.nf'
 
 include {   GTDBTK; 
@@ -30,7 +31,6 @@ include {
 
 include {
 	FORMATTING_CONTIG_TO_BIN;
-	FORMATTING_CONTIG_TO_BIN_NOVAMB;
 	MARKER_IDENT;
 	MAGSCOT;
 	EXTRACT_REFINED_BINS
@@ -53,12 +53,17 @@ workflow assembly{
 	main:
 		ch_versions = Channel.empty()
 
+		binner = params.binner ? params.binner.split(',').collect{it.trim().toLowerCase().replaceAll('-', '').replaceAll('_', '').replaceAll('2', '')} : []
+		if(params.assembly){log.info "Binner       : ${binner}"}
+
+		ch_contig_bin_list = Channel.empty()
+
 		/*
 		* Contigs
 		*/
 		megahit_coas_input = data.map { it ->
-			meta = it[0]
-			return[meta.coassemblygroup, it[1]]}.groupTuple(by:0).map{ it -> return[it[0], it[1].flatten()]}.unique()
+			metas = it[0]
+			return[metas.coassemblygroup, it[1]]}.groupTuple(by:0).map{ it -> return[it[0], it[1].flatten()]}.unique()
 
 		MEGAHIT_assembly(megahit_coas_input)
 		ch_versions = ch_versions.mix(MEGAHIT_assembly.out.versions.first() )
@@ -69,8 +74,8 @@ workflow assembly{
 		ch_versions = ch_versions.mix(FILTERCONTIGS.out.versions.first() )
 
 		ch_filteredcontigs = FILTERCONTIGS.out.contigs.combine(data.map { it ->
-				meta = it[0]
-				return[meta.coassemblygroup, meta, it[1]]}, by:0 ).map { it -> return[it[2], it[1], it[3]]}
+				metas = it[0]
+				return[metas.coassemblygroup, metas, it[1]]}, by:0 ).map { it -> return[it[2], it[1], it[3]]}
 
 		/*
 		 * Basic Genome Assembly:
@@ -97,16 +102,16 @@ workflow assembly{
 		/*
 		* METABAT2 Workflow
 		*/
-
-		METABAT(ch_mapping)
-		ch_versions = ch_versions.mix(METABAT.out.versions.first() )
-			
-		contigs_to_bins(METABAT.out.metabatout)
-
-		if(!params.magscot){ ch_bins = METABAT.out.metabatout }
+		if ( 'metabat' in binner || !params.magscot.toBoolean() ) {
+			METABAT(ch_mapping)
+			ch_versions = ch_versions.mix(METABAT.out.versions.first() )
 		
+			contigs_to_bins(METABAT.out.metabatout)
+			ch_contig_bin_list = ch_contig_bin_list.mix(contigs_to_bins.out.metabat2_contigs_to_bins)
+			if(!params.magscot.toBoolean()){ ch_bins = METABAT.out.metabatout }
+		}
 
-		if(params.magscot){
+		if(params.magscot.toBoolean()){
 			/*
 			 * Extended Genome Assembly:
 			*/
@@ -114,7 +119,7 @@ workflow assembly{
 			/*
 			* VAMB Workflow
 			*/
-			if(!params.skip_vamb){
+			if ( 'vamb' in binner ) {
 
 				if(params.assemblymode == "single"){
 					//create a new csv file to subgroup samples
@@ -188,37 +193,42 @@ workflow assembly{
 				}
 
 				VAMB_CONTIGS_SELECTION( ch_vambgroup_sampleid )
-
+				ch_contig_bin_list = ch_contig_bin_list.mix(VAMB_CONTIGS_SELECTION.out.magscot_contigbinlist)
 			}
 
 			/*
 			* MAXBIN2 Workflow
 			*/
-
-			MAXBIN2( ch_mapping )
-			ch_versions = ch_versions.mix(MAXBIN2.out.versions.first() )
-
+			if ( 'maxbin' in binner ) {
+				MAXBIN2( ch_mapping )
+				ch_contig_bin_list = ch_contig_bin_list.mix(MAXBIN2.out.magscot_contigbinlist)
+				ch_versions = ch_versions.mix(MAXBIN2.out.versions.first() )
+			}
 			/*
 			* CONCOCT Workflow
 			*/
-
+			if ( 'concoct' in binner ) {
 			CONCOCT( ch_mapping.join( ch_bam ) )
+			ch_contig_bin_list = ch_contig_bin_list.mix(CONCOCT.out.magscot_contigbinlist)
 			ch_versions = ch_versions.mix(CONCOCT.out.versions.first() )
-
+			}
+			/*
+			* SemiBin2 Workflow
+			*/
+			if ( 'semibin' in binner ) {
+			SEMIBIN( ch_mapping.join( ch_bam ) )
+			ch_contig_bin_list = ch_contig_bin_list.mix(SEMIBIN.out.magscot_contigbinlist)
+			ch_versions = ch_versions.mix(SEMIBIN.out.versions.first() )
+			}
 
 			/*
 			* MAGScoT Workflow
 			*/
 
-			if(!params.skip_vamb){
-				ch_per_sample_contigs_to_bins = VAMB_CONTIGS_SELECTION.out.persample_clustertable.join( contigs_to_bins.out.metabat2_contigs_to_bins ).join( MAXBIN2.out.contigs_to_bin).join( CONCOCT.out.contigs_to_bin )
-				FORMATTING_CONTIG_TO_BIN(   ch_per_sample_contigs_to_bins   )
-				ch_contig_to_bin = FORMATTING_CONTIG_TO_BIN.out.formatted_contigs_to_bin
-			}else{
-				ch_per_sample_contigs_to_bins = contigs_to_bins.out.metabat2_contigs_to_bins.join( MAXBIN2.out.contigs_to_bin).join( CONCOCT.out.contigs_to_bin )
-				FORMATTING_CONTIG_TO_BIN_NOVAMB(   ch_per_sample_contigs_to_bins   )
-				ch_contig_to_bin = FORMATTING_CONTIG_TO_BIN_NOVAMB.out.formatted_contigs_to_bin
-			}                          
+			ch_per_sample_contigs_to_bins = ch_contig_bin_list.groupTuple()
+
+			FORMATTING_CONTIG_TO_BIN(   ch_per_sample_contigs_to_bins   )
+			ch_contig_to_bin = FORMATTING_CONTIG_TO_BIN.out.formatted_contigs_to_bin
 
 			MARKER_IDENT(   ch_mapping.join( ch_contig_to_bin) )
 			ch_versions = ch_versions.mix(MARKER_IDENT.out.versions.first() )
@@ -266,7 +276,7 @@ workflow assembly{
 		getCountTable(ch_bam)
 		ch_versions = ch_versions.mix(getCountTable.out.versions.first() )
 
-		if(params.magscot){
+		if(params.magscot.toBoolean()){
 			/*
 			* Abundance Table for MAGS
 			*/

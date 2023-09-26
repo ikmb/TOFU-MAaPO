@@ -184,15 +184,17 @@ process VAMB_CONTIGS_SELECTION{
 		tuple val(vamb_key),val(meta), path(all_cluster_table)
 		
 	output:
-		tuple val(meta), file(persample_clustertable), emit: persample_clustertable
-
+		tuple val(meta), file(persample_clustertable), optional: true, emit: persample_clustertable
+		tuple val(meta), file(formatted_contigs_to_bin),optional: true, emit: magscot_contigbinlist
 	script:
 		sampleID = meta.id
 
 		persample_clustertable = sampleID + '_vamb_contigs_to_bin.tsv'
-
+		formatted_contigs_to_bin = sampleID + '_vamb_magscot_contigs_to_bin.tsv'
 		"""
 		grep ${meta.coassemblygroup}_ $all_cluster_table > $persample_clustertable
+
+		gawk '{print \$1"\t"\$2"\tvamb"}'  $persample_clustertable > $formatted_contigs_to_bin
 		"""
 }
 

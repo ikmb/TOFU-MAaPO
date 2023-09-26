@@ -38,7 +38,7 @@ process contigs_to_bins {
 		tuple val(meta), file(fafile)
 
 	output:
-		tuple val(meta), file("${sampleID}_metabat2_contigs_to_bin.tsv"), emit: metabat2_contigs_to_bins
+		tuple val(meta), file("${sampleID}_metabat2_magscot_contigs_to_bin.tsv"), emit: metabat2_contigs_to_bins
 
 	script:
 		sampleID = meta.id
@@ -47,6 +47,8 @@ process contigs_to_bins {
 			"""
 			echo "Variable contains multiple files"
 			grep '>' ${fafile} | tr '>' '\t' | tr -d ':' > ${sampleID}_metabat2_contigs_to_bin.tsv
+			
+			gawk '{print \$1"\t"\$2"\tmetabat2"}'  ${sampleID}_metabat2_contigs_to_bin.tsv > ${sampleID}_metabat2_magscot_contigs_to_bin.tsv
 			"""
 		} else {
 			"""
@@ -56,6 +58,8 @@ process contigs_to_bins {
 				grep '>' ${fafile} | tr '>' '\t' | tr -d ':' | awk -F'\t' '{OFS="\t"; if (\$1=="") \$1="${fafile}"; print \$0 }' > ${sampleID}_metabat2_contigs_to_bin.tsv
 			}
 			set -e
+
+			gawk '{print \$1"\t"\$2"\tmetabat2"}'  ${sampleID}_metabat2_contigs_to_bin.tsv > ${sampleID}_metabat2_magscot_contigs_to_bin.tsv
 			"""
 		}
 }

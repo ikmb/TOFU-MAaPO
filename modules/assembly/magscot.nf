@@ -4,20 +4,16 @@ process FORMATTING_CONTIG_TO_BIN {
 	tag "$sampleID"
 
 	input:
-		tuple val(meta), file(vamb_cluster_table), file(metabat2_cluster_table), file(maxbin2_cluster_table), file(concoct_cluster_table)
-
+		tuple val(meta), file(contigs_bin_tables)
 	output:
-		tuple val(meta), file(formatted_contigs_to_bin), emit: formatted_contigs_to_bin
+		tuple val(meta), file(merged_contigs_to_bin), emit: formatted_contigs_to_bin
 
 	script:
 		sampleID = meta.id
-		formatted_contigs_to_bin = sampleID + '_contigs_to_bin.tsv'
-		"""
-		gawk '{print \$1"\t"\$2"\tvamb"}'  $vamb_cluster_table > $formatted_contigs_to_bin
-		gawk '{print \$1"\t"\$2"\tmetabat2"}'  $metabat2_cluster_table >> $formatted_contigs_to_bin
-		gawk '{print \$1"\t"\$2"\tmaxbin2"}'  $maxbin2_cluster_table >> $formatted_contigs_to_bin
-		gawk '{print \$1"\t"\$2"\tconcoct"}'  $concoct_cluster_table >> $formatted_contigs_to_bin
 
+		merged_contigs_to_bin = sampleID + '_magscot_contigs_to_bin_merged.tsv'
+		"""
+		cat ${contigs_bin_tables.join(" ")} > $merged_contigs_to_bin
 		"""
 }
 
@@ -148,27 +144,5 @@ process EXTRACT_REFINED_BINS {
 		Python: \$(python --version | sed -e "s/Python //g" )
 		END_VERSIONS
 		
-	"""
-}
-
-process FORMATTING_CONTIG_TO_BIN_NOVAMB {
-	label 'default'
-	scratch params.scratch
-	tag "$sampleID"
-
-	input:
-		tuple val(meta), file(metabat2_cluster_table), file(maxbin2_cluster_table), file(concoct_cluster_table)
-
-	output:
-		tuple val(meta), file(formatted_contigs_to_bin), emit: formatted_contigs_to_bin
-
-	script:
-		sampleID = meta.id
-		formatted_contigs_to_bin = sampleID + '_contigs_to_bin.tsv'
-	"""
-		gawk '{print \$1"\t"\$2"\tmetabat2"}'  $metabat2_cluster_table > $formatted_contigs_to_bin
-		gawk '{print \$1"\t"\$2"\tmaxbin2"}'  $maxbin2_cluster_table >> $formatted_contigs_to_bin
-		gawk '{print \$1"\t"\$2"\tconcoct"}'  $concoct_cluster_table >> $formatted_contigs_to_bin
-
 	"""
 }

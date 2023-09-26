@@ -57,13 +57,14 @@ For analysis following modules are available:<br />
 `--humann_db` Directory of HUMAnN database. REQUIRED! <br /> 
 ## Assembly options:
 `--assemblymode` Set the mode, if co-assembly (**group** or **all**) or single (**single**, default mode) sample assembly should be performed. The option **group** is only available, if the input is a csv-file with a column "group". In case of co-assembly, only up to 100 samples per group (in "group" mode) or run (in "all" mode) are recommended due to hardware restrictions.<br />
+`--binner` Comma separated list of binning tools to use. Options are: **concoct**,**maxbin**,**semibin**,**metabat** and **vamb**. For best performance choose multiple. Default uses all of them. <br />
 `--contigsminlength` Set a minimum length of contig. Smaller contigs will be discarded. Default: 2000. <br />
+`--semibin_environment` Set the trained environment for SemiBin. Default is **human_gut**. See the [SemiBin Documentation](https://github.com/BigDataBiology/SemiBin/#easy-singleco-assembly-binning-mode) for other options. Choose **global** if no other environment is appropiate. 
 `--skip_gtdbtk` Skip GTDB-TK. Both Genome Assembly Modules will run GTDB-TK for taxonomical profiling as a default. <br />
 `--skip_checkm` Skip Checkm bin quality check. <br />
 `--gtdbtk_reference` GTDB-TK Reference. Reference database for GTDB-TK needs to be set (already set on Kiel Medcluster):<br />
 `--publish_megahit` Publish results of megahit with .<br />
 `--publish_rawbins` Publish the individual results of all binning tools in the extended genome assembly workflow with.<br />
-`--skip_vamb` Deactivate vamb in the magscot workflow. <br />
 `--vamb_groupsize` Only used when assemblymode is "single". Set a subgrouping size for vamb, default is 100. This is a temporary fix to enable the pipeline to handle very large cohorts on medium sized hardware. For best results adjust the groupsize to the total sample size of your cohort.<br />
 
 ## Other options:
