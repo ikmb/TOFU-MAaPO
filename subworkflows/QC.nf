@@ -78,6 +78,9 @@ workflow QC{
 				ch_versions = ch_versions.mix(FILTERREADS.out.version.first())
 
 				ch_cleaned_reads = FILTERREADS.out.cleaned_reads
+
+				FASTQC_clean(ch_cleaned_reads)
+				ch_versions = ch_versions.mix(FASTQC_clean.out.version.first())
 			}
 		}
 		
