@@ -36,7 +36,6 @@ process FASTP {
 				--out1=${left_trimmed} \
 				--json=${json_report} \
 				--html=${html_report} 2> ${log_report}
-			rm ${left_trimmed}
 
 			cat <<-END_VERSIONS > versions.yml
 			"${task.process}":
