@@ -108,6 +108,7 @@ process MAGSCOT {
 		sampleID = meta.id
 		refined_contigs_to_bins = sampleID + '.refined.contig_to_bin.out'
 		stats_outfile = sampleID + '.refined.out'
+		full_stats = sampleID + '.scores.out'
 	"""
 		Rscript /opt/MAGScoT.R -i $formatted_contigs_to_bin --hmm $samplehmm -o $sampleID -s ${params.magscot_min_sharing}
 
