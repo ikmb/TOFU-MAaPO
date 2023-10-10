@@ -3,6 +3,7 @@ process SEMIBIN {
 	label 'semibin'
 	scratch params.scratch
 	tag "$sampleID"
+	cache 'lenient'
 	publishDir "${params.outdir}/semibin/${sampleID}", mode: 'copy', enabled: params.publish_rawbins
 
 	input: 
