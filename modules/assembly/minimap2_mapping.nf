@@ -59,13 +59,14 @@ process MINIMAP2_MAPPING{
 		tuple val(meta), file(fcontigs), path(reads), path(catalogue), path(catalogue_index)
 
 	output:
-		path(depthout), 											emit: counttable
-		tuple val(coassemblygroup), path(depthout), 				emit: counttable_vamb
-		val(meta), 													emit: sampleid
-		tuple val(meta), file(depthout), 							emit: sample_depth
-		tuple val(meta), file(fcontigs), file(depthout), 			emit: maps
-		tuple val(meta), file(mappingbam), file(mappingbam_index), 	emit: bam
-		path("error.log"),    										emit: errorlog
+		path(depthout), 														emit: counttable
+		tuple val(coassemblygroup), path(depthout), 							emit: counttable_vamb
+		val(meta), 																emit: sampleid
+		tuple val(meta), file(depthout), 										emit: sample_depth
+		tuple val(meta), file(fcontigs), file(depthout), 						emit: maps
+		tuple val(meta), file(mappingbam), file(mappingbam_index), 				emit: bam
+		tuple val(coassemblygroup), file(mappingbam), file(mappingbam_index), 	emit: vambkey_bam
+		path("error.log"),    													emit: errorlog
 		path("versions.yml"), emit: versions
 
 	script:

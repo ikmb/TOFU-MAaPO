@@ -66,6 +66,7 @@ process VAMB_MAPPING{
 		val(meta), emit: sampleid
 		tuple val(meta), file(fcontigs), file(depthout), emit: maps
 		tuple val(meta), file(mappingbam), file(mappingbam_index), emit: bam
+		tuple val(vamb_key), file(mappingbam), file(mappingbam_index), emit: vambkey_bam
 		path("error.log"),    optional: true, emit: errorlog
 		path("versions.yml"), emit: versions
 
@@ -150,7 +151,7 @@ process VAMB {
 	tag "$vamb_key"
 
 	input:
-        tuple val(vamb_key), path(catalogue), path(catalogue_index), path(alldepths)
+        tuple val(vamb_key), path(catalogue), path(catalogue_index), path(mappingbam), path(mappingbam_index)//path(alldepths)
 
 
 	output:
@@ -161,8 +162,8 @@ process VAMB {
 		cluster_table = 'all_vamb_contigs_to_bin.tsv'
 
 		"""
-		vamb --outdir bin --fasta $catalogue --jgi $alldepths -o _${params.contig_sep}_ 
-		mv bin/clusters.tsv $cluster_table
+		vamb --outdir bin --fasta $catalogue --bamfiles ${mappingbam.join(" ")} -o _${params.contig_sep}_ 
+		cat bin/*clusters.tsv $cluster_table
 
 		cat <<-END_VERSIONS > versions.yml
 		"${task.process}":
@@ -172,7 +173,7 @@ process VAMB {
 
 		"""
 }
-
+//--jgi $alldepths
 process VAMB_CONTIGS_SELECTION{
 	
 	label 'default'

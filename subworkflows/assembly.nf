@@ -23,7 +23,7 @@ include {
 	VAMB_CATALOGUE;
 	VAMB_CATALOGUE_INDEX;
 	VAMB_MAPPING;
-	VAMB_COLLECT_DEPTHS;
+//	VAMB_COLLECT_DEPTHS;
 	VAMB_CONTIGS_SELECTION;
 	VAMB;
 	group_vamb
@@ -168,21 +168,14 @@ workflow assembly{
 					VAMB_MAPPING( ch_mapping_vamb_input )
 					ch_versions = ch_versions.mix(VAMB_MAPPING.out.versions.first() )
 
-					VAMB_COLLECT_DEPTHS( VAMB_MAPPING.out.counttable.groupTuple()//.collect() 
-					)
-					ch_versions = ch_versions.mix(VAMB_COLLECT_DEPTHS.out.versions.first() )
-
-					VAMB(   VAMB_CATALOGUE_INDEX.out.catalogue_indexfirst.join( VAMB_COLLECT_DEPTHS.out.alldepths )                    
+					VAMB(   VAMB_CATALOGUE_INDEX.out.catalogue_indexfirst.join( VAMB_MAPPING.out.vambkey_bam.groupTuple() )       
 						)
 					ch_versions = ch_versions.mix(VAMB.out.versions.first() )
 					ch_vambgroup_sampleid = ch_sample_to_vambgroup.map{ row -> tuple(row[1], row[0]) }.combine(VAMB.out.all_samples_clustertable, by: 0)
-				}else{
-					
-					VAMB_COLLECT_DEPTHS( MINIMAP2_MAPPING.out.counttable_vamb.groupTuple()//.collect() 
-					)
-					ch_versions = ch_versions.mix(VAMB_COLLECT_DEPTHS.out.versions.first() )
 
-					VAMB(   MINIMAP2_CATALOGUE_INDEX.out.catalogue_indexfirst.join( VAMB_COLLECT_DEPTHS.out.alldepths )                    
+				}else{
+
+					VAMB(   MINIMAP2_CATALOGUE_INDEX.out.catalogue_indexfirst.join( MINIMAP2_MAPPING.out.vambkey_bam.groupTuple() )                    
 						)
 					ch_versions = ch_versions.mix(VAMB.out.versions.first() )
 
