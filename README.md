@@ -4,10 +4,6 @@
 
 Taxonomic Or FUnctional Metagenomic Assembly and PrOfiling = TOFU-MAaPO 
 
-# Overview
-
-This pipelines analyses short reads and can perform analysis of taxonomic profiling, abundance of microbial metabolic pathways and more. 
-
 # Documentation 
 
 Documentation about the pipeline can be found in the `docs/` directory or under the links below:
@@ -19,8 +15,20 @@ Documentation about the pipeline can be found in the `docs/` directory or under 
 
 # Pipeline Structure
 ![](./images/metawo_overview.png)
+Overview of TOFU-MAaPO 1.3.1
 
-With the help of Docker containers, the pipeline can be run on any common UNIX operation system. Users only need to install Nextflow and Singularity as dependencies and can then run the pipeline without further installation. The pipeline can download all required databases and can remove optionally the host genome reads from the sequencing files. Bowtie2 host genome indexes and Kraken2 databases must be manually downloaded for execution. Only one command needs to be run to install, initialise and run the pipeline from start to finish. The pipeline requires short single- or paired-end metagenomic shotgun sequencing FASTQ files as input, or a single csv file containing a list of samples and their associated FASTQ files. The pipeline processes the data for quality control and possible host decontamination (optional) and performs downstream analysis for taxonomic abundance profiles of each sample using Kraken2, Bracken and/or Metaphlan4, metabolic pathway analysis using Humann (v3.6) and/or two workflows for metagenomic genome assembly. Genome assembly can be performed with a simple approach using Megahit to generate contigs. Contigs are catalogued and indexed using minimap2 and then binned using Metabat software. The bins are taxonomically annotated with GTDB-TK and quality checked with checkm. An extended genome assembly approach can also be activated. In this case, the contigs that are catalogued and indexed with Megahit and minimap2 are not only processed further with Metabat2, but also with Concoct, Maxbin and vamb. The resulting bins from the individual binning tools are then refined and, where possible, combined with MAGScoT based on sets of single-copy microbial marker genes from the Genome Taxonomy Database. The profile of existing marker genes in each binning result from the different algorithms is compared, and new hybrid candidate bins are created if the binsets have a user-adjustable proportion of marker genes. The results are also taxonomically annotated with GTDB-TK and quality checked with checkm. An estimated bin coverage per sample is generated as additional output. 
+# Overview
+
+This pipelines analyses short reads and can perform analysis of taxonomic profiling, abundance of microbial metabolic pathways and more. 
+
+
+TOFU-MAaPO is a Nextflow pipeline for the processing and analysis of metagenomic short reads with a focus on gut metagenomes. The pipeline can run on any linux system and needs as dependencies only Nextflow and the container engine Singularity. An installation step is not needed as Nextflow can automatically download all needed files. <br />
+
+The pipeline can install needed databases on its own, see for this the usage documentation. The pipeline can therefor be downloaded and executed in one single command line call. It requires short single- or paired-end metagenomic shotgun sequencing FASTQ files as input, or a single csv file containing a list of samples and their associated FASTQ files or can download data from SRA by giving the project or sample id as an input.<br />
+
+TOFU-MAaPO processes the data for quality control and possible host decontamination (optional) and performs downstream analysis for taxonomic abundance profiles of each sample using Kraken2, Bracken, Salmon and/or Metaphlan4, metabolic pathway analysis using HUMAnN (v3.6) and assembly of metagenomic genomes (MAGs).<br />
+
+Genome assembly is done by generating contigs from the qc'ed reads with Megahit (single samples, grouped or all samples combined). The contigs are then catalogued and indexed using minimap2 and then binned with the option to use up to five binning tools (Metabat2, Concoct, Maxbin, Semibin2 and vamb). The resulting bins will then be refined and, where possible, combined with MAGScoT based on sets of single-copy microbial marker genes from the Genome Taxonomy Database. The profiles of present marker genes in each result from the different binning algorithms are compared, and new hybrid candidate bins are created if the bin sets have a user-adjustable proportion of marker genes. The results are also taxonomically annotated with GTDB-TK and quality checked with checkm. An estimated bin coverage per sample is generated as additional output. 
 
 # Funding
 

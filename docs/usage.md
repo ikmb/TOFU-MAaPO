@@ -34,8 +34,7 @@ For analysis following modules are available:<br />
 `--kraken` Run Kraken2, a tool for taxonomic classification tool, with a on Medcluster preconfigured RefSeq virus database.<br />
 `--bracken` Run Bracken (Bayesian Reestimation of Abundance with KrakEN) after Kraken2. Kraken2 DB must be [bracken-ready](https://github.com/jenniferlu717/Bracken#step-0-build-a-kraken-10-or-kraken-20-database)<br />
 `--salmon` Run salmon.<br />
-`--assembly` Run a basic genome assembly workflow.<br />
-`--magscot` Run an extended genome assembly workflow with [MAGScoT](https://github.com/ikmb/MAGScoT) Bin Refinement.<br />
+`--assembly` Run an extended genome assembly workflow with [MAGScoT](https://github.com/ikmb/MAGScoT) Bin Refinement.<br />
 
 
 ## Initialization options:
@@ -48,24 +47,27 @@ For analysis following modules are available:<br />
 `--genome` Set host genome. On the IKMB Medcluster valid options are human, mouse or chimp. In other cases this needs to be pre-configured.<br />
 `--cleanreads`  Publish QC'ed fastq.gz files. Disabled by default.<br /> 
 `--no_qc` Skips QC-Module. Only use if your input reads are the output of `--cleanreads`<br /> 
+`--fastp` QC is performed with fastp <br /> 
 
 ## Metaphlan options:
 `--metaphlan_db` Directory of Metaphlan database. REQUIRED! <br /> 
 `--publish_metaphlanbam` Publish the bam file output of Metaphlan. <br /> 
+
 ## HUMAnN options:
 `--metaphlan_db` Directory of Metaphlan database. REQUIRED! <br /> 
 `--humann_db` Directory of HUMAnN database. REQUIRED! <br /> 
+
 ## Assembly options:
 `--assemblymode` Set the mode, if co-assembly (**group** or **all**) or single (**single**, default mode) sample assembly should be performed. The option **group** is only available, if the input is a csv-file with a column "group". In case of co-assembly, only up to 100 samples per group (in "group" mode) or run (in "all" mode) are recommended due to hardware restrictions.<br />
 `--binner` Comma separated list of binning tools to use. Options are: **concoct**,**maxbin**,**semibin**,**metabat** and **vamb**. For best performance choose multiple. Default uses all of them. <br />
 `--contigsminlength` Set a minimum length of contig. Smaller contigs will be discarded. Default: 2000. <br />
-`--semibin_environment` Set the trained environment for SemiBin. Default is **human_gut**. See the [SemiBin Documentation](https://github.com/BigDataBiology/SemiBin/#easy-singleco-assembly-binning-mode) for other options. Choose **global** if no other environment is appropiate. 
+`--semibin_environment` Set the trained environment for SemiBin. Default is **human_gut**. See the [SemiBin Documentation](https://github.com/BigDataBiology/SemiBin/#easy-singleco-assembly-binning-mode) for other options. Choose **global** if no other environment is appropiate.  <br />
 `--skip_gtdbtk` Skip GTDB-TK. Both Genome Assembly Modules will run GTDB-TK for taxonomical profiling as a default. <br />
 `--skip_checkm` Skip Checkm bin quality check. <br />
 `--gtdbtk_reference` GTDB-TK Reference. Reference database for GTDB-TK needs to be set (already set on Kiel Medcluster):<br />
 `--publish_megahit` Publish results of megahit with .<br />
 `--publish_rawbins` Publish the individual results of all binning tools in the extended genome assembly workflow with.<br />
-`--vamb_groupsize` Only used when assemblymode is "single". Set a subgrouping size for vamb, default is 100. This is a temporary fix to enable the pipeline to handle very large cohorts on medium sized hardware. For best results adjust the groupsize to the total sample size of your cohort.<br />
+`--vamb_groupsize` Only used when binning with vamb is performed and assemblymode is "single". Set a subgrouping size for vamb, default is 100. This is a temporary fix to enable the pipeline to handle very large cohorts on medium sized hardware. For best results adjust the groupsize to the total sample size of your cohort.<br />
 
 ## Other options:
 `--single_end` Set the pipeline for single end reads.<br />
