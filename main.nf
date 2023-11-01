@@ -78,8 +78,7 @@ def helpMessage() {
 				Salmon arguments:
 				--salmon_db       Set directory of salmon database
 
-	--assembly    Run a basic Genome Assembly with Megahit, Metabat and GTDB-Tk
-	--magscot     Run an extended Genome Assembly with 4 binning tools and MAGScoT for bin refinement.
+	--assembly    Run an extended Genome Assembly with 5 binning tools and MAGScoT for bin refinement.
 				Assembly arguments:
 				--gtdbtk_reference Set directory of the GTDB-Tk reference data
 
@@ -97,9 +96,10 @@ def helpMessage() {
 		--updategtdbtk          Download the GTDB-Tk reference data to the directory set in parameter gtdbtk_reference.
 
 	QC:
-		--genome		            Remove host contaminations. Use a pre-configured genome sequence by its common name (on medcluster: human, mouse or chimp)
+		--genome		        Remove host contaminations. Use a pre-configured genome sequence by its common name (on medcluster: human, mouse or chimp)
 		--cleanreads            Publish QCed fastq.gz files. Disabled by default.
 		--no_qc                 Skips QC-Module. Only use if your input reads are the output of --cleanreads. Not recommended.
+		--fastp					Uses fastp for qc
 
 	Kraken2/Bracken:
 		--kraken2_db            Directory of used Kraken2 database. Should be Bracken ready for use with Bracken. REQUIRED!
@@ -116,6 +116,7 @@ def helpMessage() {
 
 	Assembly:
 		--assemblymode			Select an assembly mode, can be "single" or for co-assembly "all". Also possible: "group" if input is a csv-file that contains a column "group"
+		--binner				Select which binning tools to use, comma separated, default is: "concoct,maxbin,semibin,metabat,vamb"
 		--contigsminlength	    Minimum length of contigs. Default: 2000
 		--gtdbtk_reference      Directory of database. REQUIRED for GTDB-Tk!
 		--skip_gtdbtk           Skip GTDB-Tk.
