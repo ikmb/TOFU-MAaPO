@@ -76,7 +76,7 @@
 			--threads ${task.cpus} \
 			--nucleotide-database ${params.humann_db}/chocophlan \
 			--protein-database ${params.humann_db}/uniref \
-			--metaphlan-options "--bowtie2db ${params.metaphlan_db}" \
+			--metaphlan-options "--bowtie2db ${params.metaphlan_db} --offline" \
 			--output-basename $sampleID
 		rm *.fq
 
@@ -101,7 +101,7 @@
 			--threads ${task.cpus} \
 			--nucleotide-database ${params.humann_db}/chocophlan \
 			--protein-database ${params.humann_db}/uniref \
-			--metaphlan-options "--bowtie2db ${params.metaphlan_db}"
+			--metaphlan-options "--bowtie2db ${params.metaphlan_db} --offline"
 		rm *.fq
 
 		cat <<-END_VERSIONS > versions.yml
