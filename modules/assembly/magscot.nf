@@ -103,6 +103,7 @@ process MAGSCOT {
 		tuple val(meta), file(refined_contigs_to_bins), file(fcontigs_filtered), emit: refined_contigs_to_bins
 		tuple val(meta), file(refined_contigs_to_bins), emit: contigs_to_bins_table
 		tuple val(meta), file(stats_outfile), emit: stats_outfile_table
+		tuple val(meta), file(full_stats), emit: full_bin_stats
 		path("versions.yml"),          optional: true, emit: versions
 	script:
 		sampleID = meta.id
