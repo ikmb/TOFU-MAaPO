@@ -30,6 +30,23 @@ TOFU-MAaPO processes the data for quality control and possible host decontaminat
 
 Genome assembly is done by generating contigs from the qc'ed reads with Megahit (single samples, grouped or all samples combined). The contigs are then catalogued and indexed using minimap2 and then binned with the option to use up to five binning tools (Metabat2, Concoct, Maxbin, Semibin2 and vamb). The resulting bins will then be refined and, where possible, combined with MAGScoT based on sets of single-copy microbial marker genes from the Genome Taxonomy Database. The profiles of present marker genes in each result from the different binning algorithms are compared, and new hybrid candidate bins are created if the bin sets have a user-adjustable proportion of marker genes. The results are also taxonomically annotated with GTDB-TK and quality checked with checkm. An estimated bin coverage per sample is generated as additional output. 
 
+# Quick start
+
+Install and make sure, Singularity and Nextflow are working.
+
+The inputs to TOFU-MAaPO are fastq.gz files or a SRA ID (sample or project).
+
+Running a  workflow for human gut metagenomes with qc and assembly for local files would be called like this:
+```
+nextflow run ikmb/TOFU-MAaPO \
+    -profile custom \
+    --reads '/path/to/fastqfiles/*_R{1,2}_001.fastq.gz' \
+    --assembly \
+    --genome human \
+    --publish_rawbins \
+    --outdir results
+```
+
 # Funding
 
 The project was funded by the German Research Foundation (DFG) [Research Unit 5042 - miTarget INF](https://www.mitarget.org/).
