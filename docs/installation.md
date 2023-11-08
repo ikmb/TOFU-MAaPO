@@ -14,8 +14,8 @@ Should you want to run the pipeline on a HPC or Cloud service, please see the [N
 For host decontamination: Download your needed host genome as Bowtie2 indexes from e.g. [here](https://benlangmead.github.io/aws-indexes/bowtie) and set the the path to the  basename of the index files in your custom config file prior running the pipeline like so:
 ```
 'genomes' {
-		'human' { bowtie_index = "/path/to/your/references/iGenomes/references/Homo_sapiens/NCBI/GRCh38Decoy/Sequence/Bowtie2Index/genome"
-		}
+	'human' { bowtie_index = "/path/to/your/references/iGenomes/references/Homo_sapiens/NCBI/GRCh38Decoy/Sequence/Bowtie2Index/genome"
+	}
 }
 ```
 ## Metaphlan & Humann
@@ -25,8 +25,8 @@ Run the pipeline with the given parameters in your first run. The pipeline will 
 Edit and include this snipped in your custom config:
 ```
 params {
-		metaphlan_db = "/path/to/your/databases/Metaphlan/4.0"
-        	humann_db = "/path/to/your/databases/Humann3/3.6"
+	metaphlan_db = "/path/to/your/databases/Metaphlan/4.0"
+	humann_db = "/path/to/your/databases/Humann3/3.6"
 }
 ```
 
@@ -36,7 +36,7 @@ Download and extract a Kraken 2 database for example from [here](https://benlang
 Edit and include this snipped in your custom config:
 ```
 params {
-		kraken2_db = "/path/to/your/databases/Kraken2/k2_viral_20210517"
+	kraken2_db = "/path/to/your/databases/Kraken2/k2_viral_20210517"
 }
 ```
 
@@ -46,6 +46,6 @@ For genome assembly: Please download and extract the GTDB-Tk reference data (cur
 Edit and include this snipped in your custom config:
 ```
 params {
-		gtdbtk_reference = "/path/to/your/databases/GTDB-TK/release207_v2"
+	gtdbtk_reference = "/path/to/your/databases/GTDB-TK/release207_v2"
 }
 ```

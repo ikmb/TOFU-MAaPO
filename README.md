@@ -52,10 +52,11 @@ nextflow run ikmb/TOFU-MAaPO \
     -profile custom \
     --reads '/path/to/fastqfiles/*_R{1,2}_001.fastq.gz' \
     --assembly \
-    --genome human \
-    --publish_rawbins \
+    --updategtdbtk \
+    --gtdbtk_reference '/path/to/download/gtdbtk_db/to' \
     --outdir results
 ```
+For detailed installation guide see the [installation and configuration documentation](docs/installation.md).
 
 # Funding
 
