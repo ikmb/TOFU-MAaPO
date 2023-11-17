@@ -60,18 +60,22 @@ workflow QC{
 
 			ch_qcreports = FASTQC_raw.out.fastqc.collect().mix( ch_fastqc_clean_out.collect() )
 		}else{
+
 			FASTP(ch_raw_reads)
 			ch_versions = ch_versions.mix(FASTP.out.version.first())
 
+			CLEANREADS(FASTP.out.filterReads)
+			ch_versions = ch_versions.mix(CLEANREADS.out.version.first())
+
 			if(!params.genome){
-				COLLECTOR(FASTP.out.filterReads) 
+				COLLECTOR(CLEANREADS.out.cleanfastq) 
 
 				ch_cleaned_reads = COLLECTOR.out.cleaned_reads
 
 				ch_qcreports = FASTP.out.html_report.collect()
 			}else{
 				FILTERREADS(
-					FASTP.out.filterReads,
+					CLEANREADS.out.cleanfastq,
 					Channel.fromPath("${bowtie_base}*").collect(),
 					Channel.fromPath(params.genomes[params.genome].bowtie_index).map{index -> index.Name} )  
 
