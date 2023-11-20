@@ -161,7 +161,7 @@ process VAMB {
 		cluster_table = 'all_vamb_contigs_to_bin.tsv'
 
 		"""
-		vamb --outdir bin --fasta $catalogue --jgi $alldepths -o _${params.contig_sep}_ 
+		vamb --outdir bin --fasta $catalogue --jgi $alldepths -o _${params.contig_sep}_ -p ${task.cpus}
 		mv bin/clusters.tsv $cluster_table
 
 		cat <<-END_VERSIONS > versions.yml
