@@ -5,12 +5,8 @@ This pipeline requires Nextflow 21.04.0 or higher. Other dependencies are contai
 As default, this pipeline works with the profile for Kiel medcluster. Should you choose to run it locally on your own computer, please set **-profile local**. 
 Important: Change parameters in conf/local.config to your local hardware specifications prior running the pipeline.
 
-On Kiel Medcluster, please load the following modules with:
-```bash
-module load singularity nextflow
-```
 
-Reference databases for Metaphlan4, Kraken2 and HUMAnN3 (Set also aMetaphlan4 DB for HUMAnN3.6) are needed. On Kiel Medcluster, these are already set in the respective config file.<br />
+Reference databases for Metaphlan4, Kraken2 and HUMAnN3 (Set also a Metaphlan4 DB for HUMAnN3.6) are needed. On Kiel Medcluster, these are already set in the respective config file.<br />
 Metaphlan DB: `--metaphlan_db`<br />
 HUMAnN DB:    `--humann_db`<br />
 Kraken DB:    `--kraken2_db`<br />

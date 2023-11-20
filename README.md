@@ -46,7 +46,7 @@ singularity --version
 
 The inputs to TOFU-MAaPO are fastq.gz files or SRA IDs (sample or project).
 
-Running a  workflow for human gut metagenomes with qc and assembly for local files would be called like this:
+Running a workflow for human gut metagenomes with qc and assembly for local files would be called like this:
 ```
 nextflow run ikmb/TOFU-MAaPO \
     -profile custom \

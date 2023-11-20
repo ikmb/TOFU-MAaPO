@@ -2,7 +2,7 @@
 
 This pipeline is containerized with Singularity and Docker. You will need to prepare databases for respective modules (Metaphlan4, HUMAnN3 or Kraken2) and a config file for your compute system.
 
-On the Kiel Medcluster, no action is required! <br />
+
 
 
 Change the config file `conf/custom.config` to your system. Please follow the instructions below before running the respective modules within the pipeline. You will then be able to run the pipeline with your config with the parameter `-profile custom`. <br />
@@ -49,3 +49,12 @@ params {
 	gtdbtk_reference = "/path/to/your/databases/GTDB-TK/release207_v2"
 }
 ```
+
+# Kiel Medcluster
+On Kiel Medcluster, please load the following modules with:
+```bash
+module load singularity nextflow
+```
+
+No further action is required! <br />
+Databases for all tools (with the exception of Salmon) and human, mouse and chimp as host genomes are already set.
