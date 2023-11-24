@@ -10,7 +10,8 @@ input:
 	tuple val(meta), path(reads)
 
 output:
-	tuple val(sampleID), path(report), path(salmon_log), emit: salmonout
+	tuple val(sampleID), path(report), path(salmon_log), emit: salmonallout
+	path(report), emit: salmonout
 	path('versions.yml'), emit: version
 
 script:
@@ -58,5 +59,29 @@ script:
 	
 	"""	
 	}
+}
+
+process SALMON_merge {
+	label 'default'
+	publishDir "${params.outdir}/SALMON", mode: 'copy', pattern: "*.tbl"
+
+	input:
+		path(report)
+
+	output:
+		path(abundances),          optional: true, emit: salmonmerge
+		path('versions.yml'), emit: version
+
+	script:
+		def args = params.salmon_reference ? "${params.salmon_reference}" : ""
+		abundances = "salmon_merged_TPM.tbl"
+		"""	
+		Rscript ${baseDir}/bin/salmon_merging.R ${args}
+
+		cat <<-END_VERSIONS > versions.yml
+		"${task.process}":
+		R: \$(Rscript --version 2>&1 | awk '{print \$5}')
+		END_VERSIONS
+		"""	
 }
 

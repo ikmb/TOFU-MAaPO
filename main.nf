@@ -26,7 +26,8 @@ log.info "Host genome:    : ${params.genome}"
 if(params.kraken || params.bracken){
 log.info "Kraken DB:      : ${params.kraken2_db}"}
 if(params.salmon){
-log.info "Salmon DB:      : ${params.salmon_db}"}
+log.info "Salmon DB:      : ${params.salmon_db}"
+log.info "Salmon Reference: ${params.salmon_reference}"}
 if(params.humann){
 log.info "HUMAnN DB:      : ${params.humann_db}"}
 if(params.metaphlan){
@@ -76,7 +77,8 @@ def helpMessage() {
 
 	--salmon      Run Salmon
 				Salmon arguments:
-				--salmon_db       Set directory of salmon database
+				--salmon_db        Set directory of salmon database
+				--salmon_reference Set the reference file for the used salmon database. Table with the first column containing the genome identifier and the second column containing the taxonomic classification info in gtdbtk format (e.g. d__Bacteria;p__Pseudomonadota;c__Gammaproteobacteria;o__Enterobacterales;f__Enterobacteriaceae;g__Escherichia;s__Escherichia coli)
 
 	--assembly    Run an extended Genome Assembly with 5 binning tools and MAGScoT for bin refinement.
 				Assembly arguments:
