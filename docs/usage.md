@@ -79,6 +79,7 @@ For analysis following modules are available:<br />
 
 ### Salmon options:
 `--salmon_db` Directory of used salmon database. REQUIRED! <br />
+`--salmon_reference` Path to tab-separated taxonomy file corresponding to the used salmon database. Not required if used with default database. Two column file with header line containing in the first column the bin names used in the salmon database and in the second column the taxonomic assignment by GTDB-Tk in the format "d__Bacteria;p__Pseudomonadota;c__Gammaproteobacteria;o__Enterobacterales;f__Enterobacteriaceae;g__Escherichia;s__Escherichia coli". <br />
 `--salmon_processing` NOT RECOMMENDED! Shortcut for high-throughput data processing with salmon, skips qc, no other modules available in this mode.  <br />
 
 ### Bracken options and their default:

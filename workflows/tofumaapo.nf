@@ -32,7 +32,7 @@ workflow tofumaapo {
 					input_sra()
 					ch_raw_reads = input_sra.out.reads
 				}else{
-					exit 1, "No input in --reads or --sra was declared!"
+					exit 1, "No input was declared! Please declare input with --reads or --sra !"
 				}
 			}
 	//QC:
