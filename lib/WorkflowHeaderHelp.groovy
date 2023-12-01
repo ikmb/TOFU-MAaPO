@@ -87,6 +87,11 @@ ${info_line}
                                    Table with the first column containing the genome identifier and the second column containing the taxonomic classification info in gtdbtk format 
                                    (e.g. d__Bacteria;p__Pseudomonadota;c__Gammaproteobacteria;o__Enterobacterales;f__Enterobacteriaceae;g__Escherichia;s__Escherichia coli)
 
+	--sylph       Run Sylph
+				Sylph arguments:
+				--sylph_db         Set path to sylph database
+				--sylph_merge      All samples will be profiled in one process. Produces one combined output file.
+
 	--assembly    Run an extended Genome Assembly with five binning tools and MAGScoT for bin refinement.
 				Assembly arguments:
 				--gtdbtk_reference Set directory of the GTDB-Tk reference data

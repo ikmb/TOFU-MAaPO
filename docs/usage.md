@@ -10,6 +10,7 @@ Reference databases for Metaphlan4, Kraken2 and HUMAnN3 (Set also a Metaphlan4 D
 Metaphlan DB: `--metaphlan_db`<br />
 HUMAnN DB:    `--humann_db`<br />
 Kraken DB:    `--kraken2_db`<br />
+Sylth DB:     `--sylth_db`<br />
 
 Pipeline is module based and will run in the most basic run only the QC module.
 
@@ -30,6 +31,7 @@ For analysis following modules are available:<br />
 `--kraken` Run Kraken2, a tool for taxonomic classification tool, with a on Medcluster preconfigured RefSeq virus database.<br />
 `--bracken` Run Bracken (Bayesian Reestimation of Abundance with KrakEN) after Kraken2. Kraken2 DB must be [bracken-ready](https://github.com/jenniferlu717/Bracken#step-0-build-a-kraken-10-or-kraken-20-database)<br />
 `--salmon` Run salmon.<br />
+`--sylth` Run salmon.<br />
 `--assembly` Run an extended genome assembly workflow with [MAGScoT](https://github.com/ikmb/MAGScoT) Bin Refinement.<br />
 
 
@@ -81,6 +83,10 @@ For analysis following modules are available:<br />
 `--salmon_db` Directory of used salmon database. REQUIRED! <br />
 `--salmon_reference` Path to tab-separated taxonomy file corresponding to the used salmon database. Not required if used with default database. Two column file with header line containing in the first column the bin names used in the salmon database and in the second column the taxonomic assignment by GTDB-Tk in the format "d__Bacteria;p__Pseudomonadota;c__Gammaproteobacteria;o__Enterobacterales;f__Enterobacteriaceae;g__Escherichia;s__Escherichia coli". <br />
 `--salmon_processing` NOT RECOMMENDED! Shortcut for high-throughput data processing with salmon, skips qc, no other modules available in this mode.  <br />
+
+### Sylth options:
+`--sylth_db` Set the path to a sylth databse.<br />
+`--sylth_merge` All sylth profiling will be done in one process. Produces a single output for all samples combined. <br />
 
 ### Bracken options and their default:
 `--bracken_length` = 100<br />
