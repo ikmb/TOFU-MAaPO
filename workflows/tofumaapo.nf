@@ -5,6 +5,7 @@ include { metaphlan } from '../subworkflows/metaphlan'
 include { kraken } from '../subworkflows/kraken'
 include { humann } from '../subworkflows/humann'
 include { salmon } from '../subworkflows/salmon'
+include { sylph } from '../subworkflows/sylph'
 include { assembly } from '../subworkflows/assembly'
 include { SOFTWARE_VERSIONS } from '../modules/software_versions'
 
@@ -58,6 +59,13 @@ workflow tofumaapo {
 			salmon(QCout)
 
 			ch_versions = ch_versions.mix( salmon.out.versions)
+		}
+
+	//sylph
+		if(params.sylph){
+			sylph(QCout)
+
+			ch_versions = ch_versions.mix (sylph.out.versions)
 		}
 
 	//metaphlan:
