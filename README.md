@@ -19,7 +19,7 @@ Overview of TOFU-MAaPO 1.3.1
 
 # Overview
 
-This pipelines analyses short reads and can perform analysis of taxonomic profiling, abundance of microbial metabolic pathways and more. 
+The pipeline analyses metagenomic short reads and can perform analysis for taxonomic profiling, abundance of microbial metabolic pathways and assembly of metagenomic genomes. 
 
 
 TOFU-MAaPO is a Nextflow pipeline for the processing and analysis of metagenomic short reads with a focus on gut metagenomes. The pipeline can run on any linux system and needs as dependencies only Nextflow and the container engine Singularity. An installation step is not needed as Nextflow can automatically download all needed files. <br />
