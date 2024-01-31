@@ -145,6 +145,7 @@ workflow input_sra {
 		}else{
 			ids = params.sra.split(',').collect()
 			Channel.fromSRA(ids, apiKey: params.apikey)
+				.collectFile(name: "${params.outdir}/sample_SRA_list.txt", newLine: true)
 				.map {row -> 
 						def meta = [:]
 						meta.id = row[0]
@@ -160,14 +161,31 @@ workflow input_sra {
 						def singleEnd = row[1].size() == -1
 						meta.single_end = singleEnd.toBoolean()
 						if( row[1].size() == 3){
-							fastq = row[1]							
-							//order shall be: meta, forward, reversed, unpaired
-							return [meta, [fastq[1], fastq[2], fastq[0]] ]
+							fastq = row[1]
+							if (hasExtension(fastq[1], ".fastq.gz") && hasExtension(fastq[2], ".fastq.gz") && hasExtension(fastq[0], ".fastq.gz")){
+								//order shall be: meta, forward, reversed, unpaired
+								return [meta, [fastq[1], fastq[2], fastq[0]] ]
+							}else{
+								println "Invalid file paths in triplet ${row[1]}, they do not end with .fastq.gz"
+							}
+						}else if( row[1].size() == 2){
+							fastq = row[1]
+							if (hasExtension(fastq[0], ".fastq.gz") && hasExtension(fastq[1], ".fastq.gz")){
+								//order shall be: meta, forward, reversed
+								return [meta, [fastq[0], fastq[1]] ]
+							}else{
+								println "Invalid file paths in pair ${row[1]}, they do not end with .fastq.gz"
+							}
 						}else{
-							return [meta,  row[1] ]
+							if (hasExtension(row[1], ".fastq.gz")){
+								//order shall be: meta, unpaired
+								return [meta,  row[1] ]
+							}else{
+								println "Invalid file paths in single-end ${row[1]}, it does not end with .fastq.gz"
+							}
 						}
 				}
-				.set { output }
+				.collectFile(name: "${params.outdir}/parsed_sample_list.txt", newLine: true).set { output }
 		}
 		download_sra(output)
 		reads = download_sra.out.reads
