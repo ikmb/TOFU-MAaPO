@@ -145,7 +145,6 @@ workflow input_sra {
 		}else{
 			ids = params.sra.split(',').collect()
 			Channel.fromSRA(ids, apiKey: params.apikey)
-				.collectFile(name: "${params.outdir}/sample_SRA_list.txt", newLine: true)
 				.map {row -> 
 						def meta = [:]
 						meta.id = row[0]
@@ -185,7 +184,7 @@ workflow input_sra {
 							}
 						}
 				}
-				.collectFile(name: "${params.outdir}/parsed_sample_list.txt", newLine: true).set { output }
+				.set { output }
 		}
 		download_sra(output)
 		reads = download_sra.out.reads
