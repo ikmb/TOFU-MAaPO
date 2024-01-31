@@ -186,6 +186,9 @@ workflow input_sra {
 				}
 				.set { output }
 		}
+		output.collectFile(storeDir: "${params.outdir}", name: "parsed_sample_list.csv" ) { item ->
+						item[0].id + ',' + item[0].single_end + ',' +  item[0].coassemblygroup + ',' + item[1] + '\n'
+						}
 		download_sra(output)
 		reads = download_sra.out.reads
 	emit:
