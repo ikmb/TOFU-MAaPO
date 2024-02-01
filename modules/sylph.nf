@@ -1,8 +1,7 @@
 process SYLPH_SKETCH {
 scratch params.scratch
 tag "$sampleID"
-label 'sylph'
-//publishDir "${params.outdir}/sylph", mode: 'copy', pattern: "*.sylsp"
+label 'sylph_sketch'
 
 input:
 	tuple val(meta), path(reads)
@@ -54,7 +53,7 @@ script:
 process SYLPH_PROFILING {
 scratch params.scratch
 tag params.sylph_merge ? "all" : "${meta.id}"
-label 'sylph'
+label 'sylph_profile'
 publishDir "${params.outdir}/sylph", mode: 'copy', pattern: "*.tbl"
 
 input:
