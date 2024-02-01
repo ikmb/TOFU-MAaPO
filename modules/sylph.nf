@@ -68,8 +68,8 @@ script:
 	"""
 
 	sylph profile \
-        *.sylsp \
         ${params.sylph_db} \
+		${sylsp.join(" ")} \
         -o $output_name \
 		-t ${task.cpus} 
 
