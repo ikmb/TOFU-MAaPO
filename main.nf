@@ -15,15 +15,17 @@ WorkflowCheck.startuptests(workflow, params, log)
 
 include { tofumaapo } from './workflows/tofumaapo' 
 include { tofumaapo_salmon } from './workflows/tofumaapo_salmon' 
+include { tofumaapo_sylph } from './workflows/tofumaapo_sylph' 
 //params(params)
 
 workflow {
-	if(!params.salmon_processing){
-		tofumaapo()
-	}else{
+	if(params.salmon_processing){
 		tofumaapo_salmon()
+	}else if(params.sylph_processing){
+		tofumaapo_sylph()
+	}else{
+		tofumaapo()
 	}
-
 }
 
 workflow.onComplete {
