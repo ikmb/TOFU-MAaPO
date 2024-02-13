@@ -6,7 +6,10 @@ mag_dt <- rbindlist(lapply(list.files(pattern= "_abundance_table.tbl"), fread))
 mag_dt$SampleID <- gsub("_cleanbin_[0-9]+","",mag_dt$bin)
 
 
-mag_abudance_wide <- pivot_wider(mag_dt[,-"bin"],names_from = "SampleID", values_from = "scaled_weighted_contigs_TPM_per_bin", values_fill = 0)
+mag_abudance_wide <- mag_dt[,-"bin"] %>% 
+                        group_by(taxa,SampleID) %>% 
+                        summarise(scaled_weighted_contigs_TPM_per_bin = sum(scaled_weighted_contigs_TPM_per_bin), .groups="keep") %>% 
+                        pivot_wider(.,names_from = "SampleID", values_from = "scaled_weighted_contigs_TPM_per_bin", values_fill = 0)
 
 fwrite(mag_abudance_wide, file="merged_MAG_tpm_abundance.tbl")
 
