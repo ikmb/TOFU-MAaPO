@@ -17,10 +17,10 @@ process download_sra {
 	unpairednewname = sampleID + "_unpaired_raw.fastq.gz"
     if (meta.single_end) {
 		"""
-        if [[ "${reads[0]}" = "ftp://ftp."*  ]]; then
-            wget --quiet -c ${reads[0]} -O $unpairednewname
+        if [[ "${reads}" = "ftp://ftp."*  ]]; then
+            curl -s ${reads} -o $unpairednewname --retry 10 -C -
         else
-            wget --quiet -c ftp://ftp.sra.ebi.ac.uk${reads[0]} -O $unpairednewname
+            curl -s ftp://ftp.sra.ebi.ac.uk${reads} -o $unpairednewname --retry 10 -C -
         fi
         
         """
@@ -28,16 +28,16 @@ process download_sra {
 		"""
         if [[ "${reads[0]}" = "ftp://ftp."*  ]]
         then
-            wget ${reads[0]} -O $leftnewname
-            wget ${reads[1]} -O $rightnewname
+            curl -s ${reads[0]} -o $leftnewname --retry 10 -C -
+            curl -s ${reads[1]} -o $rightnewname --retry 10 -C -
             if [[ -n "${reads[2]}" && "${reads[2]}" != "null" ]]; then 
-                wget ${reads[2]} -O $unpairednewname
+                curl -s ${reads[2]} -o $unpairednewname --retry 10 -C -
             fi
         else
-            wget ftp://ftp.sra.ebi.ac.uk${reads[0]} -O $leftnewname
-            wget ftp://ftp.sra.ebi.ac.uk${reads[1]} -O $rightnewname
+            curl -s ftp://ftp.sra.ebi.ac.uk${reads[0]} -o $leftnewname --retry 10 -C -
+            curl -s ftp://ftp.sra.ebi.ac.uk${reads[1]} -o $rightnewname --retry 10 -C -
             if [[ -n "${reads[2]}" && "${reads[2]}" != "null" ]]; then  
-                wget ftp://ftp.sra.ebi.ac.uk${reads[2]} -O $unpairednewname
+                curl -s ftp://ftp.sra.ebi.ac.uk${reads[2]} -o $unpairednewname --retry 10 -C -
             fi
         fi
         

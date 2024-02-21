@@ -4,7 +4,8 @@ include { MULTIQC } from '../modules/QC/multiqc'
 include { metaphlan } from '../subworkflows/metaphlan'
 include { kraken } from '../subworkflows/kraken'
 include { humann } from '../subworkflows/humann'
-include { SALMON } from '../modules/salmon'
+include { salmon } from '../subworkflows/salmon'
+include { sylph } from '../subworkflows/sylph'
 include { assembly } from '../subworkflows/assembly'
 include { SOFTWARE_VERSIONS } from '../modules/software_versions'
 
@@ -32,7 +33,7 @@ workflow tofumaapo {
 					input_sra()
 					ch_raw_reads = input_sra.out.reads
 				}else{
-					exit 1, "No input in --reads or --sra was declared!"
+					exit 1, "No input was declared! Please declare input with --reads or --sra !"
 				}
 			}
 	//QC:
@@ -55,9 +56,16 @@ workflow tofumaapo {
 
 	//salmon:
 		if(params.salmon){
-			SALMON(QCout)
+			salmon(QCout)
 
-			ch_versions = ch_versions.mix( SALMON.out.version)
+			ch_versions = ch_versions.mix( salmon.out.versions)
+		}
+
+	//sylph
+		if(params.sylph){
+			sylph(QCout)
+
+			ch_versions = ch_versions.mix (sylph.out.versions)
 		}
 
 	//metaphlan:

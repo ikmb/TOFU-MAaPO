@@ -5,15 +5,12 @@ This pipeline requires Nextflow 21.04.0 or higher. Other dependencies are contai
 As default, this pipeline works with the profile for Kiel medcluster. Should you choose to run it locally on your own computer, please set **-profile local**. 
 Important: Change parameters in conf/local.config to your local hardware specifications prior running the pipeline.
 
-On Kiel Medcluster, please load the following modules with:
-```bash
-module load singularity nextflow
-```
 
-Reference databases for Metaphlan4, Kraken2 and HUMAnN3 (Set also aMetaphlan4 DB for HUMAnN3.6) are needed. On Kiel Medcluster, these are already set in the respective config file.<br />
+Reference databases for Metaphlan4, Kraken2 and HUMAnN3 (Set also a Metaphlan4 DB for HUMAnN3.6) are needed. On Kiel Medcluster, these are already set in the respective config file.<br />
 Metaphlan DB: `--metaphlan_db`<br />
 HUMAnN DB:    `--humann_db`<br />
 Kraken DB:    `--kraken2_db`<br />
+Sylth DB:     `--sylth_db`<br />
 
 Pipeline is module based and will run in the most basic run only the QC module.
 
@@ -34,6 +31,7 @@ For analysis following modules are available:<br />
 `--kraken` Run Kraken2, a tool for taxonomic classification tool, with a on Medcluster preconfigured RefSeq virus database.<br />
 `--bracken` Run Bracken (Bayesian Reestimation of Abundance with KrakEN) after Kraken2. Kraken2 DB must be [bracken-ready](https://github.com/jenniferlu717/Bracken#step-0-build-a-kraken-10-or-kraken-20-database)<br />
 `--salmon` Run salmon.<br />
+`--sylth` Run sylth.<br />
 `--assembly` Run an extended genome assembly workflow with [MAGScoT](https://github.com/ikmb/MAGScoT) Bin Refinement.<br />
 
 
@@ -68,6 +66,14 @@ For analysis following modules are available:<br />
 `--publish_megahit` Publish results of megahit with .<br />
 `--publish_rawbins` Publish the individual results of all binning tools in the extended genome assembly workflow with.<br />
 `--vamb_groupsize` Only used when binning with vamb is performed and assemblymode is "single". Set a subgrouping size for vamb, default is 100. This is a temporary fix to enable the pipeline to handle very large cohorts on medium sized hardware. For best results adjust the groupsize to the total sample size of your cohort.<br />
+### MAGScoT options:
+`--magscot_min_sharing` Scoring parameter a [default=1] <br />
+`--magscot_score_a` Scoring parameter a [default=1] <br />
+`--magscot_score_b` Scoring parameter b [default=0.5] <br />
+`--magscot_score_c` Scoring parameter c [default=0.5] <br />
+`--magscot_threshold` Scoring minimum completeness threshold [default=0.5] <br />
+`--magscot_min_markers` Minimum number of unique markers in bins to be considered as seed for bin merging [default=25] <br />
+`--magscot_iterations` Number of merging iterations to perform. [default=2] <br />
 
 ## Other options:
 `--single_end` Set the pipeline for single end reads.<br />
@@ -83,7 +89,12 @@ For analysis following modules are available:<br />
 
 ### Salmon options:
 `--salmon_db` Directory of used salmon database. REQUIRED! <br />
+`--salmon_reference` Path to tab-separated taxonomy file corresponding to the used salmon database. Not required if used with default database. Two column file with header line containing in the first column the bin names used in the salmon database and in the second column the taxonomic assignment by GTDB-Tk in the format "d__Bacteria;p__Pseudomonadota;c__Gammaproteobacteria;o__Enterobacterales;f__Enterobacteriaceae;g__Escherichia;s__Escherichia coli". <br />
 `--salmon_processing` NOT RECOMMENDED! Shortcut for high-throughput data processing with salmon, skips qc, no other modules available in this mode.  <br />
+
+### Sylth options:
+`--sylth_db` Set the path to a sylth databse.<br />
+`--sylth_merge` All sylth profiling will be done in one process. Produces a single output for all samples combined. <br />
 
 ### Bracken options and their default:
 `--bracken_length` = 100<br />

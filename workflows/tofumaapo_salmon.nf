@@ -1,4 +1,4 @@
-include { input_check; input_check_qced; input_sra } from '../subworkflows/input_check'
+include { input_check; input_sra } from '../subworkflows/input_check'
 include { SALMON } from '../modules/salmon'
 include { SOFTWARE_VERSIONS } from '../modules/software_versions'
 
