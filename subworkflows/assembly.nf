@@ -284,7 +284,7 @@ workflow assembly{
 			ch_versions = ch_versions.mix(BINCOVERAGE_PERSAMPLE.out.versions.first() )
 
 			MERGE_MAG_ABUNDANCE(BINCOVERAGE_PERSAMPLE.out.abundancetable.collect() )
-			ch_versions = ch_versions.mix(MERGE_MAG_ABUNDANCE.out.versions.first() )
+			ch_versions = ch_versions.mix(MERGE_MAG_ABUNDANCE.out.versions )
 
 		}
 
