@@ -6,11 +6,11 @@ class WorkflowCheck {
         if (params.salmon) {
             if(params.salmon_db){
                 if(!FileCheck.checkoutfile("${params.salmon_db}/reflengths.bin")){
-                    log.info "The salmon database is either not existing or is corrupted please check that the path to the database '${params.salmon_db}' is valid, exiting now."
+                    log.info "The salmon database is either not existing or is corrupted! Please check that the path to the database '${params.salmon_db}' is valid. Exiting now."
                     System.exit(1)
                 }
             }else{
-                log.info "No salmon database directory was specified, please specify a salmon database directory with '--salmon_db'. Exiting now."
+                log.info "No salmon database directory was specified. Please specify a salmon database directory with '--salmon_db'. Exiting now."
                 System.exit(1)
             }
         }
