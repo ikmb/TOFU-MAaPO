@@ -66,6 +66,14 @@ For analysis following modules are available:<br />
 `--publish_megahit` Publish results of megahit with .<br />
 `--publish_rawbins` Publish the individual results of all binning tools in the extended genome assembly workflow with.<br />
 `--vamb_groupsize` Only used when binning with vamb is performed and assemblymode is "single". Set a subgrouping size for vamb, default is 100. This is a temporary fix to enable the pipeline to handle very large cohorts on medium sized hardware. For best results adjust the groupsize to the total sample size of your cohort.<br />
+### MAGScoT options:
+`--magscot_min_sharing` Scoring parameter a [default=1] <br />
+`--magscot_score_a` Scoring parameter a [default=1] <br />
+`--magscot_score_b` Scoring parameter b [default=0.5] <br />
+`--magscot_score_c` Scoring parameter c [default=0.5] <br />
+`--magscot_threshold` Scoring minimum completeness threshold [default=0.5] <br />
+`--magscot_min_markers` Minimum number of unique markers in bins to be considered as seed for bin merging [default=25] <br />
+`--magscot_iterations` Number of merging iterations to perform. [default=2] <br />
 
 ## Other options:
 `--single_end` Set the pipeline for single end reads.<br />

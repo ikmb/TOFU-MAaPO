@@ -18,7 +18,6 @@ process FORMATTING_CONTIG_TO_BIN {
 }
 
 process MARKER_IDENT {
-
 	label 'magscot'
 	scratch params.scratch
 	tag "$sampleID"
@@ -41,13 +40,6 @@ process MARKER_IDENT {
 		"""
 		### ORF detection with prodigal
 		cat $fcontigs | prodigal -p meta -a $sampleprodigalfaa -d $sampleprodigalffn -o $sample_tmp
-
-		### ALTERNATIVE: Fast parallel ORF detection with prodigal
-		# mkdir -p tmp_workfolder
-		# zcat example.contigs.fasta.gz | parallel -j 8 --block 999k --recstart '>' --pipe prodigal -p meta -a tmp_workfolder/example.{#}.faa -d # tmp_workfolder/example.{#}.ffn -o tmpfile
-		# cat tmp_workfolder/example.*.faa > example.prodigal.faa
-		# cat tmp_workfolder/example.*.ffn > example.prodigal.ffn
-		# rm -r tmp_workfolder tmpfile
 
 		### annotation of protein sequences using HMMer and GTDBtk r207 marker genes
 		hmmsearch \
@@ -111,7 +103,17 @@ process MAGSCOT {
 		stats_outfile = sampleID + '.refined.out'
 		full_stats = sampleID + '.scores.out'
 	"""
-		Rscript /opt/MAGScoT.R -i $formatted_contigs_to_bin --hmm $samplehmm -o $sampleID -s ${params.magscot_min_sharing}
+		Rscript /opt/MAGScoT.R \
+			-i $formatted_contigs_to_bin \
+			--hmm $samplehmm \
+			-o $sampleID \
+			-s ${params.magscot_min_sharing} \
+			-a ${params.magscot_score_a} \
+			-b ${params.magscot_score_b} \
+			-c ${params.magscot_score_c} \
+			-t ${params.magscot_threshold} \
+			-m ${params.magscot_min_markers} \
+			-n ${params.magscot_iterations}
 
 		cat <<-END_VERSIONS > versions.yml
 		"${task.process}":
