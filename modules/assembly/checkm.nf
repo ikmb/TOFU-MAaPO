@@ -16,6 +16,7 @@ process checkm {
 		sampleID = meta.id
 		outputtable = sampleID + "_checkm_table.tsv"
 		"""
+		echo "#TRACE n_rows=`tail -n +1 ${fafile} | wc -l`"
 		checkm lineage_wf -t ${task.cpus} -x fa . ./bins --tab_table --file ${outputtable}
 
 		cat <<-END_VERSIONS > versions.yml

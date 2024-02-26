@@ -15,8 +15,8 @@ process FILTERCONTIGS {
 	script:
 
 		fcontigs_filtered = coassemblygroup + '_fcontigsfiltered.fa'
-
 		"""
+		echo "#TRACE n_rows=`tail -n +1 ${finalcontigs} | wc -l`"
 		/opt/conda/envs/ikmb-metagenome-1.2/bin/python3 ${baseDir}/bin/contigfilterbylen.py ${params.contigsminlength} $finalcontigs > intermediate_file.fa
 
 		if [ -s intermediate_file.fa ]; then

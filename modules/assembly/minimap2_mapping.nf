@@ -12,6 +12,8 @@ process MINIMAP2_CATALOGUE {
 		catalogue = "collected_catalogue.fna.gz"
 
 		"""
+		echo "#TRACE n_rows=`tail -n +1 ${fcontigs} | wc -l`"
+
 		concatenate.py $catalogue ${fcontigs.join(" ")} --keepnames
 
 		cat <<-END_VERSIONS > versions.yml
@@ -81,8 +83,10 @@ process MINIMAP2_MAPPING{
 		mappingbam_index = sampleID + '_mapping_minimap.bam.bai'
 
 		sample_total_reads = sampleID + '_totalreads.txt'
+		
 		if (!meta.single_end) {  
 			"""
+			echo "#TRACE n_rows=`tail -n +1 ${fcontigs} | wc -l`"
 			#minimap2 -I100G -d catalogue.mmi $catalogue; # make index
 			minimap2 -t ${task.cpus} -N 50 -ax sr  $catalogue_index $left_clean $right_clean | samtools view -F 3584 -b --threads ${task.cpus} | samtools sort > $mappingbam 2> error.log # -n 
 			samtools index $mappingbam
@@ -99,6 +103,7 @@ process MINIMAP2_MAPPING{
 			"""
 		} else {
 			"""	
+			echo "#TRACE n_rows=`tail -n +1 ${fcontigs} | wc -l`"
 			#minimap2 -d catalogue.mmi $catalogue; # make index
 			minimap2 -t ${task.cpus} -N 5 -ax sr $catalogue_index $single_clean | samtools view -F 3584 -b --threads ${task.cpus}| samtools sort  > $mappingbam 2> error.log #-n
 			samtools index $mappingbam

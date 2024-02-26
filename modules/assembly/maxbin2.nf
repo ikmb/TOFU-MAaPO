@@ -18,6 +18,8 @@ process MAXBIN2 {
 		maxbin2_contigs_to_bin = sampleID + '_maxbin2_contigs_to_bin.tsv'
 		formatted_contigs_to_bin = sampleID + '_maxbin2_magscot_contigs_to_bin.tsv'
 	"""
+		echo "#TRACE n_rows=`tail -n +1 ${fcontigs} | wc -l`"
+
 		awk '{if(NR>1) print \$1"\\t"\$3}' $depthout > $abundance_table
 		
 		mkdir -p maxbin2_out

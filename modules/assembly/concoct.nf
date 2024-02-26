@@ -18,6 +18,7 @@ process CONCOCT {
         concoct_contigs_to_bin = sampleID + '_concoct_contigs_to_bin.tsv'
         formatted_contigs_to_bin = sampleID + 'concoct_magscot_contigs_to_bin.tsv'
         """
+        echo "#TRACE n_rows=`tail -n +1 ${mappingbam} | wc -l`"
         cut_up_fasta.py $fcontigs -c 10000 -o 0 --merge_last -b $bed_file > ${sampleID}.filtered.10k.fna
 
         samtools index $mappingbam

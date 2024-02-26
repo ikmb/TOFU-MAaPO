@@ -14,6 +14,7 @@ process getCountTable {
 	shell:
 		sampleID = meta.id
 		"""
+		echo "#TRACE n_rows=`tail -n +1 ${finalbam} | wc -l`"
 		samtools idxstats $finalbam > ${sampleID}_idxstats.txt
 		/opt/conda/envs/ikmb-metagenome-1.2/bin/python3 ${baseDir}/bin/get_count_table.py ${sampleID}_idxstats.txt > counts_${sampleID}.txt
 

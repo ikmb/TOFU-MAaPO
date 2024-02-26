@@ -16,6 +16,7 @@ process GTDBTK {
 	shell:
 		sampleID = meta.id
 		"""
+		echo "#TRACE n_rows=`tail -n +1 ${fafile} | wc -l`"
 		export GTDBTK_DATA_PATH="${params.gtdbtk_reference}"
 		gtdbtk classify_wf --cpus ${task.cpus} --genome_dir . --extension fa --out_dir all.bins.gtdbtk_output --pplacer_cpus 1 --skip_ani_screen #/refined_bins
 

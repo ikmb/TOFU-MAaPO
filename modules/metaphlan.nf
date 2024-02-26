@@ -61,6 +61,8 @@ process METAPHLAN {
 
 		if (!meta.single_end) {  
 			"""
+			echo "#TRACE n_rows=`tail -n +1 ${meta} | wc -l`"
+
 			METAPHLAN_BOWTIE2_DB=${params.metaphlan_db}
 			DEFAULT_DB_FOLDER=${params.metaphlan_db}
 
@@ -122,6 +124,9 @@ process METAPHLAN {
 			"""
 		} else {
 			"""
+			echo "#TRACE n_rows=`tail -n +1 ${meta} | wc -l`"
+			echo "#TRACE n_cols=`head -n +1 ${meta} | wc -w`"
+
 			METAPHLAN_BOWTIE2_DB=${params.metaphlan_db}
 			DEFAULT_DB_FOLDER=${params.metaphlan_db}
 

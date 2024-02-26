@@ -29,6 +29,8 @@ process MEGAHIT {
 
 		if (!meta.single_end) {  
 			"""
+			echo "#TRACE n_rows=`tail -n +1 ${reads} | wc -l`"
+
 			zcat $unpaired_clean > $fq_single
 			zcat $left_clean > $fq_left
 			zcat $right_clean > $fq_right
@@ -54,6 +56,7 @@ process MEGAHIT {
 			"""
 		} else {
 			"""	
+			echo "#TRACE n_rows=`tail -n +1 ${reads} | wc -l`"
 			zcat $unpaired_clean > $fq_single
 
 			megahit	-r $fq_single \
@@ -100,6 +103,8 @@ process MEGAHIT_assembly {
 		
 		"""
 		#!/bin/bash
+
+		echo "#TRACE n_rows=`tail -n +1 ${reads} | wc -l`"
 
 		file_paths="${reads.flatten().join(",")}"
 

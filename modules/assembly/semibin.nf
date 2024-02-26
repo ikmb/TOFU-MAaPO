@@ -18,6 +18,7 @@ process SEMIBIN {
 		semibin_contigs_to_bin = sampleID + '_semibin_contigs_to_bin.tsv'
 		formatted_contigs_to_bin = sampleID + '_semibin_magscot_contigs_to_bin.tsv'
 			"""
+			echo "#TRACE n_rows=`tail -n +1 ${fcontigs} | wc -l`"
 			SemiBin single_easy_bin \
 				-i $fcontigs \
 				-b $mappingbam \
@@ -36,7 +37,6 @@ process SEMIBIN {
 			"${task.process}":
 			SemiBin: \$(SemiBin --version 2>&1)
 			END_VERSIONS
-
 			"""
 
 }

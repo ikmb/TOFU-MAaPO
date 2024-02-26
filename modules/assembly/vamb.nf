@@ -13,6 +13,7 @@
 			catalogue = vamb_key + "_collected_catalogue.fna.gz"
 
 			"""
+			echo "#TRACE n_rows=`tail -n +1 ${contigs} | wc -l`"
 			concatenate.py $catalogue ${contigs} --keepnames
 
 			cat <<-END_VERSIONS> versions.yml
@@ -83,6 +84,8 @@ process VAMB_MAPPING{
 		sample_total_reads = sampleID + '_totalreads.txt'
 		if (!meta.single_end) {  
 			"""
+			echo "#TRACE n_rows=`tail -n +1 ${fcontigs} | wc -l`"
+
 			#minimap2 -I100G -d catalogue.mmi $catalogue; # make index
 			minimap2 -t ${task.cpus} -N 50 -ax sr  $catalogue_index $left_clean $right_clean | samtools view -F 3584 -b --threads ${task.cpus} | samtools sort > $mappingbam 2> error.log # -n 
 			samtools index $mappingbam
@@ -98,6 +101,8 @@ process VAMB_MAPPING{
 			"""
 		} else {
 			"""	
+			echo "#TRACE n_rows=`tail -n +1 ${fcontigs} | wc -l`"
+
 			#minimap2 -d catalogue.mmi $catalogue; # make index
 			minimap2 -t ${task.cpus} -N 50 -ax sr $catalogue_index $single_clean | samtools view -F 3584 -b --threads ${task.cpus}| samtools sort  > $mappingbam 2> error.log #-n
 			samtools index $mappingbam
@@ -192,6 +197,8 @@ process VAMB_CONTIGS_SELECTION{
 		persample_clustertable = sampleID + '_vamb_contigs_to_bin.tsv'
 		formatted_contigs_to_bin = sampleID + '_vamb_magscot_contigs_to_bin.tsv'
 		"""
+		echo "#TRACE n_rows=`tail -n +1 ${meta} | wc -l`"
+
 		grep ${meta.coassemblygroup}_ $all_cluster_table > $persample_clustertable
 
 		gawk '{print \$1"\t"\$2"\tvamb"}'  $persample_clustertable > $formatted_contigs_to_bin
@@ -211,6 +218,7 @@ process group_vamb {
 		path("temp2_csv.csv"), emit: overview_csv
     script:
     """
+	echo "#TRACE n_rows=`tail -n +1 ${reads_table} | wc -l`"
     awk '{print int((NR-1)/${params.vamb_groupsize}) "," \$0}' ${reads_table} | sed 's/\\]//' | sed 's/\\[//' > temp2_csv.csv
 
     #meta and contig-key:

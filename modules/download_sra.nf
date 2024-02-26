@@ -17,6 +17,8 @@ process download_sra {
 	unpairednewname = sampleID + "_unpaired_raw.fastq.gz"
     if (meta.single_end) {
 		"""
+		echo "#TRACE n_rows=`tail -n +1 ${reads} | wc -l`"
+
         if [[ "${reads[0]}" = "ftp://ftp."*  ]]; then
             wget --quiet -c ${reads[0]} -O $unpairednewname
         else
@@ -26,6 +28,9 @@ process download_sra {
         """
     } else {
 		"""
+		echo "#TRACE n_rows=`tail -n +1 ${reads} | wc -l`"
+
+
         if [[ "${reads[0]}" = "ftp://ftp."*  ]]
         then
             wget ${reads[0]} -O $leftnewname

@@ -14,6 +14,8 @@ process metaspades {
 
 	script:
 	"""
+	echo "#TRACE n_rows=`tail -n +1 ${meta} | wc -l`"
+
 	zcat $unpaired > unpaired.fq
 	zcat $left > left.fq
 	zcat $right > right.fq
