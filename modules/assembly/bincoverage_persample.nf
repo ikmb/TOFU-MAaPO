@@ -14,6 +14,7 @@ process BINCOVERAGE_PERSAMPLE{
 		sampleID = meta.id
 		output_file = sampleID + '_abundance_table.tbl'
 		"""
+		echo "#TRACE n_rows=`tail -n +1 ${refined_contigs_to_bins} | wc -l`"
 		Rscript ${baseDir}/bin/coverage_table.R $depthout 150 $refined_contigs_to_bins $taxonomic_table $sampleID $output_file
 		#echo "suppressMessages(library(tidyverse));suppressMessages(library(data.table));sessionInfo()" | R --slave > R_version.txt
 
@@ -41,6 +42,7 @@ process MERGE_MAG_ABUNDANCE{
 		output_file = 'merged_MAG_tpm_abundance.tbl'
 		output_plot = 'phylum_rel_abudance_plot.png'
 		"""
+		echo "#TRACE n_rows=`tail -n +1 ${input_files} | wc -l`"
 		Rscript ${baseDir}/bin/merge_MAG_abundance.R
 
 		cat <<-END_VERSIONS > versions.yml

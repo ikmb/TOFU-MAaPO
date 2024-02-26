@@ -15,10 +15,10 @@ process METABAT {
 	script:
 		sampleID = meta.id
 		"""
+		echo "#TRACE n_rows=`tail -n +1 ${fcontigs} | wc -l`"
+
 		metabat2 -i $fcontigs -a ${sampleID}_depth.txt -o ${sampleID}_bin -t ${task.cpus} -m ${params.contigsminlength}
-
 		touch ${sampleID}_bin.emptydummy.fa
-
 		cat <<-END_VERSIONS> versions.yml
 		"${task.process}":
 		METABAT: \$(metabat2 --help 2>&1 | awk 'NR==2{print}' | sed -n -e 's/^.*version //p' | awk '{print \$1}')
@@ -42,9 +42,10 @@ process contigs_to_bins {
 
 	script:
 		sampleID = meta.id
-		
 		if (fafile instanceof List && fafile.size() > 1) {
 			"""
+			echo "#TRACE n_rows=`tail -n +1 ${fafile} | wc -l`"
+
 			echo "Variable contains multiple files"
 			grep '>' ${fafile} | tr '>' '\t' | tr -d ':' > ${sampleID}_metabat2_contigs_to_bin.tsv
 			
@@ -52,6 +53,7 @@ process contigs_to_bins {
 			"""
 		} else {
 			"""
+			echo "#TRACE n_rows=`tail -n +1 ${fafile} | wc -l`"
 			echo "Variable contains a single file"
 			set +e
 			{

@@ -55,6 +55,9 @@
 
 		if (!meta.single_end) {
 		"""
+		echo "#TRACE n_rows=`tail -n +1 ${meta} | wc -l`"
+		echo "#TRACE n_cols=`head -n +1 ${meta} | wc -w`"
+
 		zcat ${left_clean} > $phlan_left
 		zcat ${right_clean} > $phlan_right
 		
@@ -89,6 +92,9 @@
 
 		} else {
 		"""
+		echo "#TRACE n_rows=`tail -n +1 ${meta} | wc -l`"
+		echo "#TRACE n_cols=`head -n +1 ${meta} | wc -w`"
+
 		zcat ${unpaired_clean} > $phlan_single
 		
 		METAPHLAN_BOWTIE2_DB=${params.metaphlan_db}

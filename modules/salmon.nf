@@ -20,6 +20,8 @@ script:
 
 	if (!meta.single_end) {
 	"""
+	echo "#TRACE n_rows=`tail -n +1 ${meta} | wc -l`"
+
 	salmon quant -i ${params.salmon_db} \
 		-l IU \
 		-1 ${reads[0]} \
@@ -40,6 +42,8 @@ script:
 	"""
 	} else {
 	"""
+	echo "#TRACE n_rows=`tail -n +1 ${meta} | wc -l`"
+
 	salmon quant -i ${params.salmon_db} \
 		-l IU \
 		-1 ${reads[0]} \

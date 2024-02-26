@@ -28,6 +28,7 @@ process FASTP {
 
 		if (meta.single_end) {
 			"""
+			echo "#TRACE n_rows=`tail -n +1 ${reads} | wc -l`"
 			[ ! -f  $leftnewname ] && ln -s ${reads} $leftnewname
 
 			fastp \
@@ -44,6 +45,7 @@ process FASTP {
 			"""
 		} else {
 			"""
+			echo "#TRACE n_rows=`tail -n +1 ${reads} | wc -l`"
 			[ ! -f  $leftnewname ] && ln -s ${reads[0]} $leftnewname
 			[ ! -f  $rightnewname ] && ln -s ${reads[1]} $rightnewname
 

@@ -29,6 +29,7 @@ process CLEANREADS {
 
 		if (meta.single_end) {
 			"""
+			echo "#TRACE n_rows=`tail -n +1 ${reads} | wc -l`"
 			bbduk.sh threads=${task.cpus} in=$unpaired  k=31 ref=artifacts,phix ordered cardinality out1=${unpaired_clean} minlength=${params.min_read_length}
 
 			cat <<-END_VERSIONS > versions.yml
@@ -39,6 +40,7 @@ process CLEANREADS {
 			"""
 		} else {
 			"""
+			echo "#TRACE n_rows=`tail -n +1 ${reads} | wc -l`"
 			bbduk.sh stats=$artifact_stats threads=${task.cpus} in=${left_trimmed} in2=${right_trimmed} k=31 ref=artifacts,phix ordered cardinality out1=${left_clean} out2=${right_clean} minlength=${params.min_read_length}
 
 			bbduk.sh threads=${task.cpus} in=$unpaired  k=31 ref=artifacts,phix ordered cardinality out1=${unpaired_clean} minlength=${params.min_read_length}
@@ -79,6 +81,7 @@ process TRIMREADS {
 
 		if (meta.single_end) {
 			"""
+			echo "#TRACE n_rows=`tail -n +1 ${reads} | wc -l`"
 			[ ! -f  $leftnewname ] && ln -s ${reads} $leftnewname
 
 			bbduk.sh stats=$bbduk_adapter_stats \
@@ -103,6 +106,7 @@ process TRIMREADS {
 			"""
 		} else {
 			"""
+			echo "#TRACE n_rows=`tail -n +1 ${reads} | wc -l`"
 			[ ! -f  $leftnewname ] && ln -s ${reads[0]} $leftnewname
 			[ ! -f  $rightnewname ] && ln -s ${reads[1]} $rightnewname
 

@@ -13,6 +13,7 @@ process FORMATTING_CONTIG_TO_BIN {
 
 		merged_contigs_to_bin = sampleID + '_magscot_contigs_to_bin_merged.tsv'
 		"""
+		echo "#TRACE n_rows=`tail -n +1 ${contigs_bin_tables} | wc -l`"
 		cat ${contigs_bin_tables.join(" ")} > $merged_contigs_to_bin
 		"""
 }
@@ -39,6 +40,7 @@ process MARKER_IDENT {
 		sampleprodigalffn = sampleID + '.prodigal.ffn'
 		sample_tmp = sampleID + '_tmp'
 		"""
+		echo "#TRACE n_rows=`tail -n +1 ${fcontigs} | wc -l`"
 		### ORF detection with prodigal
 		cat $fcontigs | prodigal -p meta -a $sampleprodigalfaa -d $sampleprodigalffn -o $sample_tmp
 
@@ -77,7 +79,6 @@ process MARKER_IDENT {
 		}
 		set -e
 
-
 		cat <<-END_VERSIONS > versions.yml
 		"${task.process}":
 		hhmsearch: \$(hmmsearch -h 2>&1 | awk 'NR==2{print \$3}')
@@ -110,6 +111,7 @@ process MAGSCOT {
 		stats_outfile = sampleID + '.refined.out'
 		full_stats = sampleID + '.scores.out'
 	"""
+		echo "#TRACE n_rows=`tail -n +1 ${formatted_contigs_to_bin} | wc -l`"
 		Rscript /opt/MAGScoT.R -i $formatted_contigs_to_bin --hmm $samplehmm -o $sampleID -s ${params.magscot_min_sharing}
 
 		cat <<-END_VERSIONS > versions.yml
@@ -136,6 +138,7 @@ process EXTRACT_REFINED_BINS {
 	script:
 		sampleID = meta.id
 	"""
+		echo "#TRACE n_rows=`tail -n +1 ${refined_contigs_to_bins} | wc -l`"
 		mkdir -p refined_bins
 		
 		cat $refined_contigs_to_bins | awk '{if(NR==1){print "contig_id,cluster_id"; next}; print \$2","\$1}' | sed 's/[.]fasta//' | extract_fasta_bins.py $fcontigs_filtered /dev/stdin  --output_path refined_bins

@@ -22,6 +22,7 @@ process FASTQC_raw {
 	
 	if (meta.single_end) {
 		"""
+		echo "#TRACE n_rows=`tail -n +1 ${reads} | wc -l`"
 		[ ! -f  $leftnewname ] && ln -s ${reads[0]} $leftnewname
 
 		fastqc --quiet --threads ${task.cpus} $leftnewname 
@@ -34,6 +35,7 @@ process FASTQC_raw {
 		"""
 	} else {
 		"""
+		echo "#TRACE n_rows=`tail -n +1 ${reads} | wc -l`"
 		[ ! -f  $leftnewname ] && ln -s ${reads[0]} $leftnewname
 		[ ! -f  $rightnewname ] && ln -s ${reads[1]} $rightnewname
 
@@ -73,6 +75,7 @@ process FASTQC_clean {
 		
 		if (!meta.single_end) {
 			"""
+			echo "#TRACE n_rows=`tail -n +1 ${reads} | wc -l`"
 			[ ! -f  $leftnewname ] && ln -s ${reads[0]} $leftnewname
 			[ ! -f  $rightnewname ] && ln -s ${reads[1]} $rightnewname
 			[ ! -f  $unpairednewname ] && ln -s ${reads[2]} $unpairednewname
@@ -86,6 +89,7 @@ process FASTQC_clean {
 			"""
 		} else {
 			"""
+			echo "#TRACE n_rows=`tail -n +1 ${reads} | wc -l`"
 			[ ! -f  $singlenewname ] && ln -s ${reads[0]} $singlenewname
 
 			fastqc --quiet --threads ${task.cpus} $singlenewname

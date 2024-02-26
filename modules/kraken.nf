@@ -23,8 +23,12 @@ script:
 	right_clean = sampleID + "_R2_clean.fastq.gz"
 	unpaired_clean = sampleID + "_single_clean.fastq.gz"
 
+
+
     if (!meta.single_end) {  
 		"""
+		echo "#TRACE n_rows=`tail -n +1 ${meta} | wc -l`"
+
 		kraken2 --db ${params.kraken2_db} \
 			--paired \
 			--threads ${task.cpus} \
@@ -39,6 +43,8 @@ script:
 		"""
 	} else {
 		"""
+		echo "#TRACE n_rows=`tail -n +1 ${meta} | wc -l`"
+
 		kraken2 --db ${params.kraken2_db} \
 			--threads ${task.cpus} \
 			--output $kraken_log \
@@ -64,12 +70,14 @@ process KRAKEN2MPA {
 
 	script:
 		"""
+		echo "#TRACE n_rows=`tail -n +1 ${report} | wc -l`"
+		
 		kreport2mpa.py -r $report -o ${report.simpleName}.kraken_mpa.txt --percentages --display-header
 
 		cat <<-END_VERSIONS > versions.yml
-    	"${task.process}":
+		"${task.process}":
       	Python: \$(python --version | sed -e "s/Python //g" )
-    	END_VERSIONS
+		END_VERSIONS
 
 		"""
 }
@@ -89,9 +97,9 @@ process KRAKEN2YAML {
 		kraken2yaml.pl --outfile $report_yaml
 
 		cat <<-END_VERSIONS > versions.yml
-    	"${task.process}":
+		"${task.process}":
       	Python: \$(python --version | sed -e "s/Python //g" )
-    	END_VERSIONS
+		END_VERSIONS
 
 		"""
 }
@@ -114,9 +122,9 @@ process KRAKENMERGEREPORTS {
 		combine_kreports.py -r ${report.join(" ")} -o $report_combined
 
 		cat <<-END_VERSIONS > versions.yml
-    	"${task.process}":
+		"${task.process}":
       	Python: \$(python --version | sed -e "s/Python //g" )
-    	END_VERSIONS
+		END_VERSIONS
 
 		"""
 }
@@ -139,9 +147,9 @@ process KRAKENMPAMERGE {
 		combine_mpa.py -i ${mpaoutput.join(" ")} -o $abundances
 
 		cat <<-END_VERSIONS > versions.yml
-    	"${task.process}":
+		"${task.process}":
       	Python: \$(python --version | sed -e "s/Python //g" )
-    	END_VERSIONS
+		END_VERSIONS
 
 		"""
 }
@@ -162,12 +170,14 @@ process BRACKEN {
 	script:
 		bracken_output = sampleID + ".bracken"
 		"""
+		echo "#TRACE n_rows=`tail -n +1 ${sampleID} | wc -l`"
+
 		bracken -d ${params.kraken2_db} -i ${report} -o ${bracken_output} -r ${params.bracken_length} -l ${params.bracken_level} -t ${params.bracken_threshold}
 
 		cat <<-END_VERSIONS > versions.yml
-    	"${task.process}":
-      	Python: \$(python --version 2>&1 | awk '{print \$2}' )
-    	END_VERSIONS
+		"${task.process}":
+		Python: \$(python --version 2>&1 | awk '{print \$2}' )
+		END_VERSIONS
 
 		"""
 }

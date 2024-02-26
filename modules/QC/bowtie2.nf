@@ -26,6 +26,7 @@ process FILTERREADS {
 
 		if (!meta.single_end) {
 			"""
+			echo "#TRACE n_rows=`tail -n +1 ${reads} | wc -l`"
 			bowtie2 --met-stderr \
 					-x $genome \
 					-1 ${reads[0]} \
@@ -46,6 +47,7 @@ process FILTERREADS {
 			"""
 		}else{
 			"""
+			echo "#TRACE n_rows=`tail -n +1 ${reads} | wc -l`"
 			bowtie2 --met-stderr \
 					-x $genome \
 					-U $reads \

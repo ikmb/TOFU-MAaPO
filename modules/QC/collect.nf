@@ -26,10 +26,12 @@ process COLLECTOR {
 		single_clean = sampleID + "_single_clean.fastq.gz"
 		if(meta.single_end){
 			"""
+			echo "#TRACE n_rows=`tail -n +1 ${meta} | wc -l`"
 			ln -s ${reads[0]} $single_clean
 			"""			
 		}else{
 			"""
+			echo "#TRACE n_rows=`tail -n +1 ${meta} | wc -l`"
 			ln -s ${reads[0]} $left_clean
 			if [ -f "${reads[1]}" ]; then ln -s ${reads[1]} $right_clean; fi
 			if [ -f "${reads[2]}" ]; then ln -s ${reads[2]} $single_clean; fi
