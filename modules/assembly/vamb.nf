@@ -147,7 +147,8 @@ process VAMB_COLLECT_DEPTHS {
 process VAMB {
 	cache 'lenient'
 	label 'vamb'
-	scratch params.scratch
+	label 'gpu'
+	scratch false//params.scratch
 	tag "$vamb_key"
 
 	input:
@@ -160,10 +161,16 @@ process VAMB {
 
 	script:
 		cluster_table = 'all_vamb_contigs_to_bin.tsv'
-
+		def gpu_option = params.gpu ? "--cuda=True" : ""
 		"""
-		vamb --outdir bin --fasta $catalogue --bamfiles ${mappingbam.join(" ")} -o _${params.contig_sep}_ 
-		cat bin/*clusters.tsv $cluster_table
+		vamb \
+			--outdir bin \
+			--fasta $catalogue \
+			--bamfiles ${mappingbam.join(" ")} \
+			-o _${params.contig_sep}_ \
+			$gpu_option
+
+		cat bin/vae_clusters*.tsv > $cluster_table
 
 		cat <<-END_VERSIONS > versions.yml
 		"${task.process}":
