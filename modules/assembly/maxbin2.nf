@@ -22,13 +22,27 @@ process MAXBIN2 {
 		
 		mkdir -p maxbin2_out
 
-		run_MaxBin.pl \
+		#If the input cannot be assembled, we ignore that specific error and create an empty output
+		set +e
+		{
+		output=\$(run_MaxBin.pl \
 			-contig $fcontigs \
 			-out $maxbin2output \
 			-abund $abundance_table \
 			-thread ${task.cpus}	 \
 			-min_contig_length ${params.contigsminlength} \
-			-preserve_intermediate
+			-preserve_intermediate )
+		}
+        set -e
+
+		if [ \$? -ne 0 ] && echo "\$output" | grep -q "Marker gene search reveals that the dataset cannot be binned (the medium of marker gene number <= 1). Program stop."; then
+            # Set the error code back to 0
+            exit_code=0
+        else
+            # If no error or different error, continue with the script
+            echo "No specific error encountered, continuing with the script."
+            exit_code=\$?
+        fi
 
 		rm maxbin2_out/${sampleID}.maxbin2.contig.tmp.*
 
