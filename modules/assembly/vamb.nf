@@ -1,15 +1,15 @@
 	process VAMB_CATALOGUE {
-        label 'vamb'
+		label 'vamb'
 		scratch params.scratch
 		tag "$vamb_key"
 
-        input:
-            tuple val(vamb_key), val(contigs)
+		input:
+			tuple val(vamb_key), val(contigs)
 
-        output:
+		output:
 			tuple val(vamb_key), path(catalogue), emit: catalogue
 			path("versions.yml"), emit: versions
-        script:
+		script:
 			catalogue = vamb_key + "_collected_catalogue.fna.gz"
 
 			"""
@@ -21,22 +21,22 @@
 			END_VERSIONS
 
 			"""
-    }
+	}
 
 	process VAMB_CATALOGUE_INDEX {
-        label 'default_highmemory'
+		label 'default_highmemory'
 		cache 'lenient'
 		scratch params.scratch
 		tag "$vamb_key"
 
-        input:
-            tuple val(vamb_key), path(catalogue)
+		input:
+			tuple val(vamb_key), path(catalogue)
 
-        output:
+		output:
 			tuple  path(catalogue), val(vamb_key), path(catalogue_index), emit: catalogue
 			tuple  val(vamb_key), path(catalogue), path(catalogue_index), emit: catalogue_indexfirst
 			path("versions.yml"), emit: versions
-        shell:
+		shell:
 			catalogue_index = "catalogue.mmi"
 
 			"""
@@ -49,7 +49,7 @@
 			END_VERSIONS
 
 			"""
-    }
+	}
 //-I100G
 process VAMB_MAPPING{
 	cache 'lenient'
@@ -117,7 +117,7 @@ process VAMB_MAPPING{
 process VAMB_COLLECT_DEPTHS {
 	cache 'lenient'
 	label 'default'
-    scratch params.scratch
+	scratch params.scratch
 	tag "$vamb_key"
 	//publishDir "${params.outdir}/${sampleID}/vamb", mode: 'copy'
 
@@ -146,11 +146,12 @@ process VAMB_COLLECT_DEPTHS {
 process VAMB {
 	cache 'lenient'
 	label 'vamb'
+	label 'exclusive' // vamb does not control for numpy threads, which takes all threads by default
 	scratch params.scratch
 	tag "$vamb_key"
 
 	input:
-        tuple val(vamb_key), path(catalogue), path(catalogue_index), path(alldepths)
+		tuple val(vamb_key), path(catalogue), path(catalogue_index), path(alldepths)
 
 
 	output:
@@ -159,7 +160,6 @@ process VAMB {
 
 	script:
 		cluster_table = 'all_vamb_contigs_to_bin.tsv'
-
 		"""
 		vamb --outdir bin --fasta $catalogue --jgi $alldepths -o _${params.contig_sep}_ -p ${task.cpus}
 		mv bin/clusters.tsv $cluster_table
@@ -203,20 +203,20 @@ process group_vamb {
 	label 'default'
 	scratch params.scratch
 
-    input:
+	input:
 		path(reads_table)
-    output:
+	output:
 		path("meta_contigkey.csv"), emit: sample_vambkey
 		path("contigs_perkey.csv"), emit: contigs_perkey
 		path("temp2_csv.csv"), emit: overview_csv
-    script:
-    """
-    awk '{print int((NR-1)/${params.vamb_groupsize}) "," \$0}' ${reads_table} | sed 's/\\]//' | sed 's/\\[//' > temp2_csv.csv
+	script:
+	"""
+	awk '{print int((NR-1)/${params.vamb_groupsize}) "," \$0}' ${reads_table} | sed 's/\\]//' | sed 's/\\[//' > temp2_csv.csv
 
-    #meta and contig-key:
-    awk -F, '{print \$2","\$3","\$4","\$1}' temp2_csv.csv > meta_contigkey.csv
+	#meta and contig-key:
+	awk -F, '{print \$2","\$3","\$4","\$1}' temp2_csv.csv > meta_contigkey.csv
 
-    awk -F, '{OFS=","; a[\$1]=a[\$1]" "\$5} END {for (i in a) print i a[i]}' temp2_csv.csv | sed 's/ /,/' > contigs_perkey.csv
-    
+	awk -F, '{OFS=","; a[\$1]=a[\$1]" "\$5} END {for (i in a) print i a[i]}' temp2_csv.csv | sed 's/ /,/' > contigs_perkey.csv
+	
 	"""
 }
