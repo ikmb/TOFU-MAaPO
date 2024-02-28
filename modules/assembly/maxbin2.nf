@@ -40,7 +40,7 @@ process MAXBIN2 {
             exit_code=0
         else
             # If no error or different error, continue with the script
-            echo "No specific error encountered, continuing with the script."
+            echo "Not encountered the specific error, continuing with the script."
             exit_code=\$?
         fi
 
@@ -59,5 +59,7 @@ process MAXBIN2 {
 		maxbin2: \$(run_MaxBin.pl -v 2>&1 | tail -1 | sed -e 's/MaxBin //g')
 		END_VERSIONS
 		
+		# Exit with the modified exit code
+		exit \$exit_code
 	"""
 }
