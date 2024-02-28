@@ -117,11 +117,9 @@ process MAGSCOT {
 			-t ${params.magscot_threshold} \
 			-m ${params.magscot_min_markers} \
 			-n ${params.magscot_iterations}  > log.txt
-		}
-        set -e
 
 		if grep -q "HMM input file should have three tab-separated colums without a header: Protein ID, Marker ID, e-value" log.txt; then
-            # Set the error code back to 0
+            # Set the error code to 42
             exit_code=42
         else
             # If no error or different error, continue with the script
@@ -135,6 +133,10 @@ process MAGSCOT {
 		R: \$(Rscript --version | awk '{print \$4}')
 		END_VERSIONS
 
+		}
+		set -e
+
+		exit \$exit_code
 	"""
 }
 
