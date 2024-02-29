@@ -47,7 +47,7 @@ workflow input_check {
 							exit 1, "Only allowed modes for coassembly are all, group or single"
 						}
 						
-						if (params.single_end)
+						if (meta.single_end)
 							return [meta, [ read1 ] ] 
 						else  
 							return [meta, [ read1, read2 ] ]
