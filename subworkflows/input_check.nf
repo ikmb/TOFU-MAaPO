@@ -6,6 +6,8 @@ include {
 	download_sra
 } from '../modules/download_sra.nf'
 
+include { COLLECTOR } from '../modules/QC/collect.nf'
+
 workflow input_check {
 	main:
 		if(hasExtension(params.reads, "csv")){
@@ -13,14 +15,26 @@ workflow input_check {
 				.from(file(params.reads))
 				.splitCsv ( header:true, sep:',' )
 				.map { row ->
-						def id = row.id
-						def read1 = row.read1 ? file(row.read1, checkIfExists: true) : false
-						if (!read1) exit 1, "Invalid input samplesheet"
-						def read2 = row.read2 ? file(row.read2, checkIfExists: true) : false
-						if (!read2 && !params.single_end) exit 1, "Invalid input samplesheet: Only one read per sample found, but '--single_end' is not set!"
+						def id = row.id ? row.id : false
+						if(!id){ exit 1, "Empty id in csv-input found" }
 						def meta = [:]  
 						meta.id = id
-						meta.single_end = params.single_end.toBoolean()
+
+						def read1 = row.read1 ? row.read1 : false
+						def read2 = row.read2 ? row.read2 : false
+						def readsize = [ read1, read2 ].count{ it }
+
+						if (!FileCheck.checkoutfile("$read1")) { exit 1, "Within the input csv the file $read1 in column read1 does not exist for $id"}
+						if (readsize == 2){ if (!FileCheck.checkoutfile("$read2")) { exit 1, "Within the input csv the file $read2 in column read2 does not exist for $id"} }
+
+						meta.single_end = readsize == 1 ? true : false
+
+						if (!read1) exit 1, "Invalid input samplesheet in at least column read1! Is your csv file comma separated?"
+						if (!hasExtension(read1, ".fastq.gz") ) exit 1, "Invalid file $read1 ! Reads need to end with .fastq.gz"
+						if ( !meta.single_end ){
+							if (!read2) exit 1, "Invalid input samplesheet in at least column read2"
+							if (!hasExtension(row.read2, ".fastq.gz") ) exit 1, "Invalid file $read2 ! Reads need to end with .fastq.gz"
+						}
 						if(params.assemblymode == "group"){
 							def coassemblygroup = row.group //.ifEmpty(exit 1, "Invalid input samplesheet: No group column for coassembly was found")
 							if ( coassemblygroup == "null" || coassemblygroup == "") exit 1, "Invalid input samplesheet: No group column for coassembly was found or contains empty fields"
@@ -73,24 +87,32 @@ workflow input_check_qced {
 				.from(file(params.reads))
 				.splitCsv ( header:true, sep:',' )
 				.map { row ->
-						def id = row.id
-
-						def read1 = row.read1 ? file(row.read1, checkIfExists: true) : false
-						if (!read1) exit 1, "Invalid input samplesheet in at least column read1! Is your csv file comma separated?"
-						if (!hasExtension(row.read1, "R1_clean.fastq.gz") ) exit 1, "Invalid read names! Reads need to end with {R1,R2,single}_clean.fastq.gz"
-
-						def read2 = row.read2 ? file(row.read2, checkIfExists: true) : false
-						if (!read2) exit 1, "Invalid input samplesheet in at least column read2"
-						if ( (!hasExtension(row.read2, "R2_clean.fastq.gz") ) ) exit 1, "Invalid read names! Reads need to end with {R1,R2,single}_clean.fastq.gz"
-
-						def read3 = row.read3 ? file(row.read3, checkIfExists: true) : false
-						if (!read3) exit 1, "Invalid input samplesheet in at least column read3"
-						if (!hasExtension(row.read3, "single_clean.fastq.gz")) exit 1, "Invalid read names! Reads need to end with {R1,R2,single}_clean.fastq.gz"
-						if (!read3 && !params.single_end) exit 1, "Invalid input samplesheet: Only one or two reads per sample found, either use --single_end for one read per sample or add the fastq file with unpaired reads in a column read3!"
-
+						def id = row.id ? row.id : false
+						if(!id){ exit 1, "Empty id in csv-input found" }
 						def meta = [:]  
 						meta.id = id
-						meta.single_end = params.single_end.toBoolean()
+
+						def read1 = row.read1 ? row.read1 : false
+						def read2 = row.read2 ? row.read2 : false
+						def read3 = row.read3 ? row.read3 : false
+						def readsize = [ read1, read2, read3 ].count{ it }
+
+						if (!FileCheck.checkoutfile("$read1")) { exit 1, "Within the input csv the file $read1 in column read1 does not exist for $id"}
+						if (readsize > 1){ if (!FileCheck.checkoutfile("$read2")) { exit 1, "Within the input csv the file $read2 in column read2 does not exist for $id"} }
+						if (readsize == 3){ if (!FileCheck.checkoutfile("$read3")) { exit 1, "Within the input csv the file $read3 in column read3 does not exist for $id"} }
+
+						meta.single_end = readsize == 1 ? true : false
+
+						if (!read1) exit 1, "Invalid input samplesheet in at least column read1! Is your csv file comma separated?"
+						if (!hasExtension(read1, ".fastq.gz") ) exit 1, "Invalid file $read1 ! Reads need to end with .fastq.gz"
+						if ( !meta.single_end ){
+							if (!read2) exit 1, "Invalid input samplesheet in at least column read2"
+							if (!hasExtension(read2, ".fastq.gz") ) exit 1, "Invalid file $read2 ! Reads need to end with .fastq.gz"
+							if ( read3 ){ 
+								if (!hasExtension(read3, ".fastq.gz") ) exit 1, "Invalid file $read3 ! Reads need to end with .fastq.gz"
+							}
+						}
+
 						if(params.assemblymode == "group"){
 							def coassemblygroup = row.group.ifEmpty(exit 1, "Invalid input samplesheet: No group column for coassembly was found")
 							meta.coassemblygroup = coassemblygroup
@@ -102,13 +124,17 @@ workflow input_check_qced {
 							exit 1, "Only allowed modes for coassembly are all, group or single"
 						}
 
-						if (params.single_end){
+						if (meta.single_end){
 							return [meta, [ read1 ] ] 
 						}else{
-							return [meta, [ read1, read2, read3 ] ]
+							if (read3){
+								return [meta, [ read1, read2, read3 ] ]
+							}else {
+								return [meta, [ read1, read2 ] ]
+							}
 						}
 				}
-				.set { reads }
+				.set { inreads }
 		} else {
 			Channel
 				.fromFilePairs(params.reads, size: params.single_end ? 1 : 3)
@@ -131,11 +157,12 @@ workflow input_check_qced {
 							return [meta,  row[1] ]
 						}
 				}
-				.set { reads }
+				.set { inreads }
 		}
-
+		COLLECTOR( inreads )
+		reads = COLLECTOR.out 
 	emit:
-		reads // channel: [ val(meta), [ 0:read1, 1:read2 ] ] or  [ val(meta), [ 0:readsingle ] ]
+		reads  // channel: [ val(meta), [ 0:read1, 1:read2 ] ] or  [ val(meta), [ 0:readsingle ] ]
 }
 
 workflow input_sra {
@@ -232,4 +259,16 @@ workflow input_sra_list {
 
 def hasExtension(it, extension) {
 	it.toString().toLowerCase().endsWith(extension.toLowerCase())
+}
+
+class FileCheck {
+    def static checkoutfile(def filePath) {
+        def file = new File(filePath)
+        //Check that file exists and is not empty.
+        if (file.exists() && file.isFile() && file.size() > 0) {
+            return true  
+        } else {
+            return false 
+        }
+    }
 }
