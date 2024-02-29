@@ -22,7 +22,7 @@ nextflow run ikmb/TOFU-MAaPO --reads '/path/to/fastqfiles/*_R{1,2}_001.fastq.gz'
 Either use:<br />
 `--reads` With a glob to your fastq.gz files or to a csv-file containing the columns id, read1,read2 that lists all samples that you want to process. For single-end mode, use only columns "id" and "read1".<br />
 or:<br />
-`--sra` NCBI SRA Accession ID. Pipeline will download automatically all fastq files for your query. It is mandatory to provide your personal API key for your NCBI account with `--apikey`. Also lists are possible: "--sra ['ERR908507', 'ERR908506', 'ERR908505']". <br />
+`--sra` NCBI SRA Accession ID. Pipeline will download automatically all fastq files for your query. It is mandatory to provide your personal API key for your NCBI account with `--apikey`. Also lists are possible: "--sra ['ERR908507', 'ERR908506', 'ERR908505']". WARNING: The used Nextflow API call to NCBI is not bug free. Expect more samples to be processed than are in the input list. Also some samples might be missing. <br />
 
 ## Available modules:
 For analysis following modules are available:<br />
@@ -64,7 +64,7 @@ For analysis following modules are available:<br />
 `--skip_checkm` Skip Checkm bin quality check. <br />
 `--gtdbtk_reference` GTDB-TK Reference. Reference database for GTDB-TK needs to be set (already set on Kiel Medcluster):<br />
 `--publish_megahit` Publish results of megahit with .<br />
-`--publish_rawbins` Publish the individual results of all binning tools in the extended genome assembly workflow with.<br />
+`--publish_rawbins` Publish the results of all used binning tools in the genome assembly workflow.<br />
 `--vamb_groupsize` Only used when binning with vamb is performed and assemblymode is "single". Set a subgrouping size for vamb, default is 100. This is a temporary fix to enable the pipeline to handle very large cohorts on medium sized hardware. For best results adjust the groupsize to the total sample size of your cohort.<br />
 ### MAGScoT options:
 `--magscot_min_sharing` Scoring parameter a [default=1] <br />
