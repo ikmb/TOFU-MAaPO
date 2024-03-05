@@ -1,6 +1,6 @@
 include { input_check; input_sra; input_sra_list } from '../subworkflows/input_check'
 include { SYLPH_SKETCH; SYLPH_PROFILING } from '../modules/sylph'
-include { SOFTWARE_VERSIONS } from '../modules/software_versions'
+//include { SOFTWARE_VERSIONS } from '../modules/software_versions'
 
 /* 
  * Main pipeline logic
@@ -10,7 +10,7 @@ workflow tofumaapo_sylph {
     main:
 
         ch_versions = Channel.from([])
-
+        sylph_database = Channel.fromPath( params.sylph_db )
         if(!params.step1 && !params.step2){
         // inputs:
             //if(!params.no_qc){
@@ -37,10 +37,10 @@ workflow tofumaapo_sylph {
             if(params.sylph_merge){
                 SYLPH_PROFILING(SYLPH_SKETCH.out.sylph_sketches.map{ it ->
                                                                     def metas = "all"
-                                                                    return [metas, it[1]]}.groupTuple() )        
+                                                                    return [metas, it[1]]}.groupTuple().combine(sylph_database) )        
                 ch_versions = ch_versions.mix( SYLPH_PROFILING.out.version )
             }else{
-                SYLPH_PROFILING(SYLPH_SKETCH.out.sylph_sketches )        
+                SYLPH_PROFILING(SYLPH_SKETCH.out.sylph_sketches.combine(sylph_database) )        
                 ch_versions = ch_versions.mix( SYLPH_PROFILING.out.version.first() )
             }
         }
@@ -77,16 +77,13 @@ workflow tofumaapo_sylph {
             if(params.sylph_merge){
                 SYLPH_PROFILING(SYLPH_SKETCH.out.sylph_sketches.map{ it ->
                                                                     def metas = "all"
-                                                                    return [metas, it[1]]}.groupTuple() )        
+                                                                    return [metas, it[1]]}.groupTuple().combine(sylph_database) )        
                 ch_versions = ch_versions.mix( SYLPH_PROFILING.out.version )
             }else{
-                SYLPH_PROFILING(SYLPH_SKETCH.out.sylph_sketches )        
+                SYLPH_PROFILING(SYLPH_SKETCH.out.sylph_sketches.combine(sylph_database) )        
                 ch_versions = ch_versions.mix( SYLPH_PROFILING.out.version.first() )
             }
         }
-
-            SOFTWARE_VERSIONS (
-            ch_versions.unique().collectFile(name: 'collated_versions.yml')
-        )
+            //SOFTWARE_VERSIONS ( ch_versions.unique().collectFile(name: 'collated_versions.yml') )
 
 }
