@@ -60,7 +60,7 @@ input:
 	tuple val(meta), path(reads)
 
 output:
-    tuple val(meta), path(sylsp_output), emit: sylph_sketches
+    tuple val(meta), path('*.sylsp'), optional: true, emit: sylph_sketches
 	path('versions.yml'), emit: version
 
 script:
