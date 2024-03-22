@@ -2,7 +2,7 @@
 
 This pipeline requires Nextflow 21.04.0 or higher. Other dependencies are containerized with Singularity and Docker.<br />
 
-As default, this pipeline works with the profile for Kiel medcluster. Should you choose to run it locally on your own computer, please set **-profile local**. 
+As default, this pipeline uses the profile for Kiel medcluster. Should you choose to run it locally on your own computer, please set **-profile local**. 
 Important: Change parameters in conf/local.config to your local hardware specifications prior running the pipeline.
 
 
@@ -10,7 +10,7 @@ Reference databases for Metaphlan4, Kraken2 and HUMAnN3 (Set also a Metaphlan4 D
 Metaphlan DB: `--metaphlan_db`<br />
 HUMAnN DB:    `--humann_db`<br />
 Kraken DB:    `--kraken2_db`<br />
-Sylth DB:     `--sylth_db`<br />
+Sylph DB:     `--sylph_db`<br />
 
 Pipeline is module based and will run in the most basic run only the QC module.
 
@@ -22,7 +22,7 @@ nextflow run ikmb/TOFU-MAaPO --reads '/path/to/fastqfiles/*_R{1,2}_001.fastq.gz'
 Either use:<br />
 `--reads` With a glob to your fastq.gz files or to a csv-file containing the columns id, read1,read2 that lists all samples that you want to process. For single-end mode, use only columns "id" and "read1".<br />
 or:<br />
-`--sra` NCBI SRA Accession ID. Pipeline will download automatically all fastq files for your query. It is mandatory to provide your personal API key for your NCBI account with `--apikey`. Also lists are possible: "--sra ['ERR908507', 'ERR908506', 'ERR908505']". WARNING: The used Nextflow API call to NCBI is not bug free. Expect more samples to be processed than are in the input list. Also some samples might be missing. <br />
+`--sra` NCBI SRA Accession ID. Pipeline will download automatically all fastq files for your query. It is mandatory to provide your personal API key for your NCBI account with `--apikey`. Also lists are possible: "--sra ['ERR908507', 'ERR908506', 'ERR908505']". WARNING: The used Nextflow API call to NCBI is not free of bugs. Expect more samples to be processed than are in the input list. Also some samples might be missing. <br />
 
 ## Available modules:
 For analysis following modules are available:<br />
@@ -31,7 +31,7 @@ For analysis following modules are available:<br />
 `--kraken` Run Kraken2, a tool for taxonomic classification tool, with a on Medcluster preconfigured RefSeq virus database.<br />
 `--bracken` Run Bracken (Bayesian Reestimation of Abundance with KrakEN) after Kraken2. Kraken2 DB must be [bracken-ready](https://github.com/jenniferlu717/Bracken#step-0-build-a-kraken-10-or-kraken-20-database)<br />
 `--salmon` Run salmon.<br />
-`--sylth` Run sylth.<br />
+`--sylph` Run sylph.<br />
 `--assembly` Run an extended genome assembly workflow with [MAGScoT](https://github.com/ikmb/MAGScoT) Bin Refinement.<br />
 
 
@@ -42,7 +42,7 @@ For analysis following modules are available:<br />
 
 
 ## QC options:
-`--genome` Set host genome. On the IKMB Medcluster valid options are human, mouse or chimp. In other cases this needs to be pre-configured.<br />
+`--genome` Set host genome. On the IKMB Medcluster valid options are human, mouse or chimp. In other cases this needs to be pre-configured. [How to add a host genome to the pipeline?](hostgenome.md) <br />
 `--cleanreads`  Publish QC'ed fastq.gz files. Disabled by default.<br /> 
 `--no_qc` Skips QC-Module. Only use if your input reads are the output of `--cleanreads`<br /> 
 `--fastp` QC is performed with fastp <br /> 
@@ -92,9 +92,10 @@ For analysis following modules are available:<br />
 `--salmon_reference` Path to tab-separated taxonomy file corresponding to the used salmon database. Not required if used with default database. Two column file with header line containing in the first column the bin names used in the salmon database and in the second column the taxonomic assignment by GTDB-Tk in the format "d__Bacteria;p__Pseudomonadota;c__Gammaproteobacteria;o__Enterobacterales;f__Enterobacteriaceae;g__Escherichia;s__Escherichia coli". <br />
 `--salmon_processing` NOT RECOMMENDED! Shortcut for high-throughput data processing with salmon, skips qc, no other modules available in this mode.  <br />
 
-### Sylth options:
-`--sylth_db` Set the path to a sylth databse.<br />
-`--sylth_merge` All sylth profiling will be done in one process. Produces a single output for all samples combined. <br />
+### Sylph options:
+`--sylph_db` Set the path to a sylph databse.<br />
+`--sylph_merge` All sylph profiling will be done in one process. Produces a single output for all samples combined. <br />
+`--sylph_processing` NOT RECOMMENDED! Shortcut for high-throughput data processing with sylph, skips qc, no other modules available in this mode.  <br />
 
 ### Bracken options and their default:
 `--bracken_length` = 100<br />
