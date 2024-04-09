@@ -3,14 +3,14 @@ process MINIMAP2_CATALOGUE {
 	scratch params.scratch
 	tag "$coassemblygroup"
 	input:
-		tuple val(coassemblygroup), file(fcontigs)
+		tuple val(meta), file(fcontigs)
 	output:
 		tuple val(coassemblygroup), path(catalogue), optional: true, emit: catalogue
 		path("versions.yml"), emit: versions
 
 	script:
 		catalogue = "collected_catalogue.fna.gz"
-
+		coassemblygroup = meta.coassemblygroup + '_' + meta.assembler
 		"""
 		concatenate.py $catalogue ${fcontigs.join(" ")} --keepnames
 
@@ -30,7 +30,7 @@ process MINIMAP2_CATALOGUE_INDEX {
 
 	output:
 		tuple val(coassemblygroup), path(catalogue), path(catalogue_index), emit: catalogue
-		tuple val(coassemblygroup), path(catalogue), path(catalogue_index), emit: catalogue_indexfirst
+		//tuple val(coassemblygroup), path(catalogue), path(catalogue_index), emit: catalogue_indexfirst
 		path("versions.yml"), emit: versions
 
 	script:
@@ -69,12 +69,12 @@ process MINIMAP2_MAPPING{
 		path("versions.yml"), emit: versions
 
 	script:
-		sampleID = meta.id
+		sampleID = meta.id + '_' + meta.assembler
 		coassemblygroup = meta.coassemblygroup
 
-		left_clean = sampleID + "_R1_clean.fastq.gz"
-		right_clean = sampleID + "_R2_clean.fastq.gz"
-		single_clean = sampleID + "_single_clean.fastq.gz"
+		left_clean = meta.id + "_R1_clean.fastq.gz"
+		right_clean = meta.id + "_R2_clean.fastq.gz"
+		single_clean = meta.id + "_single_clean.fastq.gz"
 
 		depthout = sampleID + '_depth.txt'
 		mappingbam = sampleID + '_mapping_minimap.bam'

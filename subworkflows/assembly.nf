@@ -3,8 +3,9 @@
  */
 
 //include { CONTIGS_MAPPING } from '../modules/assembly/bowtie2_contigs_mapping.nf' //Currently unused, interchangeable with MINIMAP2_MAPPING
-include { FILTERCONTIGS } from '../modules/assembly/contig_filter.nf'
 include { MEGAHIT_assembly } from '../modules/assembly/megahit.nf'
+include { METASPADES } from '../modules/assembly/metaspades.nf'
+include { FILTERCONTIGS } from '../modules/assembly/contig_filter.nf'
 include { checkm } from '../modules/assembly/checkm.nf'
 include { MAXBIN2 } from '../modules/assembly/maxbin2.nf'
 include { CONCOCT } from '../modules/assembly/concoct.nf'
@@ -53,29 +54,68 @@ workflow assembly{
 	main:
 		ch_versions = Channel.empty()
 
-		binner = params.binner ? params.binner.split(',').collect{it.trim().toLowerCase().replaceAll('-', '').replaceAll('_', '').replaceAll('2', '')} : []
+		assembler = params.assembler ? params.assembler.split(',').collect{it.trim().toLowerCase().replaceAll('-', '').replaceAll('_', '').replaceAll('2', '').replaceAll('meta', '')} : ['megahit']
+		if(params.assembly){log.info "Assembler    : ${assembler}"}
+		binner = params.binner ? params.binner.split(',').collect{it.trim().toLowerCase().replaceAll('-', '').replaceAll('_', '').replaceAll('2', '')} : ['metabat']
 		if(params.assembly){log.info "Binner       : ${binner}"}
 
 		ch_contig_bin_list = Channel.empty()
+		filtercontigs_in = Channel.empty()
 
 		/*
-		* Contigs
+		* Contigs Assembly
 		*/
-		megahit_coas_input = data.map { it ->
+		
+		if ( 'spades' in assembler ){
+			//only works in single assembly mode
+			METASPADES(data)
+			ch_versions = ch_versions.mix(METASPADES.out.versions.first() )
+			filtercontigs_in = filtercontigs_in.mix(METASPADES.out.contigs.map{it -> 
+																				def meta = [:]
+																				meta.coassemblygroup = it[0]
+																				meta.assembler = 'metaspades'
+																				return [meta, it[1]]
+																				})
+		}
+
+		if ( 'megahit' in assembler ){
+			megahit_coas_input = data.map { it ->
 			metas = it[0]
 			return[metas.coassemblygroup, it[1]]}.groupTuple(by:0).map{ it -> return[it[0], it[1].flatten()]}.unique()
 
-		MEGAHIT_assembly(megahit_coas_input)
-		ch_versions = ch_versions.mix(MEGAHIT_assembly.out.versions.first() )
-
-		filtercontigs_in = MEGAHIT_assembly.out.contigs
+			MEGAHIT_assembly(megahit_coas_input)
+			ch_versions = ch_versions.mix(MEGAHIT_assembly.out.versions.first() )
+			filtercontigs_in = filtercontigs_in.mix(MEGAHIT_assembly.out.contigs.map{it ->
+																				def meta = [:]   
+																				meta.coassemblygroup = it[0]
+																				meta.assembler = 'megahit'
+																				return [meta, it[1]]
+																				})
+		}
 
 		FILTERCONTIGS(filtercontigs_in)
 		ch_versions = ch_versions.mix(FILTERCONTIGS.out.versions.first() )
-
-		ch_filteredcontigs = FILTERCONTIGS.out.contigs.combine(data.map { it ->
+		ch_filteredcontigs = FILTERCONTIGS.out.contigs.map{it -> 
+						meta = it[0]
+						return[meta.coassemblygroup, meta, it[1]]
+						}.combine(data.map { it ->
 				metas = it[0]
-				return[metas.coassemblygroup, metas, it[1]]}, by:0 ).map { it -> return[it[2], it[1], it[3]]}
+				return[metas.coassemblygroup, metas, it[1]]
+				}, by:0 )
+				.map { it -> 
+					contig = it[2]
+					meta_assembler = it[1]
+					meta_data = it[3]
+					reads = it[4]
+					def meta = [:]
+					meta.coassemblygroup = meta_assembler.coassemblygroup + '_' + meta_assembler.assembler
+					meta.coassemblygroup_orig = meta_assembler.coassemblygroup
+					meta.assembler = meta_assembler.assembler
+					meta.id = meta_data.id
+					meta.single_end = meta_data.single_end
+					//return[it[2], it[1], it[3]]
+					return[meta, contig, reads]
+					}
 
 		/*
 		 * Basic Genome Assembly:
@@ -113,7 +153,7 @@ workflow assembly{
 
 		if(params.magscot.toBoolean()){
 			/*
-			 * Extended Genome Assembly:
+			 * Extended Genome Assembly (default):
 			*/
 
 			/*
@@ -122,10 +162,15 @@ workflow assembly{
 			if ( 'vamb' in binner ) {
 
 				if(params.assemblymode == "single"){
+					//as vamb prefers to be used for co-binning, we will do this here and map back to single samples again
 					//create a new csv file to subgroup samples
 
-					ch_allcontigs_table = ch_filteredcontigs.collectFile() { item ->
-						[ "contigs_grouped.csv", item[0].id + ',' + item[0].single_end + ',' +  item[0].coassemblygroup + ',' + item[1] + ',' + item[2] +  '\n']
+					ch_allcontigs_table = ch_filteredcontigs.map{it -> 
+																	meta = it[0]
+																	assem = meta.assembler
+																	return[assem, meta, it[1], it[2]]
+																	}.collectFile() { item ->
+						[ "${item[0]}.csv", item[1].id + ',' + item[1].single_end + ',' +  item[1].coassemblygroup + ',' +  item[1].assembler + ',' + item[2] + ',' + item[3] + '\n']
 						}
 
 					//new csv file will be read in, we create a file with all fastq files for VAMB_CATALOGUE
@@ -136,10 +181,12 @@ workflow assembly{
 					.splitCsv ( header:false, sep:',' )
 					.map { row ->
 							def meta = [:]
-							meta.id = row[0]
 							meta.coassemblygroup = row[2]
+							meta.coassemblygroup_orig = row[2].replaceAll("_${row[3]}", '')
+							meta.assembler = row[3]
+							meta.id = row[0]							
 							meta.single_end = row[1].toBoolean()  
-							return [ meta, row[3] ] }
+							return [ meta, row[4] ] }
 
 					//add to tuple meta vamb_group the tuple contigs with reads
 					ch_vambgroup_contigs = ch_sample_to_vambgroup.join( ch_filteredcontigs )//.map{row -> tuple(row[1], row[0], row[1], row[2], row[3], row[4])}
@@ -150,7 +197,6 @@ workflow assembly{
 
 
 					vamb_catalogue_in = ch_contigs_perkey
-
 
 					// Minimap2 Index from all samples
 					VAMB_CATALOGUE(vamb_catalogue_in)
@@ -172,7 +218,7 @@ workflow assembly{
 					)
 					ch_versions = ch_versions.mix(VAMB_COLLECT_DEPTHS.out.versions.first() )
 
-					VAMB(   VAMB_CATALOGUE_INDEX.out.catalogue_indexfirst.join( VAMB_COLLECT_DEPTHS.out.alldepths )                    
+					VAMB(   VAMB_CATALOGUE_INDEX.out.catalogue.map{it -> return[it[1],it[0],it[2]]}.join( VAMB_COLLECT_DEPTHS.out.alldepths )                    
 						)
 					ch_versions = ch_versions.mix(VAMB.out.versions.first() )
 					ch_vambgroup_sampleid = ch_sample_to_vambgroup.map{ row -> tuple(row[1], row[0]) }.combine(VAMB.out.all_samples_clustertable, by: 0)
@@ -182,14 +228,14 @@ workflow assembly{
 					)
 					ch_versions = ch_versions.mix(VAMB_COLLECT_DEPTHS.out.versions.first() )
 
-					VAMB(   MINIMAP2_CATALOGUE_INDEX.out.catalogue_indexfirst.join( VAMB_COLLECT_DEPTHS.out.alldepths )                    
+					VAMB(   MINIMAP2_CATALOGUE_INDEX.out.catalogue.map{it -> return[it[1],it[0],it[2]]}.join( VAMB_COLLECT_DEPTHS.out.alldepths )                    
 						)
 					ch_versions = ch_versions.mix(VAMB.out.versions.first() )
 
 
 					ch_vambgroup_sampleid = data.map{it -> meta = it[0]
-													return[meta.coassemblygroup, meta]}
-													.combine(VAMB.out.all_samples_clustertable, by: 0)
+													return[meta.coassemblygroup,meta.assembler, meta]}
+													.combine(VAMB.out.all_samples_clustertable, by: [0,1])
 				}
 
 				VAMB_CONTIGS_SELECTION( ch_vambgroup_sampleid )
@@ -208,17 +254,17 @@ workflow assembly{
 			* CONCOCT Workflow
 			*/
 			if ( 'concoct' in binner ) {
-			CONCOCT( ch_mapping.join( ch_bam ) )
-			ch_contig_bin_list = ch_contig_bin_list.mix(CONCOCT.out.magscot_contigbinlist)
-			ch_versions = ch_versions.mix(CONCOCT.out.versions.first() )
+				CONCOCT( ch_mapping.join( ch_bam ) )
+				ch_contig_bin_list = ch_contig_bin_list.mix(CONCOCT.out.magscot_contigbinlist)
+				ch_versions = ch_versions.mix(CONCOCT.out.versions.first() )
 			}
 			/*
 			* SemiBin2 Workflow
 			*/
 			if ( 'semibin' in binner ) {
-			SEMIBIN( ch_mapping.join( ch_bam ) )
-			ch_contig_bin_list = ch_contig_bin_list.mix(SEMIBIN.out.magscot_contigbinlist)
-			ch_versions = ch_versions.mix(SEMIBIN.out.versions.first() )
+				SEMIBIN( ch_mapping.join( ch_bam ) )
+				ch_contig_bin_list = ch_contig_bin_list.mix(SEMIBIN.out.magscot_contigbinlist)
+				ch_versions = ch_versions.mix(SEMIBIN.out.versions.first() )
 			}
 
 			/*
@@ -236,9 +282,13 @@ workflow assembly{
 			ch_magscot_in = ch_contig_to_bin
 									.join( MARKER_IDENT.out.hmm_output )
 									.map{it -> meta = it[0]
-									return[meta.coassemblygroup, meta, it[1], it[2]]}
-									.combine( FILTERCONTIGS.out.magscot_contigs, by:0 )
-
+									return[meta.coassemblygroup, meta.assembler, meta, it[1], it[2]]}
+									.combine( FILTERCONTIGS.out.contigs.map{it -> 
+																			meta = it[0]
+																			coassembly = meta.coassemblygroup + '_' + meta.assembler
+																			return[coassembly,meta.assembler, meta, it[1]]
+																			}, by: [0,1] )
+									.map{it -> return[it[0], it[2], it[3],it[4],it[6]]}
 			MAGSCOT( ch_magscot_in )
 			ch_versions = ch_versions.mix(MAGSCOT.out.versions.first() )
 

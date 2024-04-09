@@ -34,7 +34,7 @@
 
 		output:
 			tuple  path(catalogue), val(vamb_key), path(catalogue_index), emit: catalogue
-			tuple  val(vamb_key), path(catalogue), path(catalogue_index), emit: catalogue_indexfirst
+			//tuple  val(vamb_key), path(catalogue), path(catalogue_index), emit: catalogue_indexfirst
 			path("versions.yml"), emit: versions
 		shell:
 			catalogue_index = "catalogue.mmi"
@@ -160,8 +160,9 @@ process VAMB {
 
 	script:
 		cluster_table = 'all_vamb_contigs_to_bin.tsv'
+		contig_sep = vamb_key.replaceAll('_[0-9]+','') +'contig'//'spadescontig'
 		"""
-		vamb --outdir bin --fasta $catalogue --jgi $alldepths -o _${params.contig_sep}_ -p ${task.cpus}
+		vamb --outdir bin --fasta $catalogue --jgi $alldepths -o _${contig_sep}_ -p ${task.cpus}
 		mv bin/clusters.tsv $cluster_table
 
 		cat <<-END_VERSIONS > versions.yml
@@ -188,11 +189,11 @@ process VAMB_CONTIGS_SELECTION{
 		tuple val(meta), file(formatted_contigs_to_bin),optional: true, emit: magscot_contigbinlist
 	script:
 		sampleID = meta.id
-
+		grep_pattern = meta.coassemblygroup.replaceAll('_megahit', '').replaceAll('_metaspades', '')
 		persample_clustertable = sampleID + '_vamb_contigs_to_bin.tsv'
 		formatted_contigs_to_bin = sampleID + '_vamb_magscot_contigs_to_bin.tsv'
 		"""
-		grep ${meta.coassemblygroup}_ $all_cluster_table > $persample_clustertable
+		grep ${grep_pattern}_ $all_cluster_table > $persample_clustertable
 
 		gawk '{print \$1"\t"\$2"\tvamb"}'  $persample_clustertable > $formatted_contigs_to_bin
 		"""
@@ -202,6 +203,7 @@ process group_vamb {
 	
 	label 'default'
 	scratch params.scratch
+	tag "$assembly"
 
 	input:
 		path(reads_table)
@@ -210,13 +212,14 @@ process group_vamb {
 		path("contigs_perkey.csv"), emit: contigs_perkey
 		path("temp2_csv.csv"), emit: overview_csv
 	script:
+	assembly = reads_table.baseName
 	"""
-	awk '{print int((NR-1)/${params.vamb_groupsize}) "," \$0}' ${reads_table} | sed 's/\\]//' | sed 's/\\[//' > temp2_csv.csv
+	awk '{print "${assembly}_" int((NR-1)/${params.vamb_groupsize}) "," \$0}' ${reads_table} | sed 's/\\]//' | sed 's/\\[//' > temp2_csv.csv
 
 	#meta and contig-key:
-	awk -F, '{print \$2","\$3","\$4","\$1}' temp2_csv.csv > meta_contigkey.csv
+	awk -F, '{print \$2","\$3","\$4","\$5","\$1}' temp2_csv.csv > meta_contigkey.csv
 
-	awk -F, '{OFS=","; a[\$1]=a[\$1]" "\$5} END {for (i in a) print i a[i]}' temp2_csv.csv | sed 's/ /,/' > contigs_perkey.csv
+	awk -F, '{OFS=","; a[\$1]=a[\$1]" "\$6} END {for (i in a) print i a[i]}' temp2_csv.csv | sed 's/ /,/' > contigs_perkey.csv
 	
 	"""
 }

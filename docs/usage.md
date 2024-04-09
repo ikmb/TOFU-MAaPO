@@ -57,8 +57,9 @@ For analysis following modules are available:<br />
 
 ## Assembly options:
 `--assemblymode` Set the mode, if co-assembly (**group** or **all**) or single (**single**, default mode) sample assembly should be performed. The option **group** is only available, if the input is a csv-file with a column "group". In case of co-assembly, only up to 100 samples per group (in "group" mode) or run (in "all" mode) are recommended due to hardware restrictions.<br />
+`--assembler` Comma separated list of assembly tools to use. Options are **megahit** and **spades**. [default=**megahit**]<br />
 `--binner` Comma separated list of binning tools to use. Options are: **concoct**,**maxbin**,**semibin**,**metabat** and **vamb**. For best performance choose multiple. Default uses all of them. <br />
-`--contigsminlength` Set a minimum length of contig. Smaller contigs will be discarded. Default: 2000. <br />
+`--contigsminlength` Set a minimum length of contig. Smaller contigs will be discarded. [default=2000]. <br />
 `--semibin_environment` Set the trained environment for SemiBin. Default is **human_gut**. See the [SemiBin Documentation](https://github.com/BigDataBiology/SemiBin/#easy-singleco-assembly-binning-mode) for other options. Choose **global** if no other environment is appropiate.  <br />
 `--skip_gtdbtk` Skip GTDB-TK. Both Genome Assembly Modules will run GTDB-TK for taxonomical profiling as a default. <br />
 `--skip_checkm` Skip Checkm bin quality check. <br />

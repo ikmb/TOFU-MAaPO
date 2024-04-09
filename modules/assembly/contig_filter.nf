@@ -4,16 +4,16 @@ process FILTERCONTIGS {
 	label 'default'
 
 	input:
-		tuple val(coassemblygroup), file(finalcontigs)
+		tuple val(meta), file(finalcontigs)
 
 	output:
-		tuple val(coassemblygroup), file(fcontigs_filtered),	emit: contigs, 			optional: true
+		tuple val(meta), file(fcontigs_filtered),				emit: contigs, 			optional: true
 		path(fcontigs_filtered), 								emit: filteredcontig,	optional: true
-		tuple val(coassemblygroup), file(fcontigs_filtered), 	emit: magscot_contigs, 	optional: true
+		//tuple val(coassemblygroup), file(fcontigs_filtered), 	emit: magscot_contigs, 	optional: true
 		path("versions.yml"),  									emit: versions,			optional: true
 
 	script:
-
+		coassemblygroup = meta.coassemblygroup + '_' + meta.assembler
 		fcontigs_filtered = coassemblygroup + '_fcontigsfiltered.fa'
 
 		"""
