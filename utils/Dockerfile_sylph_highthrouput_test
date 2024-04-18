@@ -1,0 +1,17 @@
+FROM mambaorg/micromamba
+MAINTAINER Eike Wacker
+LABEL authors="Eike Wacker" \
+      description="Docker image containing all requirements for sylph high-throughput-mode implemented in ikmb/TOFU-MAaPO"
+# Based on the example Dockerfile for nextflow-io/rnaseq-nf, that is maintained by Paolo Di Tommaso
+RUN \
+   micromamba install -y -n base -c defaults -c bioconda -c conda-forge \
+      sylph \
+      curl \
+      python=3.11 \
+      typing_extensions \
+      importlib_metadata \
+      procps-ng \
+   && micromamba clean -a -y
+
+ENV PATH="$MAMBA_ROOT_PREFIX/bin:$PATH"
+USER root

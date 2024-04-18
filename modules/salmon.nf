@@ -18,13 +18,12 @@ script:
 	sampleID = meta.id
 	report = sampleID + ".quant.sf"
 	salmon_log = sampleID + "_salmon.log"
+	def input = meta.single_end ? "-1 ${reads[0]}" : "-1 ${reads[0]} -2 ${reads[1]}" 
 
-	if (!meta.single_end) {
 	"""
 	salmon quant -i ${params.salmon_db} \
 		-l IU \
-		-1 ${reads[0]} \
-		-2 ${reads[1]} \
+		$input \
 		--validateMappings \
 		-o . \
 		-p ${task.cpus} \
@@ -39,26 +38,6 @@ script:
 	END_VERSIONS
 
 	"""
-	} else {
-	"""
-	salmon quant -i ${params.salmon_db} \
-		-l IU \
-		-1 ${reads[0]} \
-		--validateMappings \
-		-o . \
-		-p ${task.cpus} \
-		--meta
-	
-	mv quant.sf $report
-	mv logs/salmon_quant.log $salmon_log
-
-	cat <<-END_VERSIONS > versions.yml
-	"${task.process}":
-	salmon: \$(salmon --version 2>&1 | sed -e "s/salmon //g" )
-	END_VERSIONS
-	
-	"""	
-	}
 }
 
 process SALMON_merge {

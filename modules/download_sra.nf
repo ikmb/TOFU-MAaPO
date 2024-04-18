@@ -9,9 +9,15 @@ process download_sra {
 	output:
 	tuple val(meta), path("*_raw.fastq.gz") , emit: reads
 
+    beforeScript = """
+        sleepFunc() {
+            sleep ${params.retryDelay} * delay
+        }
+        """
+
 	script:
 	sampleID = meta.id
-
+    def delay = task.attempt
 	leftnewname = sampleID + "_1_raw.fastq.gz"
     rightnewname = sampleID + "_2_raw.fastq.gz"
 	unpairednewname = sampleID + "_unpaired_raw.fastq.gz"
