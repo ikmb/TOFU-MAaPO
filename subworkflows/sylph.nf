@@ -10,6 +10,7 @@ workflow sylph{
 		ch_versions = ch_versions.mix( SYLPH_SKETCH.out.version.first() )
 
 
+
 		if(params.sylph_merge){
 			SYLPH_PROFILING(SYLPH_SKETCH.out.sylph_sketches.map{ it ->
 																def metas = "all"

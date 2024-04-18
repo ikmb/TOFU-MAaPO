@@ -11,6 +11,7 @@ Metaphlan DB: `--metaphlan_db`<br />
 HUMAnN DB:    `--humann_db`<br />
 Kraken DB:    `--kraken2_db`<br />
 Sylph DB:     `--sylph_db`<br />
+Sylph DB:     `--sylph_db`<br />
 
 Pipeline is module based and will run in the most basic run only the QC module.
 
@@ -31,6 +32,7 @@ For analysis following modules are available:<br />
 `--kraken` Run Kraken2, a tool for taxonomic classification tool, with a on Medcluster preconfigured RefSeq virus database.<br />
 `--bracken` Run Bracken (Bayesian Reestimation of Abundance with KrakEN) after Kraken2. Kraken2 DB must be [bracken-ready](https://github.com/jenniferlu717/Bracken#step-0-build-a-kraken-10-or-kraken-20-database)<br />
 `--salmon` Run salmon.<br />
+`--sylph` Run sylph.<br />
 `--sylph` Run sylph.<br />
 `--assembly` Run an extended genome assembly workflow with [MAGScoT](https://github.com/ikmb/MAGScoT) Bin Refinement.<br />
 
