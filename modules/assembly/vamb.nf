@@ -55,7 +55,7 @@ process VAMB_MAPPING{
 	cache 'lenient'
 	label 'bowtie2'
 	scratch params.scratch
-	tag "$sampleID"
+	tag "${sampleID}_${meta.assembler}"
 	//publishDir "${params.outdir}/${sampleID}/Mapping", mode: 'copy'
 
 	input:
@@ -178,7 +178,7 @@ process VAMB_CONTIGS_SELECTION{
 	
 	label 'default'
 	scratch params.scratch
-	tag "$sampleID"
+	tag "${sampleID}_${meta.assembler}"
 	publishDir "${params.outdir}/vamb/${sampleID}", mode: 'copy', enabled: params.publish_rawbins
 	
 	input:

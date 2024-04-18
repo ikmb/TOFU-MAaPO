@@ -2,7 +2,7 @@ process MAXBIN2 {
 
 	label 'maxbin2'
 	scratch params.scratch
-	tag "$sampleID"
+	tag "${sampleID}_${meta.assembler}"
 	publishDir "${params.outdir}/maxbin2/${sampleID}", mode: 'copy', enabled: params.publish_rawbins
 	
 	input:

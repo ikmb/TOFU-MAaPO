@@ -2,8 +2,8 @@ process GTDBTK {
 
 	label 'gtdbtk'
 	scratch params.scratch
-	tag "$sampleID"
-	publishDir "${params.outdir}/GTDBTK/${sampleID}", mode: 'copy'
+	tag "${sampleID}_${meta.assembler}"
+	publishDir "${params.outdir}/GTDBTK/${sampleID}_${meta.assembler}", mode: 'copy'
 
 	input: 
 		tuple val(meta), file(fafile)

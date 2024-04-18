@@ -1,8 +1,8 @@
 process CONCOCT {
 	label 'concoct'
     cache 'lenient'
-	scratch false//params.scratch
-	tag "$sampleID"
+	scratch params.scratch
+	tag "${sampleID}_${meta.assembler}"
 	publishDir {"${params.outdir}/concoct/${sampleID}"}, mode: 'copy', enabled: params.publish_rawbins
 
 	input:

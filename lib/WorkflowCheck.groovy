@@ -27,6 +27,23 @@ class WorkflowCheck {
             }
         }
 
+        if (!(params.assemblymode == "single" || params.assemblymode == "all" || params.assemblymode == "group")) {
+            log.info  "Parameter 'assemblymode' can only be set to 'single', 'all' or 'group', exiting now."
+            System.exit(1)
+        }
+
+        if('spades' in params.assembler.split(',').collect{it.trim().toLowerCase().replaceAll('-', '').replaceAll('_', '').replaceAll('2', '').replaceAll('meta', '')}){
+            if(params.assemblymode == "all" || params.assemblymode == "group"){
+                log.info  "Parameter 'assemblymode' can only be set to 'single', 'all' or 'group', exiting now."
+                System.exit(1)
+            }
+
+            if(params.coassembly){
+                log.info  "Parameter 'coassembly' can not be used together with '--spades', exiting now."
+                System.exit(1)
+            }
+        }
+
     }
 
 }

@@ -1,7 +1,7 @@
 process FORMATTING_CONTIG_TO_BIN {
 	label 'default'
 	scratch params.scratch
-	tag "$sampleID"
+	tag "${sampleID}_${meta.assembler}"
 
 	input:
 		tuple val(meta), file(contigs_bin_tables)
@@ -20,8 +20,8 @@ process FORMATTING_CONTIG_TO_BIN {
 process MARKER_IDENT {
 	label 'magscot'
 	scratch params.scratch
-	tag "$sampleID"
-	publishDir "${params.outdir}/magscot/${sampleID}", mode: 'copy'
+	tag "${sampleID}_${assembler}"
+	publishDir "${params.outdir}/magscot/${sampleID}_${assembler}", mode: 'copy'
 
 	input:
 		tuple val(meta), file(fcontigs), file(depthout), file(formatted_contigs_to_bin)
@@ -30,7 +30,7 @@ process MARKER_IDENT {
 		path("versions.yml"),          optional: true, emit: versions
 	script:
 		sampleID = meta.id
-
+		assembler = meta.assembler
 		samplehmm = sampleID + '.hmm'
 		samplepfam = sampleID + '.pfam'
 		sampleptigr = sampleID + '.tigr'
@@ -85,13 +85,12 @@ process MAGSCOT {
 	label 'magscot'
 	scratch params.scratch
 	errorStrategy  { task.exitStatus in [42] ? 'ignore' : task.attempt <= maxRetries  ? 'retry' : 'ignore' }
-	tag "$sampleID"
-	publishDir "${params.outdir}/magscot/${sampleID}", mode: 'copy'
+	tag "${sampleID}_${meta.assembler}"
+	publishDir "${params.outdir}/magscot/${sampleID}_${meta.assembler}", mode: 'copy'
 
 	input:
 		tuple val(coassemblygroup), val(meta), file(formatted_contigs_to_bin), file(samplehmm), file(fcontigs_filtered)
 	output:
-		//file("*"), emit: all_files
 		tuple val(meta), file(refined_contigs_to_bins), file(fcontigs_filtered), emit: refined_contigs_to_bins
 		tuple val(meta), file(refined_contigs_to_bins), emit: contigs_to_bins_table
 		tuple val(meta), file(stats_outfile), emit: stats_outfile_table
@@ -99,9 +98,10 @@ process MAGSCOT {
 		path("versions.yml"),          optional: true, emit: versions
 	script:
 		sampleID = meta.id
-		refined_contigs_to_bins = sampleID + '.refined.contig_to_bin.out'
-		stats_outfile = sampleID + '.refined.out'
-		full_stats = sampleID + '.scores.out'
+		outputname = meta.id + '_' + meta.assembler
+		refined_contigs_to_bins = outputname + '.refined.contig_to_bin.out'
+		stats_outfile = outputname + '.refined.out'
+		full_stats = outputname + '.scores.out'
 	"""
 		#If the input couldn't be binned with any binner, we ignore that specific error and create a specific error code to ignore it with nextflow
 		set +e
@@ -109,7 +109,7 @@ process MAGSCOT {
 		Rscript /opt/MAGScoT.R \
 			-i $formatted_contigs_to_bin \
 			--hmm $samplehmm \
-			-o $sampleID \
+			-o $outputname \
 			-s ${params.magscot_min_sharing} \
 			-a ${params.magscot_score_a} \
 			-b ${params.magscot_score_b} \
@@ -143,8 +143,8 @@ process MAGSCOT {
 process EXTRACT_REFINED_BINS {
 	label 'default'
 	scratch params.scratch
-	tag "$sampleID"
-	publishDir "${params.outdir}/magscot/${sampleID}", mode: 'copy'
+	tag "${sampleID}_${meta.assembler}"
+	publishDir "${params.outdir}/magscot/${sampleID}_${meta.assembler}", mode: 'copy'
 
 	input:
 		tuple val(meta), file(refined_contigs_to_bins), file(fcontigs_filtered)

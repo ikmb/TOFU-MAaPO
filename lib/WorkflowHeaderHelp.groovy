@@ -129,6 +129,7 @@ ${info_line}
 		--metaphlan_db          Directory of Metaphlan database. REQUIRED!
 
 	Assembly:
+		--assembler				Select which assembly tool to use, comma separated list, default is: "megahit". Allowed values: 'megahit','spades'
 		--assemblymode          Select an assembly mode, can be "single" or for co-assembly "all". Also possible: "group" if input is a csv-file that contains a column "group"
 		--binner                Select which binning tools to use, comma separated, default is: "concoct,maxbin,semibin,metabat,vamb"
 		--contigsminlength	    Minimum length of contigs. Default: 2000
@@ -137,7 +138,6 @@ ${info_line}
 		--skip_checkm           Skip CheckM.
 		--publish_megahit       Publish all megahit contigs. Default: false
 		--publish_rawbins       Publish all raw bins from all binning tools. Default: false
-		--contig_sep            Contig name separator. Default: "megahitcontig"
 		--skip_vamb             Skip Vamb.
 		--vamb_groupsize        Group size of samples to use in one Vamb run if assembly mode is "single". Recommended: Number of all samples in the run. Default: 100.
 	""".stripIndent()

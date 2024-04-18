@@ -11,6 +11,7 @@ include { MAXBIN2 } from '../modules/assembly/maxbin2.nf'
 include { CONCOCT } from '../modules/assembly/concoct.nf'
 include { SEMIBIN } from '../modules/assembly/semibin.nf'
 include { getCountTable } from '../modules/assembly/assembly_util.nf'
+//include { DREP } from '../modules/assembly/drep.nf'
 
 include {   GTDBTK; 
 			PREPARE_GTDBTK 
@@ -333,12 +334,17 @@ workflow assembly{
 			BINCOVERAGE_PERSAMPLE( MINIMAP2_MAPPING.out.sample_depth.join( MAGSCOT.out.contigs_to_bins_table ).join( GTDBTK.out.taxonomic_table ) )
 			ch_versions = ch_versions.mix(BINCOVERAGE_PERSAMPLE.out.versions.first() )
 
-			MERGE_MAG_ABUNDANCE(BINCOVERAGE_PERSAMPLE.out.abundancetable.collect() )
+			MERGE_MAG_ABUNDANCE(BINCOVERAGE_PERSAMPLE.out.abundancetable.groupTuple() )
 			ch_versions = ch_versions.mix(MERGE_MAG_ABUNDANCE.out.versions )
 
 		}
 
 
+/*
+		if(params.drep){
+			DREP( ch_bins.map{it -> return[it[1]]}.collect() )
+		}
+*/
 	emit:
 		versions = ch_versions
 }

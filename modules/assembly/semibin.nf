@@ -2,7 +2,7 @@ process SEMIBIN {
 
 	label 'semibin'
 	scratch params.scratch
-	tag "$sampleID"
+	tag "${sampleID}_${meta.assembler}"
 	cache 'lenient'
 	publishDir "${params.outdir}/semibin/${sampleID}", mode: 'copy', enabled: params.publish_rawbins
 

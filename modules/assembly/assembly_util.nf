@@ -1,8 +1,8 @@
 process getCountTable {
 	label 'default'
 	cache 'lenient'
-	tag "$sampleID"
-	publishDir "${params.outdir}/counttable/${sampleID}", mode: 'copy'
+	tag "${sampleID}_${meta.assembler}"
+	publishDir "${params.outdir}/counttable/${sampleID}_${meta.assembler}", mode: 'copy'
 
 	input:
 		tuple val(meta), path(finalbam), path(mappingbam_index)
