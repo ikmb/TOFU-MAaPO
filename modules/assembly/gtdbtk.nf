@@ -43,7 +43,7 @@ process GTDBTK {
     fi
 	cd ${params.gtdbtk_reference}
 
-    wget https://data.gtdb.ecogenomic.org/releases/release207/207.0/auxillary_files/gtdbtk_r207_v2_data.tar.gz
-	tar -xvzf gtdbtk_r207_v2_data.tar.gz
+    wget https://data.gtdb.ecogenomic.org/releases/release220/220.0/auxillary_files/gtdbtk_package/full_package/gtdbtk_r220_data.tar.gz
+	tar -xvzf gtdbtk_r220_data.tar.gz
 	"""
 }
