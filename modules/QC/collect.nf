@@ -16,7 +16,7 @@ process COLLECTOR {
 	input:
 		tuple val(meta), path(reads)
     output:
-		tuple val(meta), path("*_clean.fastq.gz"), emit: cleaned_reads
+		tuple val(meta), path('*_clean.fastq.gz', includeInputs: true), emit: cleaned_reads
 
 	script:
 		sampleID = meta.id
@@ -26,13 +26,13 @@ process COLLECTOR {
 		single_clean = sampleID + "_single_clean.fastq.gz"
 		if(meta.single_end){
 			"""
-			ln -s ${reads[0]} $single_clean
+			if [ "${reads[0]}" != "$single_clean" ]; then ln -s ${reads[0]} $single_clean; fi
 			"""			
 		}else{
 			"""
-			ln -s ${reads[0]} $left_clean
-			if [ -f "${reads[1]}" ]; then ln -s ${reads[1]} $right_clean; fi
-			if [ -f "${reads[2]}" ]; then ln -s ${reads[2]} $single_clean; fi
+			if [ "${reads[0]}" != "$left_clean" ]; then ln -s ${reads[0]} $left_clean; fi
+			if [ -f "${reads[1]}" ]; then if [ "${reads[1]}" != "$right_clean" ]; then ln -s ${reads[1]} $right_clean; fi; fi
+			if [ -f "${reads[2]}" ]; then if [ "${reads[2]}" != "$single_clean" ]; then ln -s ${reads[2]} $single_clean; fi; fi
 			"""
 		}
 
