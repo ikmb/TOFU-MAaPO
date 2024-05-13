@@ -3,6 +3,7 @@ process KRAKEN2 {
 
 tag "$sampleID"
 label 'kraken'
+scratch params.scratch
 publishDir "${params.outdir}/Kraken/${sampleID}/", mode: 'copy', pattern: "*.txt"
 
 input:
@@ -55,6 +56,7 @@ script:
 
 process KRAKEN2MPA {
 	label 'default'
+	scratch params.scratch
 	input:
 		file(report)
 
