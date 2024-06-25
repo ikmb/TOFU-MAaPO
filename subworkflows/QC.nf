@@ -45,7 +45,7 @@ workflow QC{
 			}else{
 				FILTERREADS(
 					CLEANREADS.out.cleanfastq,
-					Channel.fromPath("${bowtie_base}*").collect(),         
+					Channel.fromPath("${bowtie_base}*", checkIfExists: true ).collect(),         
 					Channel.fromPath(params.genomes[params.genome].bowtie_index).map{index -> index.Name} )  
 
 				ch_versions = ch_versions.mix(FILTERREADS.out.version.first())
