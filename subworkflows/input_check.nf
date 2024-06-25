@@ -211,8 +211,16 @@ workflow input_sra {
 							}
 						}
 				}
-				.set { output }
+				.set { raw_output }
 		}
+		if(!params.exact_matches){
+            output = raw_output
+        }else{
+            output = raw_output.filter { meta, files ->
+                def sampleid = meta.id
+                sampleid in ids
+            }
+        }
 		output.collectFile(storeDir: "${params.outdir}", name: "parsed_sample_list.csv" ) { item ->
 						item[0].id + ',' + item[0].single_end + ',' +  item[0].coassemblygroup + ',' + item[1] + '\n'
 						}
