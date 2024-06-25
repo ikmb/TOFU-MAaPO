@@ -50,7 +50,7 @@ For mulitple IDs, use:
 ```bash
 --sra ['ERR908507', 'ERR908506', 'ERR908505'] --apikey **YOUR_NCBI_API_KEY**
 ```
-> **Note**: The Nextflow API call to NCBI may result in extra or missing samples. Ensure to verify downloaded data.
+> **Note**: The Nextflow API call to NCBI may result in extra or missing samples. Ensure to verify downloaded data. Use `--exact_matches` to allow only exact ID matches (only for run IDs).<br />
 
 # Available modules
 
