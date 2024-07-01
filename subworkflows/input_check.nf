@@ -168,7 +168,7 @@ workflow input_check_qced {
 workflow input_sra {
 	main: 
 		if(!params.apikey){
-			exit 1, "No SRA apikey was declared."
+			exit 1, "No SRA apikey was declared. Supply one when using SRA inputs with '--apikey'."
 		}else{
 			ids = params.sra.split(',').collect()
 			Channel.fromSRA(ids, apiKey: params.apikey)
