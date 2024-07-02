@@ -40,7 +40,7 @@
 			catalogue_index = "catalogue.mmi"
 
 			"""
-			minimap2 -d !{catalogue_index} !{catalogue} -m 2000 --print-qname -I!{params.minimap_indexsize}g
+			minimap2 -I!{task.memory.toGiga()}G -d !{catalogue_index} !{catalogue} -m 2000 --print-qname 
 			# make index #uses default 3 threads
 
 			cat <<-END_VERSIONS> versions.yml
@@ -50,7 +50,7 @@
 
 			"""
 	}
-//-I100G
+
 process VAMB_MAPPING{
 	cache 'lenient'
 	label 'bowtie2'
@@ -65,7 +65,8 @@ process VAMB_MAPPING{
 		tuple val(vamb_key), path(depthout), emit: counttable 
 		val(meta), emit: sampleid
 		tuple val(meta), file(fcontigs), file(depthout), emit: maps
-		tuple val(meta), file(mappingbam), file(mappingbam_index), emit: bam
+		//tuple val(meta), file(mappingbam), file(mappingbam_index), emit: bam
+		tuple val(meta), file(mappingbam), file("*_mapping_minimap.bam.bai*"), emit: bam
 		path("error.log"),    optional: true, emit: errorlog
 		path("versions.yml"), emit: versions
 
@@ -83,8 +84,7 @@ process VAMB_MAPPING{
 		sample_total_reads = sampleID + '_totalreads.txt'
 		if (!meta.single_end) {  
 			"""
-			#minimap2 -I100G -d catalogue.mmi $catalogue; # make index
-			minimap2 -t ${task.cpus} -N 50 -ax sr  $catalogue_index $left_clean $right_clean | samtools view -F 3584 -b --threads ${task.cpus} | samtools sort > $mappingbam 2> error.log # -n 
+			minimap2 -I${task.memory.toGiga()}G  -t ${task.cpus} -N 50 -ax sr  $catalogue_index $left_clean $right_clean | samtools view -F 3584 -b --threads ${task.cpus} | samtools sort > $mappingbam 2> error.log # -n 
 			samtools index $mappingbam
 			jgi_summarize_bam_contig_depths $mappingbam --outputDepth $depthout
 
@@ -98,8 +98,7 @@ process VAMB_MAPPING{
 			"""
 		} else {
 			"""	
-			#minimap2 -d catalogue.mmi $catalogue; # make index
-			minimap2 -t ${task.cpus} -N 50 -ax sr $catalogue_index $single_clean | samtools view -F 3584 -b --threads ${task.cpus}| samtools sort  > $mappingbam 2> error.log #-n
+			minimap2 -I${task.memory.toGiga()}G -t ${task.cpus} -N 50 -ax sr $catalogue_index $single_clean | samtools view -F 3584 -b --threads ${task.cpus}| samtools sort  > $mappingbam 2> error.log #-n
 			samtools index $mappingbam
 			jgi_summarize_bam_contig_depths $mappingbam --outputDepth $depthout
 
