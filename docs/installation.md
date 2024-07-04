@@ -7,12 +7,12 @@ Before you can run TOFU-MAaPO you need to install [Singularity](https://docs.syl
 You will need to prepare databases for respective modules (Metaphlan4, HUMAnN3 or Kraken2) and a config file for your compute system.<br />
 
 # Configuration:
-Before you run TOFU-MAaPO the first time you need to create a configuration file for your computing system. You can either choose to change the [custom.config file in the repository directory conf](../conf/custom.config). Then You will be able to run the pipeline with your config with the parameter `-profile custom`. A second option is to create a separate file that you can include into your Nextflow call with the addition of `-profile custom -c tofu.config`. <br /><br />
+Before you run TOFU-MAaPO the first time you need to create a configuration file for your computing system. You can either choose to change the [custom.config file in the repository directory conf](../conf/custom.config). Then you will be able to run the pipeline with your config with the parameter `-profile custom`. A second option is to create a separate file that you can include into your Nextflow call with the addition of `-profile custom -c tofu.config`. <br /><br />
 
-In this example tofu.config should contain following (edited) lines: <br />
+In this example `tofu.config` should contain following (from you customized) lines: <br />
 ```
 params {
-  // // Software DB locations, UNCOMMENT AND CHANGE THEM
+  //Software DB locations, UNCOMMENT AND CHANGE THEM:
 
   //metaphlan_db = "${baseDir}/databases/Metaphlan/4.0"
   //kraken2_db = "${baseDir}/databases/Kraken2/k2_viral_20210517"
@@ -22,30 +22,28 @@ params {
   //For host read removal list your host genomes as bowtie2 index in this named list with full path to the basename of the index:
 	'genomes' {
 		'human' {
-      //bowtie_index = "${baseDir}/databases/human/GRCh38_noalt_decoy_as/GRCh38_noalt_decoy_as"
+      bowtie_index = false
 		}
 	}
 
   // MAXIMUM PER PROCESS CONFIGS, CHANGE THEM TO YOUR HARDWARE SPECS
-  max_memory = 300.GB
+  max_memory = 100.GB
   max_cpus = 32
   max_time = 48.h
-  maxMultiqcEmailFileSize = 25.MB  
   
   //Scratch. Does your system support scratch? If not, leave it false
   scratch = false
 }
 
-//Enabling singularity as container software
+//Enable Singularity as container software
 singularity {
 	enabled = true
   // Singularity configs, CHANGE THEM TO YOUR USED FILESYSTEM, if not properly set the container won't see your files
-	runOptions = "-B /dpool"
+	runOptions = "-B /home -B /tmp"
 	// where should the containers be downloaded to
-	cacheDir = "/someuser/path/to/singularity_cache"
+	cacheDir = "${launchDir}/singularity_cache"
 }
 
-//Defaults for each process:
 process {
   //Default executor for each process, other options can be e.g. SLURM.
   //See https://www.nextflow.io/docs/latest/executor.html for more options and details.
@@ -55,7 +53,7 @@ process {
 //Default for total execution, remove this whole part if you are using a different option above than executor='local':
 executor {
   cpus = 32
-  memory = 300.GB
+  memory = 200.GB
 }
 ```
 
