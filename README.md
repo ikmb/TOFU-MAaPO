@@ -22,8 +22,8 @@ TOFU-MAaPO processes the data for quality control and possible host decontaminat
 Genome assembly is done by generating contigs from the qc'ed reads with Megahit (single samples individually, grouped or all samples combined). The contigs are then catalogued and indexed using Minimap2 and then binned with the option to use up to five binning tools (Metabat2, Concoct, Maxbin, Semibin2 and vamb). The resulting bins will then be refined and, where possible, combined with MAGScoT based on sets of single-copy microbial marker genes from the Genome Taxonomy Database. The profiles of present marker genes in each result from the different binning algorithms are compared, and new hybrid candidate bins are created if the bin sets share a user-adjustable proportion of marker genes. The results are also taxonomically annotated with GTDB-TK and quality checked with Checkm. An estimated bin coverage per sample is generated as additional output. <br />
 
 # Quick start
-## DISCLAIMER:
-This pipeline uses tools that require more computing capacity and memory than a workstation normally has. The tools Semibin for example can use up to 200GB of RAM, while GTDB-TK also uses 100GB of RAM to name two examples. Here, we show you how to run TOFU-MAaPO on a laptop with at least 4 cores and 32GB of memory, but we would not recommend this. A computer system for TOFU-MAaPO has at least 32 cores and a mimium of 128 GB of RAM. We recommend using it on an HPC for larger amounts of data. <br />
+## Prerequisites:
+This pipeline uses tools that require more computing capacity and memory than a workstation normally has. The tools Semibin for example can use up to 200GB of RAM, while GTDB-TK also uses 100GB of RAM to name two examples. Here, we show you how to run TOFU-MAaPO on a laptop with at least 4 cores and 32GB of memory, but we would not recommend this. A computer system for TOFU-MAaPO has at least 32 cores and a minimum of 128 GB of RAM. We recommend using it on an HPC for larger amounts of data. <br />
 
 ## Nextflow and Singularity installation
 Please install [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html). With it, you can easily install Singularity and Nextflow. After installation, make sure that the environment is activated and test that Singularity (now Apptainer) and Nextflow are working:<br />
@@ -82,7 +82,7 @@ A workflow with QC (without host read removal) for a single metagenome with know
 nextflow run ikmb/TOFU-MAaPO \
     -profile quickstart \
     ---sra 'SRX3105436' \
-    --apikey **YOUR_NCBI_API_KEY*** \
+    --apikey **YOUR_NCBI_API_KEY** \
     --outdir results
 ```
 
@@ -112,7 +112,7 @@ nextflow run ikmb/TOFU-MAaPO \
     ---sra 'SRX3105436' \
     --assembly \
     --updategtdbtk \
-    --apikey **YOUR_NCBI_API_KEY***
+    --apikey **YOUR_NCBI_API_KEY**
     --gtdbtk_reference '/path/to/download/gtdbtk_db/to' \
     --outdir results
 ```
