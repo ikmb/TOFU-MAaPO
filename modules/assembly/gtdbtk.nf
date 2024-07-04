@@ -33,6 +33,14 @@ process GTDBTK {
 		END_VERSIONS
 		
 		"""
+	stub:
+        sampleID = meta.id
+		"""
+		mkdir all.bins.gtdbtk_output
+		touch all.bins.gtdbtk_output/gtdbtk.bac120.summary.tsv
+
+		echo "gtdbtk_stub" > versions.yml
+		"""
 }
 
     process PREPARE_GTDBTK {
@@ -53,4 +61,8 @@ process GTDBTK {
 	wget --continue https://data.ace.uq.edu.au/public/gtdb/data/releases/release207/207.0/auxillary_files/gtdbtk_r207_v2_data.tar.gz
 	tar -xvzf gtdbtk_r207_v2_data.tar.gz
 	"""
+	stub:
+		"""
+		touch stub.file
+		"""
 }

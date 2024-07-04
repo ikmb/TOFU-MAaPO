@@ -26,6 +26,13 @@ process METABAT {
 		END_VERSIONS
 		
 		"""
+	stub:
+		sampleID = meta.id
+		"""
+		touch ${sampleID}_bin.stub.fa
+
+		echo "METABAT_stub" > versions.yml
+		"""
 }
 
 process METABAT_contigs_to_bins {
@@ -64,4 +71,11 @@ process METABAT_contigs_to_bins {
 			gawk '{print \$1"\t"\$2"\tmetabat2"}'  ${sampleID}_metabat2_contigs_to_bin.tsv > ${sampleID}_metabat2_magscot_contigs_to_bin.tsv
 			"""
 		}
+	stub:
+		sampleID = meta.id
+		"""
+		touch ${sampleID}_metabat2_magscot_contigs_to_bin.tsv
+
+		echo "contigs_to_bins_stub" > versions.yml
+		"""
 }

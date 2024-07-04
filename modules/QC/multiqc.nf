@@ -25,4 +25,9 @@ process MULTIQC {
 		END_VERSIONS
 		
 		"""
+	stub:
+		"""
+		touch multiqc_report.html
+		echo "multiqc_stub" > versions.yml
+		"""
 }

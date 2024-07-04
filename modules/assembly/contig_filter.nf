@@ -33,4 +33,12 @@ process FILTERCONTIGS {
 		END_VERSIONS
 		
 		"""
+	stub:
+		coassemblygroup = meta.coassemblygroup + '_' + meta.assembler
+		fcontigs_filtered = coassemblygroup + '_fcontigsfiltered.fa'
+
+		"""
+		touch $fcontigs_filtered
+		echo "FILTERCONTIGS_stub" > versions.yml
+		"""
 }

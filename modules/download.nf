@@ -44,6 +44,24 @@ process download_sra {
         
 		"""
     }
+    stub:
+        sampleID = meta.id
+        def delay = task.attempt
+        leftnewname = sampleID + "_1_raw.fastq.gz"
+        rightnewname = sampleID + "_2_raw.fastq.gz"
+        unpairednewname = sampleID + "_unpaired_raw.fastq.gz"
+		if (meta.single_end) {
+			"""
+			touch ${unpairednewname}
+			"""
+		} else {
+			"""
+			touch ${leftnewname}
+            touch ${rightnewname}
+            touch ${unpairednewname}
+			"""
+		}
+
 }
 
 process download_files {

@@ -1,6 +1,5 @@
 	process PREPARE_HUMANN {
 
-	executor 'local'
 	label 'local_run'
 	label 'long_run'
 	output: 
