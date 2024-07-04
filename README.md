@@ -37,10 +37,10 @@ Please install [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide
 conda create --name nf_env -c conda-forge -c bioconda singularity nextflow
 # Activate environment
 conda activate nf_env
+# Check whether Singularity has been successfully installed
+singularity --version
 # Try a simple Nextflow demo
 nextflow run hello
-# Check Singularity
-singularity --version
 ```
 
 The inputs to TOFU-MAaPO are fastq.gz files or SRA IDs (sample or project).
