@@ -32,6 +32,7 @@ Genome assembly is done by generating contigs from the qc'ed reads with Megahit 
 
 # Quick start
 Please install [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html). With it, you can easily install Singularity and Nextflow. After installation, make sure that the environment is activated and test that Singularity (now Apptainer) and Nextflow are working:
+```
 # Create a new conda environment for Singularity and Nextflow
 conda create --name nf_env -c conda-forge -c bioconda singularity nextflow
 # Activate environment
