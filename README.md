@@ -45,9 +45,7 @@ nextflow run hello
 ```
 
 ## Configuration
-Please edit the configurations to your system needs as explained in the [Configuration Documentation](docs/config.md).<br />
-
-For detailed installation guide see the [installation and configuration documentation](docs/installation.md).<br />
+Please edit the configurations to your system needs as explained in the [installation and configuration documentation](docs/installation.md).<br />
 
 ## Running TOFU-MAaPO:
 The input to TOFU-MAaPO can be either locally stored fastq.gz files or SRA IDs (sample or project).<br />
