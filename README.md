@@ -4,15 +4,6 @@
 
 Taxonomic Or FUnctional Metagenomic Assembly and PrOfiling = TOFU-MAaPO 
 
-# Documentation 
-
-Documentation about the pipeline can be found in the `docs/` directory or under the links below:
-
-1. [What happens in this pipeline?](docs/pipeline.md)
-2. [Installation and configuration](docs/installation.md)
-3. [Running the pipeline](docs/usage.md)
-4. [Output](docs/output.md)
-
 # Pipeline Structure
 ![](./images/metawo_overview.png)
 Overview of TOFU-MAaPO 1.3.1
@@ -32,7 +23,7 @@ Genome assembly is done by generating contigs from the qc'ed reads with Megahit 
 
 # Quick start
 ## DISCLAIMER:
-This pipeline uses tools that require more computing capacity and memory than a workstation normally has. The tools Semibin for example can use up to 200GB of RAM, while GTDB-TK also uses 100GB of RAM to name two examples. We show here how you can run TOFU-MAaPO on a laptop with at least 4 cores and 32GB of memory, but we would not recommend this. A computer system for TOFU-MAaPO has at least 32 cores and 128 GB of RAM. We recommend using it on an HPC for larger amounts of data. <br />
+This pipeline uses tools that require more computing capacity and memory than a workstation normally has. The tools Semibin for example can use up to 200GB of RAM, while GTDB-TK also uses 100GB of RAM to name two examples. Here, we show you how to run TOFU-MAaPO on a laptop with at least 4 cores and 32GB of memory, but we would not recommend this. A computer system for TOFU-MAaPO has at least 32 cores and a mimium of 128 GB of RAM. We recommend using it on an HPC for larger amounts of data. <br />
 
 ## Nextflow and Singularity installation
 Please install [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html). With it, you can easily install Singularity and Nextflow. After installation, make sure that the environment is activated and test that Singularity (now Apptainer) and Nextflow are working:<br />
@@ -85,7 +76,7 @@ Create a directory to work in if you haven't done it before:
 mkdir -p ${HOME}/tofu-quickstart && cd ${HOME}/tofu-quickstart
 ```
 
-A workflow with QC (without host read removal) for a metagenomes with known SRA Run ID as input would look like this:
+A workflow with QC (without host read removal) for a single metagenome with known SRA Run ID as input would look like this:
 
 ```
 nextflow run ikmb/TOFU-MAaPO \
@@ -130,6 +121,16 @@ For further usage options please see the [usage documentation](docs/usage.md).<b
 
 ## Configuration
 Please edit the configurations to your system needs as explained in the [installation and configuration documentation](docs/installation.md).<br />
+
+# Documentation 
+
+All further documentation about the pipeline can be found in the `docs/` directory or under the links below:
+
+1. [Overview/Flowchart of TOFU-MAaPO](docs/pipeline.md)
+2. [Installation and configuration](docs/installation.md)
+3. [Available options](docs/usage.md)
+4. [Output Structure](docs/output.md)
+
 
 # Funding
 
