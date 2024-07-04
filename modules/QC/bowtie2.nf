@@ -38,4 +38,22 @@ process FILTERREADS {
 		END_VERSIONS
 
 		"""
+	stub:
+		sampleID = meta.id
+		bowtie_log = sampleID + "_bowtie2_log.txt"
+		if (meta.single_end) {
+			"""
+			touch ${sampleID}_single_clean.fastq.gz
+			touch $bowtie_log
+			echo "cleanreads_stub" > versions.yml
+			"""
+		} else {
+							"""
+			touch ${sampleID}_R1_clean.fastq.gz
+			touch ${sampleID}_R2_clean.fastq.gz
+			touch ${sampleID}_single_clean.fastq.gz
+			touch $bowtie_log
+			echo "filterreads_stub" > versions.yml
+			"""
+		}
 }

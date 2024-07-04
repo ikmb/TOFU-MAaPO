@@ -62,4 +62,14 @@ process MAXBIN2 {
 		# Exit with the modified exit code
 		exit \$exit_code
 	"""
+	stub:
+		sampleID = meta.id
+		maxbin2_contigs_to_bin = sampleID + '_maxbin2_contigs_to_bin.tsv'
+		formatted_contigs_to_bin = sampleID + '_maxbin2_magscot_contigs_to_bin.tsv'
+		"""
+		touch $maxbin2_contigs_to_bin
+		touch $formatted_contigs_to_bin
+
+		echo "MAXBIN2_stub" > versions.yml
+		"""
 }

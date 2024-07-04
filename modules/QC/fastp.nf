@@ -67,4 +67,31 @@ process FASTP {
 			END_VERSIONS
 			"""
 		}
+	stub:
+		sampleID = meta.id
+		html_report = sampleID + ".fastp.html"
+		json_report = sampleID + ".fastp.json"
+		log_report = sampleID + ".fastp.log"
+		left_trimmed = sampleID + "_1_trimmed.fastq.gz"
+		right_trimmed = sampleID + "_2_trimmed.fastq.gz"
+		unpaired = sampleID + "_unpaired_trimmed.fastq.gz"
+		if (meta.single_end) {
+			"""
+			touch $html_report
+			touch $json_report
+			touch $log_report
+			touch $unpaired
+			echo "fastp_stub" > versions.yml
+			"""
+		}else{
+			"""
+			touch $html_report
+			touch $json_report
+			touch $log_report
+			touch $unpaired
+			touch $left_trimmed
+			touch $right_trimmed
+			echo "fastp_stub" > versions.yml
+			"""
+		}
 }

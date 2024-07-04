@@ -23,6 +23,14 @@ process BINCOVERAGE_PERSAMPLE{
 		R: \$(Rscript --version 2>&1 | awk '{print \$5}')
 		END_VERSIONS
 		"""
+	stub:
+		sampleID = meta.id
+		assembler = meta.assembler
+		output_file = sampleID + '_abundance_table.tbl'
+		"""
+		touch ${output_file}
+		echo "BINCOVERAGE_PERSAMPLE_stub" > versions.yml
+		"""
 }
 
 process MERGE_MAG_ABUNDANCE{
@@ -51,5 +59,13 @@ process MERGE_MAG_ABUNDANCE{
 		"${task.process}":
 		R: \$(Rscript --version 2>&1 | awk '{print \$5}')
 		END_VERSIONS
+		"""
+	stub:
+		output_file = 'merged_MAG_tpm_abundance_' + assembler + '.tbl'
+		output_plot = 'phylum_rel_abudance_plot' + assembler + '.png'
+		"""
+		touch ${output_file}
+		touch ${output_plot}
+		echo "MERGE_MAG_ABUNDANCE_stub" > versions.yml
 		"""
 }

@@ -46,6 +46,23 @@ process FASTQC_raw {
 
 		"""
 	}
+	stub:
+		sampleID = meta.id
+		if (meta.single_end) {
+			"""
+			touch ${sampleID}_1_raw_fastqc.html
+			touch ${sampleID}_1_raw_fastqc.zip
+			echo "fastqc_stub" > versions.yml
+			"""
+		}else{
+			"""
+			touch ${sampleID}_1_raw_fastqc.html
+			touch ${sampleID}_1_raw_fastqc.zip
+			touch ${sampleID}_2_raw_fastqc.html
+			touch ${sampleID}_2_raw_fastqc.zip
+			echo "fastqc_stub" > versions.yml
+			"""
+		}
 }
 
 process FASTQC_clean {
@@ -95,6 +112,26 @@ process FASTQC_clean {
 			FastQC: \$(fastqc --version 2>&1 | sed -e "s/FastQC v//g" )
 			END_VERSIONS
 
+			"""
+		}
+
+	stub:
+		sampleID = meta.id
+		if (meta.single_end) {
+			"""
+			touch ${sampleID}_single_clean_fastqc.html
+			touch ${sampleID}_single_clean_fastqc.zip
+			echo "fastqc_stub" > versions.yml
+			"""
+		}else{
+			"""
+			touch ${sampleID}_1_clean_fastqc.html
+			touch ${sampleID}_1_clean_fastqc.zip
+			touch ${sampleID}_2_clean_fastqc.html
+			touch ${sampleID}_2_clean_fastqc.zip
+			touch ${sampleID}_unpaired_clean_fastqc.html
+			touch ${sampleID}_unpaired_clean_fastqc.zip
+			echo "fastqc_stub" > versions.yml
 			"""
 		}
 }

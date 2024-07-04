@@ -32,10 +32,14 @@ process METASPADES {
 		END_VERSIONS
 
 		"""
-	}
+	stub:
+		coassemblygroup = meta.coassemblygroup
+		output_final_contigs = coassemblygroup + "_spades_final.contigs.fa"
+		"""
+		mkdir output
+		touch output/output.stub
+		touch output/${sampleID}.final.contigs.fa'
 
-/*
-zcat $unpaired > unpaired.fq
-zcat $left > left.fq
-zcat $right > right.fq
-*/
+		echo "METASPADES_stub" > versions.yml
+		"""
+	}

@@ -24,4 +24,10 @@ process getCountTable {
 		END_VERSIONS
 		
 		"""
+	stub:
+		sampleID = meta.id
+		"""
+		touch ${sampleID}.counttable.txt
+		echo "getCountTable_stub" > versions.yml
+		"""
 }

@@ -21,6 +21,12 @@
 			END_VERSIONS
 
 			"""
+	stub:
+		catalogue = vamb_key + "_collected_catalogue.fna.gz"
+		"""
+		touch $catalogue
+		echo "VAMB_CATALOGUE_stub" > versions.yml
+		"""
 	}
 
 	process VAMB_CATALOGUE_INDEX {
@@ -48,6 +54,12 @@
 			minimap2: \$(minimap2 --version)
 			END_VERSIONS
 
+			"""
+		stub:
+			catalogue_index = "catalogue.mmi"
+			"""
+			touch $catalogue_index
+			echo "VAMB_CATALOGUE_INDEX_stub" > versions.yml
 			"""
 	}
 
@@ -111,6 +123,20 @@ process VAMB_MAPPING{
 
 			"""		
 		}
+		stub:
+			sampleID = meta.id
+
+
+			depthout = sampleID + '_depth.txt'
+			mappingbam = sampleID + '_mapping_minimap.bam'
+			mappingbam_index = sampleID + '_mapping_minimap.bam.bai'
+			"""
+			touch $depthout
+			touch $mappingbam
+			touch $mappingbam_index
+			touch error.log
+			echo "VAMB_MAPPING_stub" > versions.yml
+			"""
 }
 
 process VAMB_COLLECT_DEPTHS {
@@ -139,6 +165,12 @@ process VAMB_COLLECT_DEPTHS {
 		R: \$(Rscript --version 2>&1 | awk '{print \$5}')
 		END_VERSIONS
 
+		"""
+	stub:
+		alldepths = vamb_key + '_all_depths.tsv'
+		"""
+		touch $alldepths
+		echo "VAMB_COLLECT_DEPTHS_stub" > versions.yml
 		"""
 }
 
@@ -171,6 +203,12 @@ process VAMB {
 		END_VERSIONS
 
 		"""
+	stub:
+		cluster_table = 'all_vamb_contigs_to_bin.tsv'
+		"""
+		touch $cluster_table
+		echo "VAMB_stub" > versions.yml
+		"""
 }
 
 process VAMB_CONTIGS_SELECTION{
@@ -195,6 +233,16 @@ process VAMB_CONTIGS_SELECTION{
 		grep ${grep_pattern}_ $all_cluster_table > $persample_clustertable
 
 		gawk '{print \$1"\t"\$2"\tvamb"}'  $persample_clustertable > $formatted_contigs_to_bin
+		"""
+	stub:
+		sampleID = meta.id
+		grep_pattern = meta.coassemblygroup.replaceAll('_megahit', '').replaceAll('_metaspades', '')
+		persample_clustertable = sampleID + '_vamb_contigs_to_bin.tsv'
+		formatted_contigs_to_bin = sampleID + '_vamb_magscot_contigs_to_bin.tsv'
+		"""
+		touch $persample_clustertable
+		touch $formatted_contigs_to_bin
+		echo "VAMB_CONTIGS_SELECTION_stub" > versions.yml
 		"""
 }
 

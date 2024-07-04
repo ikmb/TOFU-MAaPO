@@ -39,5 +39,14 @@ process SEMIBIN {
 			END_VERSIONS
 
 			"""
+	stub:
+		sampleID = meta.id
+		semibin_contigs_to_bin = sampleID + '_semibin_contigs_to_bin.tsv'
+		formatted_contigs_to_bin = sampleID + '_semibin_magscot_contigs_to_bin.tsv'
+		"""
+		touch $semibin_contigs_to_bin
+		touch $formatted_contigs_to_bin
+		echo "SEMIBIN_stub" > versions.yml
+		"""
 
 }

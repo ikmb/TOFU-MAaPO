@@ -61,4 +61,15 @@ process CONTIGS_MAPPING{
 			END_VERSIONS
 			"""		
 		}
+	stub:
+		sampleID = meta.id
+		depthout = sampleID + '_depth.txt'
+		mappingbam = sampleID + '_mapping_final.bam'
+		sample_total_reads = sampleID + '_totalreads.txt'
+		"""
+		touch $depthout
+		touch $mappingbam
+		touch $sample_total_reads
+		echo "CONTIGS_MAPPING_stub" > versions.yml
+		"""
 }

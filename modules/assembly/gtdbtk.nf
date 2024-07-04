@@ -27,6 +27,14 @@ process GTDBTK {
 		END_VERSIONS
 		
 		"""
+	stub:
+        sampleID = meta.id
+		"""
+		mkdir all.bins.gtdbtk_output
+		touch all.bins.gtdbtk_output/gtdbtk.bac120.summary.tsv
+
+		echo "gtdbtk_stub" > versions.yml
+		"""
 }
 
     process PREPARE_GTDBTK {
@@ -46,4 +54,8 @@ process GTDBTK {
     wget https://data.gtdb.ecogenomic.org/releases/release220/220.0/auxillary_files/gtdbtk_package/full_package/gtdbtk_r220_data.tar.gz
 	tar -xvzf gtdbtk_r220_data.tar.gz
 	"""
+	stub:
+		"""
+		touch stub.file
+		"""
 }

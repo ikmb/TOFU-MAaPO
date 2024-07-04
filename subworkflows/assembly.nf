@@ -69,7 +69,7 @@ workflow assembly{
 		
 		if ( 'spades' in assembler ){
 			//only works in single assembly mode
-			METASPADES(data)
+			METASPADES( data.unique() )
 			ch_versions = ch_versions.mix(METASPADES.out.versions.first() )
 			filtercontigs_in = filtercontigs_in.mix(METASPADES.out.contigs.map{it -> 
 																				def meta = [:]
@@ -80,10 +80,17 @@ workflow assembly{
 		}
 
 		if ( 'megahit' in assembler ){
-			megahit_coas_input = data.map { it ->
-			metas = it[0]
-			return[metas.coassemblygroup, it[1]]}.groupTuple(by:0).map{ it -> return[it[0], it[1].flatten()]}.unique()
-
+			//Skip the groupTuple operator if no co-assembly is performed
+			//otherwise the pipeline would be waiting for all samples to finish qc before starting the assembly
+			if(params.assemblymode == "single"){
+				megahit_coas_input = data.map { it ->
+					metas = it[0]
+					return[metas.coassemblygroup, it[1].flatten()]}.unique()//.map{ it -> return[it[0], it[1].flatten()]}//.filter { it % 2 == 1 }
+			}else{
+				megahit_coas_input = data.map { it ->
+					metas = it[0]
+					return[metas.coassemblygroup, it[1]]}.unique().groupTuple(by:0).map{ it -> return[it[0], it[1].flatten()]}.unique()
+			}
 			MEGAHIT_assembly(megahit_coas_input)
 			ch_versions = ch_versions.mix(MEGAHIT_assembly.out.versions.first() )
 			filtercontigs_in = filtercontigs_in.mix(MEGAHIT_assembly.out.contigs.map{it ->
@@ -96,28 +103,58 @@ workflow assembly{
 
 		FILTERCONTIGS(filtercontigs_in)
 		ch_versions = ch_versions.mix(FILTERCONTIGS.out.versions.first() )
+
+		ch_data_mapped = data.map { it ->
+				metas = it[0]
+				return[metas.coassemblygroup, metas, it[1]]
+				}
+
 		ch_filteredcontigs = FILTERCONTIGS.out.contigs.map{it -> 
 						meta = it[0]
 						return[meta.coassemblygroup, meta, it[1]]
-						}.combine(data.map { it ->
+						}.combine(ch_data_mapped, by:0 )
+						.map { it -> 
+							contig = it[2]
+							meta_assembler = it[1]
+							meta_data = it[3]
+							reads = it[4]
+							def meta = [:]
+							meta.coassemblygroup = meta_assembler.coassemblygroup + '_' + meta_assembler.assembler
+							meta.coassemblygroup_orig = meta_assembler.coassemblygroup
+							meta.assembler = meta_assembler.assembler
+							meta.id = meta_data.id
+							meta.single_end = meta_data.single_end
+							//return[it[2], it[1], it[3]]
+							return[meta, contig, reads]
+							}
+/*
+		ch_data_mapped = data.map { it ->
 				metas = it[0]
 				return[metas.coassemblygroup, metas, it[1]]
-				}, by:0 )
-				.map { it -> 
-					contig = it[2]
-					meta_assembler = it[1]
-					meta_data = it[3]
-					reads = it[4]
-					def meta = [:]
-					meta.coassemblygroup = meta_assembler.coassemblygroup + '_' + meta_assembler.assembler
-					meta.coassemblygroup_orig = meta_assembler.coassemblygroup
-					meta.assembler = meta_assembler.assembler
-					meta.id = meta_data.id
-					meta.single_end = meta_data.single_end
-					//return[it[2], it[1], it[3]]
-					return[meta, contig, reads]
-					}
+				}
 
+		FILTERCONTIGS.out.contigs.map{it -> 
+						meta = it[0]
+						return[meta.coassemblygroup, meta, it[1]]
+						}
+						.combine(ch_data_mapped, by:0 )
+						.map { it -> 
+							contig = it[2]
+							meta_assembler = it[1]
+							meta_data = it[3]
+							reads = it[4]
+							def meta = [:]
+							meta.coassemblygroup = meta_assembler.coassemblygroup + '_' + meta_assembler.assembler
+							meta.coassemblygroup_orig = meta_assembler.coassemblygroup
+							meta.assembler = meta_assembler.assembler
+							meta.id = meta_data.id
+							meta.single_end = meta_data.single_end
+							//return[it[2], it[1], it[3]]
+							return[meta, contig, reads]
+							}.collectFile(storeDir: "${params.outdir}", name:'filtered_contigs_ch.csv') { item ->
+								item[0].id + ',' + item[0].single_end + ',' +  item[0].coassemblygroup + ',' +  item[0].assembler + ',' + item[1] + ',' + item[2] + '\n'
+							}
+*/
 		/*
 		 * Basic Genome Assembly:
 		 */
@@ -339,12 +376,6 @@ workflow assembly{
 
 		}
 
-
-/*
-		if(params.drep){
-			DREP( ch_bins.map{it -> return[it[1]]}.collect() )
-		}
-*/
 	emit:
 		versions = ch_versions
 }

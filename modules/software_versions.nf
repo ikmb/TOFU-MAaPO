@@ -13,4 +13,8 @@ process SOFTWARE_VERSIONS {
 		"""
 		cat collated_versions.yml | sed -e 's/^[ \t]*//' | sed -n '/END_VERSIONS/!p' > TOFU-MAaPO_software_versions.txt
 		"""
+	stub:
+		"""
+		cat collated_versions.yml | sed -e 's/^[ \t]*//' | sed -n '/END_VERSIONS/!p' > TOFU-MAaPO_software_versions.txt
+		"""
 }

@@ -50,6 +50,21 @@ process CLEANREADS {
 			
 			"""
 		}
+		stub:
+			sampleID = meta.id
+			if (meta.single_end) {
+			"""
+			touch ${sampleID}_single_cleanwithhost.fastq.gz
+			echo "cleanreads_stub" > versions.yml
+			"""
+			} else {
+							"""
+			touch ${sampleID}_R1_cleanwithhost.fastq.gz
+			touch ${sampleID}_R2_cleanwithhost.fastq.gz
+			touch ${sampleID}_single_cleanwithhost.fastq.gz
+			echo "cleanreads_stub" > versions.yml
+			"""
+			}
 }
 
 process TRIMREADS {
@@ -126,6 +141,24 @@ process TRIMREADS {
 			"${task.process}":
 			BBMap: \$(bbduk.sh --version 2>&1 | awk 'FNR==2{print \$0}' | sed -e "s/BBMap //g" | sed -e "s/version //g" )
 			END_VERSIONS
+			"""
+		}
+	stub:
+		sampleID = meta.id
+		left_trimmed = sampleID + "_1_trimmed.fastq.gz"
+		right_trimmed = sampleID + "_2_trimmed.fastq.gz"
+		unpaired = sampleID + "_unpaired_trimmed.fastq.gz"
+		if (meta.single_end) {
+			"""
+			touch ${sampleID}_single_trimmed.fastq.gz
+			echo "cleanreads_stub" > versions.yml
+			"""
+		} else {
+							"""
+			touch ${sampleID}_1_trimmed.fastq.gz
+			touch ${sampleID}_2_trimmed.fastq.gz
+			touch ${sampleID}_unpaired_trimmed.fastq.gz
+			echo "trimreads_stub" > versions.yml
 			"""
 		}
 }

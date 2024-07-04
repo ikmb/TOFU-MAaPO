@@ -46,4 +46,16 @@ process CONCOCT {
 		concoct: \$(concoct -v |  awk '{print \$2}')
 		END_VERSIONS
         """
+    stub:
+        sampleID = meta.id
+        bed_file = sampleID + '.bed'
+        concoct_contigs_to_bin = sampleID + '_concoct_contigs_to_bin.tsv'
+        formatted_contigs_to_bin = sampleID + '_concoct_magscot_contigs_to_bin.tsv'
+
+		"""
+		touch $concoct_contigs_to_bin
+        touch $formatted_contigs_to_bin
+
+		echo "CONCOCT_stub" > versions.yml
+		"""
 }

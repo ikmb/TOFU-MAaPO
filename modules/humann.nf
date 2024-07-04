@@ -1,6 +1,5 @@
 	process PREPARE_HUMANN {
 
-	executor 'local'
 	label 'local_run'
 	output: 
 		val 'true', emit: readystate

@@ -77,4 +77,13 @@ process MEGAHIT_assembly {
 		END_VERSIONS
 
 		"""	
+	stub:
+		output_final_contigs = coassemblygroup + "_final.contigs.fa"
+		"""
+		mkdir output
+		touch output/stub.file
+		touch $output_final_contigs
+
+		echo "megahit_stub" > versions.yml
+		"""
 }

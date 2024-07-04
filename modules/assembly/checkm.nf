@@ -23,4 +23,14 @@ process checkm {
 		checkm: \$(checkm -h | awk 'NR==2{print \$3}' | sed -e 's/v//g')
 		END_VERSIONS
 		"""
+	stub:
+		sampleID = meta.id
+		outputtable = sampleID + '_' + meta.assembler +"_checkm_table.tsv"
+
+		"""
+		touch $outputtable
+		mkdir bins
+		touch bins/stub.fa
+		echo "checkm_stub" > versions.yml
+		"""
 }

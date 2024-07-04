@@ -15,6 +15,14 @@ process FORMATTING_CONTIG_TO_BIN {
 		"""
 		cat ${contigs_bin_tables.join(" ")} > $merged_contigs_to_bin
 		"""
+	stub:
+        sampleID = meta.id
+		merged_contigs_to_bin = sampleID + '_magscot_contigs_to_bin_merged.tsv'
+		"""
+		touch $merged_contigs_to_bin
+
+		echo "FORMATTING_CONTIG_TO_BIN_stub" > versions.yml
+		"""
 }
 
 process MARKER_IDENT {
@@ -78,6 +86,15 @@ process MARKER_IDENT {
 		END_VERSIONS
 
 		"""
+	stub:
+		sampleID = meta.id
+		assembler = meta.assembler
+		samplehmm = sampleID + '.hmm'
+		"""
+		touch $samplehmm
+
+		echo "MARKER_IDENT_stub" > versions.yml
+		"""
 }
 
 process MAGSCOT {
@@ -138,6 +155,19 @@ process MAGSCOT {
 
 		exit \$exit_code
 	"""
+	stub:
+		sampleID = meta.id
+		outputname = meta.id + '_' + meta.assembler
+		refined_contigs_to_bins = outputname + '.refined.contig_to_bin.out'
+		stats_outfile = outputname + '.refined.out'
+		full_stats = outputname + '.scores.out'
+		"""
+		touch $refined_contigs_to_bins
+		touch $stats_outfile
+		touch $full_stats
+
+		echo "MAGSCOT_stub" > versions.yml
+		"""
 }
 
 process EXTRACT_REFINED_BINS {
@@ -165,4 +195,12 @@ process EXTRACT_REFINED_BINS {
 		END_VERSIONS
 		
 	"""
+	stub:
+		sampleID = meta.id
+		"""
+		mkdir refined_bins
+		touch refined_bins/${sampleID}_stub.fa
+
+		echo "EXTRACT_REFINED_BINS_stub" > versions.yml
+		"""
 }
