@@ -96,12 +96,25 @@ nextflow run ikmb/TOFU-MAaPO \
 ```
 
 
-### Okay, we have now run TOFU-MAaPO once for quality control, but I want to use some analysis tools of TOFU-MAaPO on my samples or want to run it on a large machine
+### Okay, now we have run TOFU-MAaPO once for quality control, but I want to use some analysis tools of TOFU-MAaPO on my samples or want to run it on a large machine
 
 Up to this point, we have used a profile/configuration of TOFU-MAaPO with the name "quickstart". This is only designed for TOFU-MAaPO to be run locally in the "home" directory, to use a maximum of 4 cores per process and to use only up to 32GB of memory.  
 To use all the features of TOFU-MAaPO, it is necessary to edit a configuration file so that Nextflow knows, for example, whether we want to use a scheduler such as SLURM on an HPC or where the reference databases are or should be located. It is also possible to make far more memory and CPU cores available to the pipeline.
 Please edit the configurations to your system needs as explained in the [installation and configuration documentation](docs/installation.md).<br />
 
+On a computer system with more than 100GB of RAM and a configured custom.config file you can for example execute the example above with additional MAG assembly. Beware this might take some hours:
+#### With locally available input:
+```
+nextflow run ikmb/TOFU-MAaPO \
+    -profile custom \
+    --reads '*_R{1,2}.fastq.gz' \
+    --assembly \
+    --updategtdbtk \
+    --gtdbtk_reference '/path/to/download/gtdbtk_db/to' \
+    --outdir results
+```
+
+#### Or with SRA input:
 ```
 nextflow run ikmb/TOFU-MAaPO \
     -profile custom \
@@ -109,17 +122,6 @@ nextflow run ikmb/TOFU-MAaPO \
     --assembly \
     --updategtdbtk \
     --apikey **YOUR_NCBI_API_KEY***
-    --gtdbtk_reference '/path/to/download/gtdbtk_db/to' \
-    --outdir results
-```
-
-
-```
-nextflow run ikmb/TOFU-MAaPO \
-    -profile custom \
-    --reads '/path/to/fastqfiles/*_R{1,2}_001.fastq.gz' \
-    --assembly \
-    --updategtdbtk \
     --gtdbtk_reference '/path/to/download/gtdbtk_db/to' \
     --outdir results
 ```
