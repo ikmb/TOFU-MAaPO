@@ -31,9 +31,7 @@ TOFU-MAaPO processes the data for quality control and possible host decontaminat
 Genome assembly is done by generating contigs from the qc'ed reads with Megahit (single samples, grouped or all samples combined). The contigs are then catalogued and indexed using minimap2 and then binned with the option to use up to five binning tools (Metabat2, Concoct, Maxbin, Semibin2 and vamb). The resulting bins will then be refined and, where possible, combined with MAGScoT based on sets of single-copy microbial marker genes from the Genome Taxonomy Database. The profiles of present marker genes in each result from the different binning algorithms are compared, and new hybrid candidate bins are created if the bin sets share a user-adjustable proportion of marker genes. The results are also taxonomically annotated with GTDB-TK and quality checked with checkm. An estimated bin coverage per sample is generated as additional output. 
 
 # Quick start
-
-Install and make sure, Singularity (now Apptainer) and Nextflow are working. For example via [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html):
-```bash
+Please install [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html). With it, you can easily install Singularity and Nextflow. After installation, make sure that the environment is activated and test that Singularity (now Apptainer) and Nextflow are working:
 # Create a new conda environment for Singularity and Nextflow
 conda create --name nf_env -c conda-forge -c bioconda singularity nextflow
 # Activate environment
