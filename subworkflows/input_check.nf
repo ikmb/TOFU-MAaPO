@@ -192,7 +192,7 @@ workflow input_sra {
 								//order shall be: meta, forward, reversed, unpaired
 								return [meta, [fastq[1], fastq[2], fastq[0]] ]
 							}else{
-								println "Invalid file paths in triplet ${row[1]}, they do not end with .fastq.gz"
+								println "For ID ${meta.id}: Invalid file paths in triplet ${row[1]}, they do not end with .fastq.gz"
 							}
 						}else if( row[1].size() == 2){
 							fastq = row[1]
@@ -200,14 +200,14 @@ workflow input_sra {
 								//order shall be: meta, forward, reversed
 								return [meta, [fastq[0], fastq[1]] ]
 							}else{
-								println "Invalid file paths in pair ${row[1]}, they do not end with .fastq.gz"
+								println "For ID ${meta.id}: Invalid file paths in pair ${row[1]}, they do not end with .fastq.gz"
 							}
 						}else{
 							if (hasExtension(row[1], ".fastq.gz")){
 								//order shall be: meta, unpaired
 								return [meta,  row[1] ]
 							}else{
-								println "Invalid file paths in single-end ${row[1]}, it does not end with .fastq.gz"
+								println "For ID ${meta.id}: Invalid file paths in single-end ${row[1]}, it does not end with .fastq.gz"
 							}
 						}
 				}
