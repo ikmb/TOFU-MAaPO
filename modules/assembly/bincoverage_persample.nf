@@ -15,8 +15,7 @@ process BINCOVERAGE_PERSAMPLE{
 		assembler = meta.assembler
 		output_file = sampleID + '_abundance_table.tbl'
 		"""
-		Rscript ${baseDir}/bin/coverage_table.R $depthout 150 $refined_contigs_to_bins $taxonomic_table $sampleID $output_file
-		#echo "suppressMessages(library(tidyverse));suppressMessages(library(data.table));sessionInfo()" | R --slave > R_version.txt
+		Rscript ${baseDir}/bin/coverage_table.R $depthout ${params.input_read_length} $refined_contigs_to_bins $taxonomic_table $sampleID $output_file
 
 		cat <<-END_VERSIONS > versions.yml
 		"${task.process}":
