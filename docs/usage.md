@@ -10,6 +10,7 @@ Reference databases for Metaphlan4, Kraken2 and HUMAnN3 (Set also a Metaphlan4 D
 Metaphlan DB: `--metaphlan_db`<br />
 HUMAnN DB:    `--humann_db`<br />
 Kraken DB:    `--kraken2_db`<br />
+Salmon DB:    `--salmon_db`<br />
 Sylph DB:     `--sylph_db`<br />
 
 Pipeline is module based and will run in the most basic run only the QC module.
