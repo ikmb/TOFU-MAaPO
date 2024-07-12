@@ -71,7 +71,7 @@ With the parameter `--cleanreads` the qc'ed fastq files will be published into t
 
 TOFU-MAaPO can download metagenomes from NCBI SRA by SRA IDs. These can be Project, Sample or Run IDs. For this you need to get an account at NCBI and create your personal NCBI API key from NCBI. You can get your NCBI API key by going to NCBI -> Account -> [Account Settings](https://ncbi.nlm.nih.gov/account/settings/) -> API Key Management.
 
-Create a directory to work in if you haven't done it before:
+Create a directory to work in if you haven't done so earlier:
 ```
 mkdir -p ${HOME}/tofu-quickstart && cd ${HOME}/tofu-quickstart
 ```
@@ -93,7 +93,7 @@ Up to this point, we have used a profile/configuration of TOFU-MAaPO with the na
 To use all the features of TOFU-MAaPO, it is necessary to edit a configuration file so that Nextflow knows, for example, whether we want to use a scheduler such as SLURM on an HPC or where the reference databases are or should be located. It is also possible to make far more memory and CPU cores available to the pipeline.
 Please edit the configurations to your system needs as explained in the [installation and configuration documentation](docs/installation.md).<br />
 
-On a computer system with more than 100GB of RAM and a configured custom.config file you can for example execute the example above with additional MAG assembly. Beware this might take some hours:
+On a computer system with more than 100GB of RAM and a configured custom.config file you can for example execute the examples from above but with additional MAG assembly. Beware, this might take some hours:
 #### With locally available input:
 ```
 nextflow run ikmb/TOFU-MAaPO \
