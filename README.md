@@ -34,6 +34,8 @@ conda create --name nf_env -c conda-forge -c bioconda singularity nextflow
 conda activate nf_env
 # Check whether Singularity has been successfully installed
 singularity --version
+# Also make sure you can run an example container
+singularity run library://sylabsed/examples/lolcow
 # Try a simple Nextflow demo
 nextflow run hello
 ```
