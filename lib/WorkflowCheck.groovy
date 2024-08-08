@@ -29,14 +29,14 @@ class WorkflowCheck {
 
         if(params.updatemetaphlan){
             if(!params.metaphlan_db ){
-                    log.info "The location for the metaphlan database is not set! Set a path for the location with '${params.metaphlan_db}', exiting now."
+                    log.info "The location for the metaphlan database is not set! Set a path for the location with '--metaphlan_db', exiting now."
                     System.exit(1)
                 }
         }
 
         if(params.updatehumann){
             if(!params.humann_db ){
-                    log.info "The location for the humann database is not set! Set a path for the location with '${params.humann_db}', exiting now."
+                    log.info "The location for the humann database is not set! Set a path for the location with '--humann_db', exiting now."
                     System.exit(1)
                 }
         }
