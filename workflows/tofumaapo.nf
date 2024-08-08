@@ -83,7 +83,7 @@ workflow tofumaapo {
 		}
 		
 	//genome assembly:
-		if( params.assembly || params.coassembly ){
+		if( params.assembly || params.coassembly || params.updategtdbtk ){
 			assembly(QCout)
 
 			ch_versions = ch_versions.mix( assembly.out.versions )

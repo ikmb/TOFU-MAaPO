@@ -42,7 +42,7 @@ Container Engine: ${workflow.containerEngine}
 	public static String header(workflow) {
 		def headr = ''
 		def info_line = "IKMB | TOFU-MAaPO | Version ${workflow.manifest.version}"
-		headr = """
+		headr = """                                                             
 ===============================================================================
 ${info_line}
 ==============================================================================="""
@@ -110,6 +110,7 @@ ${info_line}
 		--updategtdbtk          Download the GTDB-Tk reference data to the directory set in parameter gtdbtk_reference.
 
 	QC:
+		--min_read_length       Minimum read length. Default: 50.
 		--genome		        Remove host contaminations. Use a pre-configured genome sequence by its common name (on medcluster: human, mouse or chimp)
 		--cleanreads            Publish QCed fastq.gz files. Disabled by default.
 		--no_qc                 Skips QC-Module. Only use if your input reads are the output of --cleanreads. Not recommended.
