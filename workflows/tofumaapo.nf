@@ -77,7 +77,12 @@ workflow tofumaapo {
 
 	//humann:
 		if(params.humann || params.updatehumann){
-			humann(QCout)
+			if(params.updatemetaphlan){
+				mphlan_ready = metaphlan.metaphlan_ready
+			}else{
+				mphlan_ready = Channel.of('true')
+			}
+			humann(QCout, mphlan_ready)
 
 			ch_versions = ch_versions.mix( humann.out.versions )
 		}

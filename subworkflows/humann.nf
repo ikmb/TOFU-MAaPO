@@ -16,20 +16,12 @@ include {
  * Humann3 pipeline logic
  */
 workflow humann{
-	take: data
+	take: 
+		data
+		mphlan_ready
 	main:
 		ch_versions = Channel.empty()
-
-		if(!params.metaphlan){
-			if(params.updatemetaphlan){
-				PREPARE_METAPHLAN()
-				ch_readymetaphlan = PREPARE_METAPHLAN.out.readystate
-			}else{
-				ch_readymetaphlan = Channel.of('true')
-			}
-		}else{
-				ch_readymetaphlan = Channel.of('true')
-		}
+		ch_readymetaphlan = mphlan_ready
 
 		if(params.updatehumann){
 			PREPARE_HUMANN()
