@@ -95,7 +95,6 @@ For analysis following modules are available:<br />
 ### Sylph options:
 `--sylph_db` Set the path to a sylph databse.<br />
 `--sylph_merge` All sylph profiling will be done in one process. Produces a single output for all samples combined. <br />
-`--sylph_processing` NOT RECOMMENDED! Shortcut for high-throughput data processing with sylph, skips qc, no other modules available in this mode.  <br />
 
 ### Bracken options and their default:
 `--bracken_length` = 100<br />

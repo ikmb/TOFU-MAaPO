@@ -28,25 +28,30 @@ The pipeline can install needed databases on its own, see for this the usage doc
 
 TOFU-MAaPO processes the data for quality control and possible host decontamination (optional) and performs downstream analysis for taxonomic abundance profiles of each sample using Kraken2, Bracken, Salmon and/or Metaphlan4, metabolic pathway analysis using HUMAnN (v3.6) and assembly of metagenomic genomes (MAGs).<br />
 
-Genome assembly is done by generating contigs from the qc'ed reads with Megahit (single samples, grouped or all samples combined). The contigs are then catalogued and indexed using minimap2 and then binned with the option to use up to five binning tools (Metabat2, Concoct, Maxbin, Semibin2 and vamb). The resulting bins will then be refined and, where possible, combined with MAGScoT based on sets of single-copy microbial marker genes from the Genome Taxonomy Database. The profiles of present marker genes in each result from the different binning algorithms are compared, and new hybrid candidate bins are created if the bin sets share a user-adjustable proportion of marker genes. The results are also taxonomically annotated with GTDB-TK and quality checked with checkm. An estimated bin coverage per sample is generated as additional output. 
+Genome assembly is done by generating contigs from the qc'ed reads with Megahit (single samples, grouped or all samples combined). The contigs are then catalogued and indexed using minimap2 and then binned with the option to use up to five binning tools (Metabat2, Concoct, Maxbin, Semibin2 and vamb). The resulting bins will then be refined and, where possible, combined with MAGScoT based on sets of single-copy microbial marker genes from the Genome Taxonomy Database. The profiles of present marker genes in each result from the different binning algorithms are compared, and new hybrid candidate bins are created if the bin sets share a user-adjustable proportion of marker genes. The results are also taxonomically annotated with GTDB-TK and quality checked with checkm. An estimated bin coverage per sample is generated as additional output. <br />
 
 # Quick start
-
-Install and make sure, Singularity (now Apptainer) and Nextflow are working. For example via [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html):
-```bash
+## Nextflow and Singularity installation
+Please install [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html). With it, you can easily install Singularity and Nextflow. After installation, make sure that the environment is activated and test that Singularity (now Apptainer) and Nextflow are working:<br />
+```
 # Create a new conda environment for Singularity and Nextflow
 conda create --name nf_env -c conda-forge -c bioconda singularity nextflow
 # Activate environment
 conda activate nf_env
+# Check whether Singularity has been successfully installed
+singularity --version
 # Try a simple Nextflow demo
 nextflow run hello
-# Check Singularity
-singularity --version
 ```
 
-The inputs to TOFU-MAaPO are fastq.gz files or SRA IDs (sample or project).
+## Configuration
+Please edit the configurations to your system needs as explained in the [installation and configuration documentation](docs/installation.md).<br />
 
-Running a workflow for human gut metagenomes with qc and assembly for local files would be called like this:
+## Running TOFU-MAaPO:
+The input to TOFU-MAaPO can be either locally stored fastq.gz files or SRA IDs (sample or project).<br />
+
+### Locally stored input:
+Running a workflow for gut metagenomes with QC (without host read removal) and MAG assembly with paired-end local files would be called like this:<br />
 ```
 nextflow run ikmb/TOFU-MAaPO \
     -profile custom \
@@ -56,7 +61,23 @@ nextflow run ikmb/TOFU-MAaPO \
     --gtdbtk_reference '/path/to/download/gtdbtk_db/to' \
     --outdir results
 ```
-For detailed installation guide see the [installation and configuration documentation](docs/installation.md).
+
+For further usage options please see the [usage documentation](docs/usage.md).<br />
+
+### SRA input:
+A workflow with QC (without host read removal) and MAG assembly for human gut metagenomes with SRA Run IDs as input would look like this:
+```
+nextflow run ikmb/TOFU-MAaPO \
+    -profile custom \
+    ---sra 'SRX3105436' \
+    --assembly \
+    --updategtdbtk \
+    --apikey **YOUR_NCBI_API_KEY***
+    --gtdbtk_reference '/path/to/download/gtdbtk_db/to' \
+    --outdir results
+```
+
+You can get your NCBI API Key for your NCBI Account by going to NCBI -> Account -> [Account Settings](https://ncbi.nlm.nih.gov/account/settings/) -> API Key Management.<br />
 
 # Funding
 

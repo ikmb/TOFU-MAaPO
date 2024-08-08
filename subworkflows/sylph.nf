@@ -4,8 +4,7 @@ workflow sylph{
 	take: data
 	main:
 		ch_versions = Channel.empty()
-		sylph_database = Channel.fromPath( params.sylph_db )
-
+		
         SYLPH_SKETCH(data)
 		ch_versions = ch_versions.mix( SYLPH_SKETCH.out.version.first() )
 
