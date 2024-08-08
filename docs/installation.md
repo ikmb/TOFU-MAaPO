@@ -105,6 +105,6 @@ On Kiel Medcluster, please load the following modules with:
 ```bash
 module load singularity nextflow
 ```
-
+When starting TOFU-MAaPO, make sure the medcluster profile is selected, by using: `-profile medcluster`
 No further action is required! <br />
-Databases for all tools (with the exception of Salmon) and human, mouse and chimp as host genomes are already set.
+Databases for all tools (with the exception of Salmon) and the host genomes human, mouse and chimp are already set up.
