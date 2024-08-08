@@ -78,7 +78,7 @@ workflow tofumaapo {
 	//humann:
 		if(params.humann || params.updatehumann){
 			if(params.updatemetaphlan){
-				mphlan_ready = metaphlan.metaphlan_ready
+				mphlan_ready = metaphlan.out.metaphlan_ready
 			}else{
 				mphlan_ready = Channel.of('true')
 			}
