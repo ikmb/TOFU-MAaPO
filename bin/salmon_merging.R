@@ -25,7 +25,7 @@ for(i in 1:length(quantfiles)){
   # sub(pattern = "(.*)\\..*$", replacement = "\\1", basename(quantfiles[i]))
   
   if(i == 1){
-    left <- fread(paste0("salmon/",quantfiles[i]))
+    left <- fread(paste0(quantfiles[i]))
     
     left <- left %>% mutate(Coverage=NumReads*300/EffectiveLength)  %>% 
       mutate(EffectiveLengthCov=ifelse(Coverage>0.1, 1 , 0)*EffectiveLength) %>% 
@@ -34,7 +34,7 @@ for(i in 1:length(quantfiles)){
     left <- left %>% rename(!!paste0("TPM_",sample_name) := TPM) 
   }
   if(i >= 2){
-    otherfile <- fread(paste0("salmon/",quantfiles[i]))
+    otherfile <- fread(paste0(quantfiles[i]))
     
     otherfile <- otherfile %>% mutate(Coverage=NumReads*300/EffectiveLength)  %>% 
       mutate(EffectiveLengthCov=ifelse(Coverage>0.1, 1,0)*EffectiveLength) %>% 

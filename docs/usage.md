@@ -2,7 +2,7 @@
 
 This pipeline requires Nextflow 21.04.0 or higher. Other dependencies are containerized with Singularity and Docker.<br />
 
-As default, this pipeline works with the profile for Kiel medcluster. Should you choose to run it locally on your own computer, please set **-profile local**. 
+As default, this pipeline uses the profile for Kiel medcluster. Should you choose to run it locally on your own computer, please set **-profile local**. 
 Important: Change parameters in conf/local.config to your local hardware specifications prior running the pipeline.
 
 
@@ -23,7 +23,7 @@ nextflow run ikmb/TOFU-MAaPO --reads '/path/to/fastqfiles/*_R{1,2}_001.fastq.gz'
 Either use:<br />
 `--reads` With a glob to your fastq.gz files or to a csv-file containing the columns id, read1,read2 that lists all samples that you want to process. For single-end mode, use only columns "id" and "read1".<br />
 or:<br />
-`--sra` NCBI SRA Accession ID. Pipeline will download automatically all fastq files for your query. It is mandatory to provide your personal API key for your NCBI account with `--apikey`. Also lists are possible: "--sra ['ERR908507', 'ERR908506', 'ERR908505']". WARNING: The used Nextflow API call to NCBI is not bug free. Expect more samples to be processed than are in the input list. Also some samples might be missing. <br />
+`--sra` NCBI SRA Accession ID. Pipeline will download automatically all fastq files for your query. It is mandatory to provide your personal API key for your NCBI account with `--apikey`. Also lists are possible: "--sra ['ERR908507', 'ERR908506', 'ERR908505']". WARNING: The used Nextflow API call to NCBI is not free of bugs. Expect more samples to be processed than are in the input list. Also some samples might be missing. <br />
 
 ## Available modules:
 For analysis following modules are available:<br />
@@ -43,7 +43,7 @@ For analysis following modules are available:<br />
 
 
 ## QC options:
-`--genome` Set host genome. On the IKMB Medcluster valid options are human, mouse or chimp. In other cases this needs to be pre-configured.<br />
+`--genome` Set host genome. On the IKMB Medcluster valid options are human, mouse or chimp. In other cases this needs to be pre-configured. [How to add a host genome to the pipeline?](hostgenome.md) <br />
 `--cleanreads`  Publish QC'ed fastq.gz files. Disabled by default.<br /> 
 `--no_qc` Skips QC-Module. Only use if your input reads are the output of `--cleanreads`<br /> 
 `--fastp` QC is performed with fastp <br /> 

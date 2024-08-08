@@ -12,10 +12,10 @@ workflow sylph{
 		if(params.sylph_merge){
 			SYLPH_PROFILING(SYLPH_SKETCH.out.sylph_sketches.map{ it ->
 																def metas = "all"
-																return [metas, it[1]]}.groupTuple() )        
+																return [metas, it[1]]}.groupTuple().combine(sylph_database) )
 			ch_versions = ch_versions.mix( SYLPH_PROFILING.out.version )
 		}else{
-			SYLPH_PROFILING(SYLPH_SKETCH.out.sylph_sketches )        
+			SYLPH_PROFILING(SYLPH_SKETCH.out.sylph_sketches.combine(sylph_database) )      
 			ch_versions = ch_versions.mix( SYLPH_PROFILING.out.version.first() )
 		}
 	emit:
