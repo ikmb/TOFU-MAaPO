@@ -41,6 +41,12 @@ class WorkflowCheck {
                 }
         }
 
+        if(params.genome){
+            if(!FileCheck.checkoutmultFiles("${params.genomes[params.genome].bowtie_index}") ){
+                log.info "The selected host genome '${params.genome}' with the prefix '${params.genomes[params.genome].bowtie_index}' cannot be found. Is the path and basename correct?"
+                System.exit(1)
+            }
+        }
     }
 
 }
@@ -49,7 +55,10 @@ import java.net.URL
 import java.net.HttpURLConnection
 import java.nio.file.Files
 import java.nio.file.Paths
-
+import java.nio.file.Path
+import java.nio.file.Files
+import java.nio.file.DirectoryStream
+import java.io.IOException
 class FileCheck {
     /*
         Static method to validate if the input string is a locally available, valid file.
@@ -136,5 +145,34 @@ class FileCheck {
      */
     private static boolean isFile(String input) {
         return Files.exists(Paths.get(input))
+    }
+
+    /*
+        Check if a given path plus basename corresponds to one or more existing files,
+        of which at least one is a file larger than 0KB.
+    
+        param filePath The input string representing the path plus basename.
+        return true if the condition is met, otherwise false.
+     */
+    static boolean checkoutmultFiles(String filePath) {
+        def files = []
+        Path pathObj = Paths.get(filePath)
+        Path directory = pathObj.getParent() ?: Paths.get(".")  // Use current directory if no parent
+        String basename = pathObj.getFileName().toString()
+        if (!basename.contains("*")) {
+            basename = basename + "*"
+        }
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(directory, basename)) {
+            for (Path file : stream) {
+                files << file
+            }
+        } catch (IOException e) {
+            e.printStackTrace()
+            return false
+        }
+
+        return files.any { file ->
+            Files.exists(file) && Files.isRegularFile(file) && Files.size(file) > 0
+        }
     }
 }
