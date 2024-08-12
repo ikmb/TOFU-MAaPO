@@ -26,18 +26,37 @@ Genome assembly is done by generating contigs from the qc'ed reads with Megahit 
 This pipeline uses tools that require more computing capacity and memory than a workstation normally has. The tools Semibin for example can use up to 200GB of RAM, while GTDB-TK also uses 100GB of RAM to name two examples. Here, we show you how to run TOFU-MAaPO on a laptop with at least 4 cores and 32GB of memory, but we would not recommend this. A computer system for TOFU-MAaPO has at least 32 cores and a minimum of 128 GB of RAM. We recommend using it on an HPC for larger amounts of data. <br />
 
 ## Nextflow and Singularity installation
-Please install [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html). With it, you can easily install Singularity and Nextflow. After installation, make sure that the environment is activated and test that Singularity (now Apptainer) and Nextflow are working:<br />
+For Nextflow please install a suited Java version for Nextflow, we recommend to use SDKMAN for easy Java installation:
 ```
-# Create a new conda environment for Singularity and Nextflow
-conda create --name nf_env -c conda-forge -c bioconda singularity nextflow
+# Install Java Temurin with SDKMAN (other Java versions might cause bugs)
+curl -s https://get.sdkman.io | bash
+sdk install java 17.0.10-tem
+#confirm that java is used in version 17.0.10-tem
+java -version
+#In case another java version is shown: Create and activate a sdk environment in the directory you want to execute the Nextflow pipeline
+sdk env init
+sdk env
+```
+Nextflow can be installed and tested with:
+```
+# Install Nextflow
+curl -s https://get.nextflow.io | bash
+# Make Nextflow executable:
+chmod +x nextflow
+# Try a simple Nextflow demo
+nextflow run hello
+```
+Singularity (now Apptainer) can be install either by following the [Singularity Quickstart Guide](https://docs.sylabs.io/guides/3.9/user-guide/quick_start.html) or by installing it via
+[Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html). With Conda, you can install Singularity without sudo rights. After installation, make sure that the environment is activated and test that Singularity is working:<br />
+```
+# Create a new conda environment for Singularity
+conda create --name sing_env -c conda-forge -c bioconda singularity=3.8 
 # Activate environment
-conda activate nf_env
+conda activate sing_env
 # Check whether Singularity has been successfully installed
 singularity --version
 # Also make sure you can run an example container
 singularity run library://sylabsed/examples/lolcow
-# Try a simple Nextflow demo
-nextflow run hello
 ```
 
 ## Download or update TOFU-MAaPO

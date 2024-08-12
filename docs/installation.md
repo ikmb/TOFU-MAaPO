@@ -2,7 +2,7 @@
 
 This pipeline is containerized with Singularity. 
 
-Before you can run TOFU-MAaPO you need to install [Singularity](https://docs.sylabs.io/guides/3.9/user-guide/quick_start.html) and [Nextflow](https://www.nextflow.io/docs/latest/install.html). You can do so for example with Conda [see the Quick start for this](../README.md#quick-start) or you install them manually by following the links.<br />
+Before you can run TOFU-MAaPO you need to install [Singularity](https://docs.sylabs.io/guides/3.9/user-guide/quick_start.html) and [Nextflow](https://www.nextflow.io/docs/latest/install.html). We show how to install the dependencies in the [the Quick start section](../README.md#quick-start) or you install them manually by following the links.<br />
 
 You will need to prepare databases for respective modules (Metaphlan4, HUMAnN3 or Kraken2) and a config file for your compute system.<br />
 
