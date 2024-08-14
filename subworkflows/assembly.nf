@@ -63,7 +63,11 @@ workflow assembly{
 		*/
 		megahit_coas_input = data.map { it ->
 			metas = it[0]
-			return[metas.coassemblygroup, it[1]]}.groupTuple(by:0).map{ it -> return[it[0], it[1].flatten()]}.unique()
+			return[metas.coassemblygroup, it[1]]}
+			.flatMap { id, reads -> 
+				reads.collect { read -> [id, read] }
+			}
+			.groupTuple()
 
 		MEGAHIT_assembly(megahit_coas_input)
 		ch_versions = ch_versions.mix(MEGAHIT_assembly.out.versions.first() )
