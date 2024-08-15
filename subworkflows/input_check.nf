@@ -211,12 +211,36 @@ workflow input_sra {
 							}
 						}
 				}
-				.set { output }
+				.set { rawoutput }
 		}
-		output.collectFile(storeDir: "${params.outdir}", name: "parsed_sample_list.csv" ) { item ->
+		ch_collectedinput = rawoutput.collectFile(storeDir: "${params.outdir}", name: "parsed_sample_list.csv" ) { item ->
 						item[0].id + ',' + item[0].single_end + ',' +  item[0].coassemblygroup + ',' + item[1] + '\n'
 						}
 		if(!params.step1){
+
+			ch_collectedinput
+			.splitCsv ( header:false, sep:',' )
+			.map {row -> 
+					def read1 = row[3] ? row[3].replaceAll(/\[/, "").replaceAll(/\]/, "").replaceAll(/ /, "") : null
+					if (!read1) exit 1, "Invalid input samplesheet in at least four columns! Is your tsv file tab separated?"
+					def read2 = row[4] ? row[4].replaceAll(/\]/, "").replaceAll(/ /, "") : null
+					def read3 = row[5] ? row[5].replaceAll(/\]/, "").replaceAll(/ /, "") : null
+					if (!hasExtension(read1, ".fastq.gz") ) exit 1, "Invalid read names! Reads need to end with .fastq.gz"
+					def meta = [:]
+					meta.id = row[0]
+					def singleEnd = row[1]
+					meta.single_end = singleEnd.toBoolean()
+					meta.coassemblygroup = row[2]
+
+					if(row[5]){
+						return [meta,  [read1, read2, read3] ]
+					}else if(row[4]){
+						return [meta,  [read1, read2] ]
+					}else{
+						return [meta,  read1 ]
+					}
+				}.set { output }
+
 			download_sra(output)
 			reads = download_sra.out.reads
 		}else{
