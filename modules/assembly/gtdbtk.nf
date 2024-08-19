@@ -16,7 +16,12 @@ process GTDBTK {
 	shell:
 		sampleID = meta.id
 		"""
-		export GTDBTK_DATA_PATH="${params.gtdbtk_reference}"
+		REFERENCE_PATH="${params.gtdbtk_reference}"
+		#Check if path already contains a release suffix, if not, add it:
+		if [[ ! "\$REFERENCE_PATH" =~ /release2.*\$ ]]; then
+		REFERENCE_PATH="\${REFERENCE_PATH%/}/release207_v2"
+		fi
+		export GTDBTK_DATA_PATH=\$REFERENCE_PATH
 		gtdbtk classify_wf --cpus ${task.cpus} --genome_dir . --extension fa --out_dir all.bins.gtdbtk_output --pplacer_cpus 1 --skip_ani_screen #/refined_bins
 
 		awk -F "\t" '{ sub(/.*;s__/, "s__", \$2); print \$1 "\t" \$2 }' all.bins.gtdbtk_output/gtdbtk.bac120.summary.tsv > all.bins.gtdbtk_output/parsed_bac120_summary.tsv
