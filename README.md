@@ -26,12 +26,12 @@ Genome assembly is done by generating contigs from the qc'ed reads with Megahit 
 This pipeline uses tools that require more computing capacity and memory than a workstation normally has. The tools Semibin for example can use up to 200GB of RAM, while GTDB-TK also uses 100GB of RAM to name two examples. Here, we show you how to run TOFU-MAaPO on a laptop with at least 4 cores and 32GB of memory, but we would not recommend this. A computer system for TOFU-MAaPO has at least 32 cores and a minimum of 128 GB of RAM. We recommend using it on an HPC for larger amounts of data. <br />
 
 ## Nextflow and Singularity installation
-For Nextflow please install a suited Java version for Nextflow, we recommend to use SDKMAN for easy Java installation:
+First, install a suited Java version for Nextflow, we recommend to use SDKMAN for easy Java installation:
 ```
 # Install Java Temurin with SDKMAN (other Java versions might cause bugs)
 curl -s https://get.sdkman.io | bash
 sdk install java 17.0.10-tem
-#confirm that java is used in version 17.0.10-tem
+# Confirm that java is available in version 17.0.10-tem
 java -version
 #In case another java version is shown: Create and activate a sdk environment in the directory you want to execute the Nextflow pipeline
 sdk env init
@@ -39,7 +39,7 @@ sdk env
 ```
 Nextflow can be installed and tested with:
 ```
-# Install Nextflow
+# Install Nextflow in your current directory:
 curl -s https://get.nextflow.io | bash
 # Make Nextflow executable:
 chmod +x nextflow
