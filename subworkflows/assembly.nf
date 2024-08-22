@@ -61,13 +61,21 @@ workflow assembly{
 		/*
 		* Contigs
 		*/
-		megahit_coas_input = data.map { it ->
-			metas = it[0]
-			return[metas.coassemblygroup, it[1]]}
-			.flatMap { id, reads -> 
-				reads.collect { read -> [id, read] }
-			}
-			.groupTuple()
+		if(params.assemblymode == "single"){
+			megahit_coas_input = data.unique()
+				.map { it ->
+					metas = it[0]
+					return[metas.coassemblygroup, it[1].flatten()]}
+		}else{
+			megahit_coas_input = data.unique()
+				.map { it ->
+					metas = it[0]
+					return[metas.coassemblygroup, it[1]]}
+				.flatMap { id, reads -> 
+					reads.collect { read -> [id, read] }
+				}
+				.groupTuple()
+		}
 
 		MEGAHIT_assembly(megahit_coas_input)
 		ch_versions = ch_versions.mix(MEGAHIT_assembly.out.versions.first() )
