@@ -3,8 +3,9 @@
 //
 
 include {
-	download_sra
-} from '../modules/download_sra.nf'
+	download_sra;
+	download_files
+} from '../modules/download.nf'
 
 include { COLLECTOR } from '../modules/QC/collect.nf'
 
@@ -15,26 +16,53 @@ workflow input_check {
 				.from(file(params.reads))
 				.splitCsv ( header:true, sep:',' )
 				.map { row ->
+						
 						def id = row.id ? row.id : false
 						if(!id){ exit 1, "Empty id in csv-input found" }
 						def meta = [:]  
 						meta.id = id
+						meta.performdownload = false
 
 						def read1 = row.read1 ? row.read1 : false
 						def read2 = row.read2 ? row.read2 : false
-						def readsize = [ read1, read2 ].count{ it }
-
-						if (!FileCheck.checkoutfile("$read1")) { exit 1, "Within the input csv the file $read1 in column read1 does not exist for $id"}
-						if (readsize == 2){ if (!FileCheck.checkoutfile("$read2")) { exit 1, "Within the input csv the file $read2 in column read2 does not exist for $id"} }
+						def read3 = row.read3 ? row.read2 : false
+						def readsize = [ read1, read2, read3 ].count{ it }
 
 						meta.single_end = readsize == 1 ? true : false
 
-						if (!read1) exit 1, "Invalid input samplesheet in at least column read1! Is your csv file comma separated?"
-						if (!hasExtension(read1, ".fastq.gz") ) exit 1, "Invalid file $read1 ! Reads need to end with .fastq.gz"
-						if ( !meta.single_end ){
-							if (!read2) exit 1, "Invalid input samplesheet in at least column read2"
-							if (!hasExtension(row.read2, ".fastq.gz") ) exit 1, "Invalid file $read2 ! Reads need to end with .fastq.gz"
+						if(!hasinternetprefix(read1) ){
+							// FILE IS LOCALLY AVAILABLE
+							if (!FileCheck.checkoutfile("$read1")) { exit 1, "Within the input csv the file $read1 in column read1 does not exist for $id"}
+							if (readsize >= 2){ if (!FileCheck.checkoutfile("$read2")) { exit 1, "Within the input csv the file $read2 in column read2 does not exist for $id"} }
+							if (readsize == 3){ if (!FileCheck.checkoutfile("$read3")) { exit 1, "Within the input csv the file $read3 in column read3 does not exist for $id"} }
+							if (!read1) exit 1, "Invalid input samplesheet in at least column read1! Is your csv file comma separated?"
+							if (!hasExtension(read1, ".fastq.gz") ) exit 1, "Invalid file $read1 ! Reads need to end with .fastq.gz"
+
+							if ( readsize >= 2 ){
+								if (!read2) exit 1, "Invalid input samplesheet in at least column read2"
+								if (!FileCheck.checkoutfile("$read2")) { exit 1, "Within the input csv the file $read2 in column read2 does not exist for $id"}
+								if (!hasExtension(row.read2, ".fastq.gz") ) exit 1, "Invalid file $read2 ! Reads need to end with .fastq.gz"
+							}
+							if (readsize == 3 ){
+								if (!read3) exit 1, "Invalid input samplesheet in at least column read3"
+								if (!FileCheck.checkoutfile("$read3")) { exit 1, "Within the input csv the file $read3 in column read3 does not exist for $id"}
+								if (!hasExtension(row.read3, ".fastq.gz") ) exit 1, "Invalid file $read3 ! Reads need to end with .fastq.gz"
+							}
+						}else{
+							// FILE IS ONLINE AVAILABLE
+							meta.performdownload = true
+							//TODO: Ceck if file is valid and available
+							if (!hasExtension(read1, ".fastq.gz") ) exit 1, "Invalid file $read1 ! Reads need to end with .fastq.gz"
+							if ( readsize >= 2 ){
+								if (!read2) exit 1, "Invalid input samplesheet in at least column read2"
+								if (!hasExtension(row.read2, ".fastq.gz") ) exit 1, "Invalid file $read2 ! Reads need to end with .fastq.gz"
+							}
+							if (readsize == 3 ){
+								if (!read3) exit 1, "Invalid input samplesheet in at least column read3"
+								if (!hasExtension(row.read3, ".fastq.gz") ) exit 1, "Invalid file $read3 ! Reads need to end with .fastq.gz"
+							}
 						}
+
 						if(params.assemblymode == "group"){
 							def coassemblygroup = row.group //.ifEmpty(exit 1, "Invalid input samplesheet: No group column for coassembly was found")
 							if ( coassemblygroup == "null" || coassemblygroup == "") exit 1, "Invalid input samplesheet: No group column for coassembly was found or contains empty fields"
@@ -47,12 +75,20 @@ workflow input_check {
 							exit 1, "Only allowed modes for coassembly are all, group or single"
 						}
 						
-						if (meta.single_end)
-							return [meta, [ read1 ] ] 
-						else  
-							return [meta, [ read1, read2 ] ]
-				}
-				.set { reads }
+						if (meta.single_end){
+								return [meta, [ read1 ] ] 
+						}else{
+								return [meta, [ read1, read2 ] ] 
+						}
+				}.branch { it ->
+						download: it[0].performdownload == true
+						local: it[0].performdownload == false
+					}.set { rawoutput }
+				//.set { reads }
+				download_files(rawoutput.download)
+				ch_mix = Channel.empty().mix(rawoutput.local).mix(download_files.out.reads)
+				COLLECTOR( ch_mix )
+				reads = COLLECTOR.out
 		} else {
 			Channel
 				.fromFilePairs(params.reads, size: params.single_end ? 1 : 2)
@@ -283,6 +319,11 @@ workflow input_sra_list {
 
 def hasExtension(it, extension) {
 	it.toString().toLowerCase().endsWith(extension.toLowerCase())
+}
+
+def hasinternetprefix(it) {
+	inp = it.toString().toLowerCase()
+	inp.startsWith("ftp") || inp.startsWith("http") || inp.startsWith("https") || inp.startsWith("sftp")
 }
 
 class FileCheck {
