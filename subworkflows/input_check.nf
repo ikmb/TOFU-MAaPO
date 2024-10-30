@@ -21,7 +21,7 @@ workflow input_check {
 						if(!id){ exit 1, "Empty id in csv-input found" }
 						def meta = [:]  
 						meta.id = id
-						meta.performdownload = false
+						performdownload = false
 
 						def read1 = row.read1 ? row.read1 : false
 						def read2 = row.read2 ? row.read2 : false
@@ -50,7 +50,7 @@ workflow input_check {
 							}
 						}else{
 							// FILE IS ONLINE AVAILABLE
-							meta.performdownload = true
+							performdownload = true
 							//TODO: Ceck if file is valid and available
 							if (!hasExtension(read1, ".fastq.gz") ) exit 1, "Invalid file $read1 ! Reads need to end with .fastq.gz"
 							if ( readsize >= 2 ){
@@ -75,20 +75,21 @@ workflow input_check {
 							exit 1, "Only allowed modes for coassembly are all, group or single"
 						}
 						
-						if (meta.single_end){
-								return [meta, [ read1 ] ] 
-						}else{
-								return [meta, [ read1, read2 ] ] 
+						if (readsize == 1){
+								return [meta, performdownload, [ read1 ] ] 
+						}else if (readsize == 2){
+								return [meta, performdownload, [ read1, read2 ] ] 
+						}else if (readsize == 3){
+								return [meta, performdownload, [ read1, read2, read3 ] ] 
 						}
 				}.branch { it ->
-						download: it[0].performdownload == true
-						local: it[0].performdownload == false
+						download: it[1] == true
+						local: it[1] == false
 					}.set { rawoutput }
-				//.set { reads }
-				download_files(rawoutput.download)
-				ch_mix = Channel.empty().mix(rawoutput.local).mix(download_files.out.reads)
-				COLLECTOR( ch_mix )
-				reads = COLLECTOR.out
+
+				download_files(rawoutput.download.map{it -> return [it[0], it[2]]})
+				ch_mix = Channel.empty().mix(rawoutput.local.map{it -> return [it[0], it[2]]}).mix(download_files.out.reads)
+				reads = ch_mix
 		} else {
 			Channel
 				.fromFilePairs(params.reads, size: params.single_end ? 1 : 2)
