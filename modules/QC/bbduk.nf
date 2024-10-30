@@ -83,6 +83,7 @@ process TRIMREADS {
 					out2=${right_trimmed} \
 					outs=$unpaired \
 					ref=${params.adapters} \
+					qtrim=rl trimq=10 maq=10 \
 					ktrim=r \
 					k=23 \
 					mink=11 \
@@ -112,6 +113,7 @@ process TRIMREADS {
 					out2=${right_trimmed} \
 					outs=$unpaired \
 					ref=${params.adapters} \
+					qtrim=rl trimq=10 maq=10 \
 					ktrim=r \
 					k=23 \
 					mink=11 \
