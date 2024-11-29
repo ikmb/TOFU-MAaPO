@@ -46,7 +46,7 @@ process CLEANREADS {
 		END_VERSIONS
 		"""
 }
-
+//TODO: handle possible unpaired read file in input stream
 process TRIMREADS {
 	tag "$sampleID"
 	label 'bbmap'
