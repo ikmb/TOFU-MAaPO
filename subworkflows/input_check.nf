@@ -36,30 +36,30 @@ workflow input_check {
 							if (readsize >= 2){ if (!FileCheck.checkoutfile("$read2")) { exit 1, "Within the input csv the file $read2 in column read2 does not exist for $id"} }
 							if (readsize == 3){ if (!FileCheck.checkoutfile("$read3")) { exit 1, "Within the input csv the file $read3 in column read3 does not exist for $id"} }
 							if (!read1) exit 1, "Invalid input samplesheet in at least column read1! Is your csv file comma separated?"
-							if (!hasExtension(read1, ".fastq.gz") ) exit 1, "Invalid file $read1 ! Reads need to end with .fastq.gz"
+							if (!(hasExtension(read1, ".fastq.gz") || hasExtension(read1, ".fq.gz")) ) exit 1, "Invalid file $read1 ! Reads need to end with .fastq.gz"
 
 							if ( readsize >= 2 ){
 								if (!read2) exit 1, "Invalid input samplesheet in at least column read2"
 								if (!FileCheck.checkoutfile("$read2")) { exit 1, "Within the input csv the file $read2 in column read2 does not exist for $id"}
-								if (!hasExtension(row.read2, ".fastq.gz") ) exit 1, "Invalid file $read2 ! Reads need to end with .fastq.gz"
+								if (!(hasExtension(row.read2, ".fastq.gz") || hasExtension(row.read2, ".fq.gz")) ) exit 1, "Invalid file $read2 ! Reads need to end with .fastq.gz"
 							}
 							if (readsize == 3 ){
 								if (!read3) exit 1, "Invalid input samplesheet in at least column read3"
 								if (!FileCheck.checkoutfile("$read3")) { exit 1, "Within the input csv the file $read3 in column read3 does not exist for $id"}
-								if (!hasExtension(row.read3, ".fastq.gz") ) exit 1, "Invalid file $read3 ! Reads need to end with .fastq.gz"
+								if (!(hasExtension(row.read3, ".fastq.gz") || hasExtension(row.read3, ".fq.gz")) ) exit 1, "Invalid file $read3 ! Reads need to end with .fastq.gz"
 							}
 						}else{
 							// FILE IS ONLINE AVAILABLE
 							performdownload = true
 							//TODO: Ceck if file is valid and available
-							if (!hasExtension(read1, ".fastq.gz") ) exit 1, "Invalid file $read1 ! Reads need to end with .fastq.gz"
+							if (!(hasExtension(read1, ".fastq.gz") || hasExtension(read1, ".fq.gz")) ) exit 1, "Invalid file $read1 ! Reads need to end with .fastq.gz"
 							if ( readsize >= 2 ){
 								if (!read2) exit 1, "Invalid input samplesheet in at least column read2"
-								if (!hasExtension(row.read2, ".fastq.gz") ) exit 1, "Invalid file $read2 ! Reads need to end with .fastq.gz"
+								if (!(hasExtension(row.read2, ".fastq.gz") || hasExtension(row.read2, ".fq.gz")) ) exit 1, "Invalid file $read2 ! Reads need to end with .fastq.gz"
 							}
 							if (readsize == 3 ){
 								if (!read3) exit 1, "Invalid input samplesheet in at least column read3"
-								if (!hasExtension(row.read3, ".fastq.gz") ) exit 1, "Invalid file $read3 ! Reads need to end with .fastq.gz"
+								if (!(hasExtension(row.read3, ".fastq.gz") || hasExtension(row.read3, ".fq.gz")) ) exit 1, "Invalid file $read3 ! Reads need to end with .fastq.gz"
 							}
 						}
 
@@ -141,12 +141,12 @@ workflow input_check_qced {
 						meta.single_end = readsize == 1 ? true : false
 
 						if (!read1) exit 1, "Invalid input samplesheet in at least column read1! Is your csv file comma separated?"
-						if (!hasExtension(read1, ".fastq.gz") ) exit 1, "Invalid file $read1 ! Reads need to end with .fastq.gz"
+						if (!(hasExtension(read1, ".fastq.gz") || hasExtension(read1, ".fq.gz")) ) exit 1, "Invalid file $read1 ! Reads need to end with .fastq.gz"
 						if ( !meta.single_end ){
 							if (!read2) exit 1, "Invalid input samplesheet in at least column read2"
-							if (!hasExtension(read2, ".fastq.gz") ) exit 1, "Invalid file $read2 ! Reads need to end with .fastq.gz"
+							if (!(hasExtension(read2, ".fastq.gz") || hasExtension(read2, ".fq.gz")) ) exit 1, "Invalid file $read2 ! Reads need to end with .fastq.gz"
 							if ( read3 ){ 
-								if (!hasExtension(read3, ".fastq.gz") ) exit 1, "Invalid file $read3 ! Reads need to end with .fastq.gz"
+								if (!(hasExtension(read3, ".fastq.gz") || hasExtension(read3, ".fq.gz")) ) exit 1, "Invalid file $read3 ! Reads need to end with .fastq.gz"
 							}
 						}
 
@@ -324,7 +324,7 @@ def hasExtension(it, extension) {
 
 def hasinternetprefix(it) {
 	inp = it.toString().toLowerCase()
-	inp.startsWith("ftp") || inp.startsWith("http") || inp.startsWith("https") || inp.startsWith("sftp")
+	inp.startsWith("ftp") || inp.startsWith("http") || inp.startsWith("https") || inp.startsWith("sftp") 
 }
 
 class FileCheck {
