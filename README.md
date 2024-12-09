@@ -5,8 +5,8 @@
 Taxonomic Or FUnctional Metagenomic Assembly and PrOfiling = TOFU-MAaPO 
 
 # Pipeline Structure
-![](./images/metawo_overview.png)
-Overview of TOFU-MAaPO 1.3.1
+![](./images/tofu_overview.png)
+Overview of TOFU-MAaPO 1.5.0
 
 # Overview
 
