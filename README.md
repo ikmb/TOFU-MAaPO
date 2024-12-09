@@ -4,6 +4,26 @@
 
 Taxonomic Or FUnctional Metagenomic Assembly and PrOfiling = TOFU-MAaPO 
 
+# Table of content
+- [TOFU-MAaPO](#tofu-maapo)
+- [Table of content](#table-of-content)
+- [Pipeline Structure](#pipeline-structure)
+- [Overview](#overview)
+- [Quick start](#quick-start)
+  - [Prerequisites:](#prerequisites)
+  - [Nextflow and Singularity installation](#nextflow-and-singularity-installation)
+  - [Download or update TOFU-MAaPO](#download-or-update-tofu-maapo)
+  - [Create your config file:](#create-your-config-file)
+  - [Running TOFU-MAaPO:](#running-tofu-maapo)
+    - [Running quality control:](#running-quality-control)
+      - [Locally stored input:](#locally-stored-input)
+      - [SRA input:](#sra-input)
+    - [Running metabolic gene/pathway estimation with HUMAnN](#running-metabolic-genepathway-estimation-with-humann)
+    - [Running assembly module](#running-assembly-module)
+    - [Running the taxonomic abundance tool MetaPhlan](#running-the-taxonomic-abundance-tool-metaphlan)
+- [Documentation](#documentation)
+- [Funding](#funding)
+
 # Pipeline Structure
 ![](./images/tofu_overview.png)
 Overview of TOFU-MAaPO 1.5.0
@@ -65,12 +85,26 @@ You can download and update the pipeline directly with Nextflow:<br />
 nextflow pull ikmb/TOFU-MAaPO
 ```
 You will find the pipeline code stored in `${HOME}/.nextflow/assets/ikmb/TOFU-MAaPO`.<br />
+## Create your config file:
+We have created a profile/configuration of TOFU-MAaPO with the name "quickstart". This is only designed for TOFU-MAaPO to be run locally in the "home" directory, to use a maximum of 4 cores per process and utilize only up to 32GB of memory. 
+To use all the features of TOFU-MAaPO, it is necessary to edit a configuration file so that Nextflow, for example would use a scheduler such as SLURM on an HPC or knows where the reference databases are or will be downloaded to. 
+It is also required to declare how much memory and how many CPU cores are available to the pipeline.
+Please edit the configurations to your system needs as explained in the [installation and configuration documentation](docs/installation.md).<br />
 
+On a computer system with more than 100GB of RAM and a configured custom.config file you can execute all of the following examples.
 
 ## Running TOFU-MAaPO:
-The input for TOFU-MAaPO can be either locally stored fastq.gz files or SRA IDs (sample or project).<br />
+The input for TOFU-MAaPO can be either locally stored fastq.gz files or SRA IDs (run, sample or project IDs as comma-separated list).<br />
 
-### Locally stored input:
+
+- [Example for metabolic gene/pathway estimation with HUMAnN](#running-metabolic-genepathway-estimation-with-humann)
+- [Example for metagenome assembly](#running-assembly-module-1)
+- [Example for taxonomic abundance estimation tool MetaPhlan](#running-the-taxonomic-abundance-tool-metaphlan)
+
+### Running quality control:
+The pipeline will by default perform quality control with read trimming, Phix and artefact decontamination and assess the quality pre- and post-qc'ed with fastqc and publish a MultiQC report.  For enabling the optional host genome decontamination, please see our documentation to [install a host genome in TOFU-MAaPO](/docs/hostgenome.md).
+
+#### Locally stored input:
 Create a directory to work in and download a publicly available paired-end metagenome  in your home-directory:
 ```
 mkdir -p ${HOME}/tofu-quickstart && cd ${HOME}/tofu-quickstart
@@ -78,7 +112,7 @@ wget https://ibdmdb.org/downloads/raw/HMP2/MGX/2018-05-04/PSM6XBR1.tar
 tar -xvf PSM6XBR1.tar && rm PSM6XBR1.tar
 ```
 
-Now start TOFU-MAaPO to perform QC (without host read removal) on the example metagenome. This should only take some minutes. <br />
+Now start TOFU-MAaPO to perform QC (without host read removal) on the example metagenome with the quickstart profile. This should only take some minutes. <br />
 ```
 nextflow run ikmb/TOFU-MAaPO \
     -profile quickstart \
@@ -88,7 +122,7 @@ nextflow run ikmb/TOFU-MAaPO \
 ```
 With the parameter `--cleanreads` the qc'ed fastq files will be published into the output directory "results".
 
-### SRA input:
+#### SRA input:
 
 TOFU-MAaPO can download metagenomes from NCBI SRA by SRA IDs. These can be Project, Sample or Run IDs. For this you need to get an account at NCBI and create your personal NCBI API key from NCBI. You can get your NCBI API key by going to NCBI -> Account -> [Account Settings](https://ncbi.nlm.nih.gov/account/settings/) -> API Key Management.
 
@@ -97,28 +131,55 @@ Create a directory to work in if you haven't done so earlier:
 mkdir -p ${HOME}/tofu-quickstart && cd ${HOME}/tofu-quickstart
 ```
 
-A workflow with QC (without host read removal) for a single metagenome with known SRA Run ID as input would look like this:
+A workflow with QC (without host read removal) for a single metagenomic sample with known SRA Run ID as input would look like this:
 
 ```
 nextflow run ikmb/TOFU-MAaPO \
     -profile quickstart \
-    ---sra 'SRX3105436' \
+    --sra 'SRX3105436' \
     --apikey **YOUR_NCBI_API_KEY** \
+    --cleanreads \
     --outdir results
 ```
 
+### Running metabolic gene/pathway estimation with HUMAnN
+**We strongly recommend creating [your own configuration file](/docs/hostgenome.md) for all example runs below.**
 
-### Okay, now we have run TOFU-MAaPO once for quality control, but I want to use some analysis tools of TOFU-MAaPO on my samples or want to run it on a large machine
+In your first run with HUMAnN, you are required to add the parameter `--updatehumann` and `--humann_db /path/to/store/humann/db`, so that TOFU-MAaPO will download the required database to the given path. Please keep in mind that this might take some hours to finish.
 
-Up to this point, we have used a profile/configuration of TOFU-MAaPO with the name "quickstart". This is only designed for TOFU-MAaPO to be run locally in the "home" directory, to use a maximum of 4 cores per process and to use only up to 32GB of memory.  
-To use all the features of TOFU-MAaPO, it is necessary to edit a configuration file so that Nextflow knows, for example, whether we want to use a scheduler such as SLURM on an HPC or where the reference databases are or should be located. It is also possible to make far more memory and CPU cores available to the pipeline.
-Please edit the configurations to your system needs as explained in the [installation and configuration documentation](docs/installation.md).<br />
-
-On a computer system with more than 100GB of RAM and a configured custom.config file you can for example execute the examples from above but with additional MAG assembly. Beware, this might take some hours:
-#### With locally available input:
+Run first:
 ```
 nextflow run ikmb/TOFU-MAaPO \
     -profile custom \
+    -c tofu.config \
+    --reads '*_R{1,2}.fastq.gz' \
+    --humann \
+    --updatehumann \
+    --humann_db '/path/to/store/humann/db' \
+    --outdir results
+```
+
+In all future runs, you do not need to download the required database again, so you can skip the parameter `--updatehumann`:
+
+```
+nextflow run ikmb/TOFU-MAaPO \
+    -profile custom \
+    -c tofu.config \
+    --reads '*_R{1,2}.fastq.gz' \
+    --humann \
+    --humann_db '/path/to/store/humann/db' \
+    --outdir results
+```
+
+### Running assembly module
+**We strongly recommend creating [your own configuration file](/docs/hostgenome.md) for all example runs below.**
+
+In your first run with HUMAnN, you are required to add the parameter `--updategtdbtk` and `--gtdbtk_reference /path/to/download/gtdbtk_db/to`, so that TOFU-MAaPO will download the required database to the given path. Please keep in mind that this might take some hours to finish.
+
+```
+nextflow run ikmb/TOFU-MAaPO \
+    -profile custom \
+    -c tofu.config \
     --reads '*_R{1,2}.fastq.gz' \
     --assembly \
     --updategtdbtk \
@@ -126,23 +187,47 @@ nextflow run ikmb/TOFU-MAaPO \
     --outdir results
 ```
 
-#### Or with SRA input:
+In all future runs, you are not required to download the database again, so you can skip the parameter `--updategtdbtk`:
+
 ```
 nextflow run ikmb/TOFU-MAaPO \
     -profile custom \
-    ---sra 'SRX3105436' \
+    -c tofu.config \
+    --reads '*_R{1,2}.fastq.gz' \
     --assembly \
-    --updategtdbtk \
-    --apikey **YOUR_NCBI_API_KEY**
     --gtdbtk_reference '/path/to/download/gtdbtk_db/to' \
     --outdir results
 ```
 
+### Running the taxonomic abundance tool MetaPhlan
+**We strongly recommend creating [your own configuration file](/docs/hostgenome.md) for all example runs below.**
+
+In your first run with MetaPhlan, you are required to add the parameter `--updatemetaphlan` and `--metaphlan_db /path/to/store/humann/db`, so that TOFU-MAaPO will download the required database to the given path. Please keep in mind that this might take some hours to finish.
+
+```
+nextflow run ikmb/TOFU-MAaPO \
+    -profile custom \
+    -c tofu.config \
+    --reads '*_R{1,2}.fastq.gz' \
+    --metaphlan \
+    --updatemetaphlan \
+    --metaphlan_db '/path/to/download/gtdbtk_db/to' \
+    --outdir results
+```
+
+In all future runs, you are not required to download the database again, so you can skip the parameter `--updatemetaphlan`:
+
+```
+nextflow run ikmb/TOFU-MAaPO \
+    -profile custom \
+    -c tofu.config \
+    --reads '*_R{1,2}.fastq.gz' \
+    --metaphlan \
+    --metaphlan_db '/path/to/download/gtdbtk_db/to' \
+    --outdir results
+```
+
 For further usage options please see the [usage documentation](docs/usage.md).<br />
-
-## Configuration
-Please edit the configurations to your system needs as explained in the [installation and configuration documentation](docs/installation.md).<br />
-
 # Documentation 
 
 All further documentation about the pipeline can be found in the `docs/` directory or under the links below:
