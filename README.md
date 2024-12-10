@@ -109,12 +109,11 @@ Single-copy microbial marker genes from the **Genome Taxonomy Database (GTDB)** 
 Hybrid candidate bins are created by comparing marker gene profiles across different binning algorithms (based on user-defined thresholds).
 
 #### Annotation and Quality Check
+Following steps are performed with all refined bins:
 
-Taxonomic annotation with **GTDB-TK**.
-Quality assessment with **Checkm**.
-Coverage Analysis:
-
-Estimated bin coverage is provided as additional output.
+* Taxonomic annotation with **GTDB-TK**.  
+* Quality assessment with **Checkm**.  
+* Coverage Analysis
 
 # Quick start
 ## Prerequisites:
