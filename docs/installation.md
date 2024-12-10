@@ -2,12 +2,27 @@
 
 This pipeline is containerized with Singularity. 
 
-Before you can run TOFU-MAaPO you need to install [Singularity](https://docs.sylabs.io/guides/3.9/user-guide/quick_start.html) and [Nextflow](https://www.nextflow.io/docs/latest/install.html). We show how to install the dependencies in the [the Quick start section](../README.md#quick-start) or you install them manually by following the links.<br />
+Before you can run TOFU-MAaPO, you need to install [Singularity](https://docs.sylabs.io/guides/3.9/user-guide/quick_start.html) and [Nextflow](https://www.nextflow.io/docs/latest/install.html). We show how to install the dependencies in the [the Quick start section](../README.md#installing-dependencies) or you install them manually by following the links.<br />
 
 You will need to prepare databases for respective modules (Metaphlan4, HUMAnN3 or Kraken2) and a config file for your compute system.<br />
+# Configuration
 
-# Configuration:
-Before you run TOFU-MAaPO the first time you need to create a configuration file for your computing system. You can either choose to change the [custom.config file in the repository directory conf](../conf/custom.config). Then you will be able to run the pipeline with your config with the parameter `-profile custom`. A second option is to create a separate file that you can include into your Nextflow call with the addition of `-profile custom -c tofu.config`. <br /><br />
+Before running **TOFU-MAaPO** for the first time, you must set up a configuration file tailored to your computing system. There are two approaches for configuration:
+
+### Option 1: Modify the repository's config file (not recommended)
+- Edit the [`custom.config`](../conf/custom.config) file located in the repository's `conf` directory.
+- Run the pipeline using the custom profile:
+  ```bash
+  -profile custom
+  ```
+>**Caution**: This approach is less flexible and may cause issues when updating the repository, as your changes might be overwritten.
+
+### Option 2: Create a separate configuration file (recommended)
+- Create and maintain a separate configuration file (e.g., `tofu.config`).
+- Include your custom configuration in the pipeline execution by adding:
+  ```bash
+  -profile custom -c /path/to/tofu.config
+  ```
 
 In this example `tofu.config` should contain following (from you customized) lines: <br />
 ```
@@ -58,43 +73,66 @@ executor {
 ```
 
 ### Executors
-Should you want to run the pipeline on a HPC or Cloud service, please see the [Nextflow documentation](https://www.nextflow.io/docs/latest/executor.html) to adapt your custom config file.
 
-### QC
-For host decontamination: Download your needed host genome as Bowtie2 indexes from e.g. [here](https://benlangmead.github.io/aws-indexes/bowtie) and set the the path to the  basename of the index files in your custom config file prior running the pipeline like so:
-```
+If you intend to run the pipeline on an HPC or cloud service, refer to the [Nextflow Executors documentation](https://www.nextflow.io/docs/latest/executor.html) for guidance on adapting your custom configuration file to your environment.
+
+---
+
+### QC: Host Decontamination
+
+To perform host decontamination, you need the appropriate host genome Bowtie2 indexes. Download these indexes, for example, from [Bowtie2 AWS indexes](https://benlangmead.github.io/aws-indexes/bowtie), and specify the path to the basename of the index files in your custom configuration file before running the pipeline. Add the following snippet to your configuration file:
+
+```groovy
 'genomes' {
-	'human' { bowtie_index = "/path/to/your/references/iGenomes/references/Homo_sapiens/NCBI/GRCh38Decoy/Sequence/Bowtie2Index/genome"
-	}
+    'human' {
+        bowtie_index = "/path/to/your/references/iGenomes/references/Homo_sapiens/NCBI/GRCh38Decoy/Sequence/Bowtie2Index/genome"
+    }
 }
 ```
-### Metaphlan & Humann
-The pipeline needs databases for HUMAnN3, Metaphlan4 and Kraken2. For HUMAnN3 and Metaphlan4 the pipeline can download the necessary files with the parameters `--updatemetaphlan` and `--updatehumann` to the paths you supply with `--metaphlan_db` and `--humann_db`. 
-Run the pipeline with the given parameters in your first run. The pipeline will then download and unzip the databases at this path. Make sure your local computer is connected with the internet. After the pipeline sucessfully finished the first run, change your custom config file to set metaphlan_db and humann_db to your now downloaded databases. Note that for running HUMAnN3 besides of the HUMAnN3 database you will also need the Metaphlan4 database (in Version vJan21).
+### MetaPhlAn & HUMAnN
+The pipeline requires databases to run HUMAnN and MetaPhlAn.
 
-Edit and include this snipped in your custom config:
-```
+Use the pipeline's built-in download functionality for HUMAnN and MetaPhlAn databases with the parameters:
+
+`--updatemetaphlan` for MetaPhlAn4.
+`--updatehumann` for HUMAnN3.
+Supply the paths to store the databases to using:
+`--metaphlan_db` for MetaPhlAn4.
+`--humann_db` for HUMAnN3.
+
+Run the pipeline with these parameters **during your initial run**.   
+Ensure your local computer has internet access, as the pipeline will automatically download and extract the databases. 
+> Hint: Once the first run is successful, update your custom configuration file to permanently set the paths for `--metaphlan_db` and `--humann_db`.
+
+>**Note**: Running HUMAnN3 also requires the MetaPhlAn4 database (version vJan21).
+
+Update your configuration file with the following snippet:
+```groovy
 params {
-	metaphlan_db = "/path/to/your/databases/Metaphlan/4.0"
-	humann_db = "/path/to/your/databases/Humann3/3.6"
+    metaphlan_db = "/path/to/your/databases/Metaphlan/4.0"
+    humann_db = "/path/to/your/databases/Humann3/3.6"
 }
 ```
 
 ### Kraken2
-Download and extract a Kraken 2 database for example from [here](https://benlangmead.github.io/aws-indexes/k2) and add them to your custom config file or set a path each run with the parameter `--kraken2_db`. Make sure, this database is also Bracken ready if you want to use Bracken.
+Download and extract a Kraken2 database, such as those available from [Kraken2 AWS indexes](https://benlangmead.github.io/aws-indexes/k2). You can specify the database path either in your custom configuration file or dynamically during each run with the parameter `--kraken2_db`.
 
-Edit and include this snipped in your custom config:
-```
+>**Note**: If you plan to use **Bracken**, ensure the Kraken2 database is Bracken-ready.
+
+Add the following snippet to your custom configuration file:
+```groovy
 params {
-	kraken2_db = "/path/to/your/databases/Kraken2/k2_viral_20210517"
+    kraken2_db = "/path/to/your/databases/Kraken2/krakendb"
 }
 ```
 
-### Genome assembly
-For genome assembly: Please download and extract the GTDB-Tk reference data (currently Release R207_v2) from [here](https://ecogenomics.github.io/GTDBTk/installing/index.html#gtdb-tk-reference-data) and set the path either in your custom config or set it with parameter `--gtdbtk_reference`. The needed data can also be automatically installed with `--updategtdbtk` to the path that is supplied by `--gtdbtk_reference`.
+### Genome Assembly
+For genome assembly, the pipeline requires GTDB-Tk reference data (currently Release R207_v2). 
+Use the pipeline's built-in download functionality to download the GTDBTk database with the parameter 
+`--updategtdbtk` and specify the path where to store the database with `--gtdbtk_reference`.
 
-Edit and include this snipped in your custom config:
-```
+Add the following snippet to your custom configuration file:
+```groovy
 params {
 	gtdbtk_reference = "/path/to/your/databases/GTDB-TK/release207_v2"
 }
