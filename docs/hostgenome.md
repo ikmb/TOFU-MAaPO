@@ -1,9 +1,9 @@
-# Host genome decontamination with TOFU-MAaPO
+#  Host genome decontamination with TOFU-MAaPO - removal of host contamination reads
 
 For host decontamination you need to add the bowtie2 index of your host genome to the pipeline configurations. 
 You have two options:
-### Add one already indexed host genome to the pipeline
-Download your needed host genome as Bowtie2 indexes from e.g. [here](https://benlangmead.github.io/aws-indexes/bowtie) and set the the path to the  basename of the index files in your custom config file (we use the custom.config in this case) prior running the pipeline like so:
+### Add one already indexed host genome to the pipeline (example shown for the human genome)
+Download your needed host genome as Bowtie2 indexes from e.g. [here](https://benlangmead.github.io/aws-indexes/bowtie) and set the the path to the basename of the index files in your custom config file (we use the custom.config in this case) prior running the QC module of TOFU-MAaPO:
 ```
 params {
 	'genomes' {
@@ -12,8 +12,8 @@ params {
 	}
 }
 ```
-You can now use with the custom profile `-profile custom` the parameter `--genome human` to remove human reads from your data.
-### Add a host genome from NCBI to the pipeline
+Now you can now use with the custom profile `-profile custom` the parameter `--genome human` to remove human reads from your data.
+### Add a host genome from NCBI to the pipeline (example shown for wild boar genome)
 To add a host genome to your pipeline configurations, you need the genome in bowtie2-index format. For this, make sure, the genome is available in fasta format. In this example, we first download a genome from NCBI and create the index with tools installed with conda.
 ```bash
 # Create a new conda environment for bowtie2 and the ncbi-genome-download tool
