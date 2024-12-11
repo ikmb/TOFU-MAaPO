@@ -60,7 +60,7 @@ To include a new host genome, download it in FASTA format and create Bowtie2 ind
 	```	
 > **Note**: Optionally, move the `genome.*` files to a dedicated directory for reference genomes.
 
-5. **Configure the Pipeline**
+5. **Configure the Pipeline**  
 	Update your configuration file (e.g., tofu.config) with the following entry for the wild boar genome:
 	```groovy
 	params {
