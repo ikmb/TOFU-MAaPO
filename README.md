@@ -5,7 +5,7 @@ Taxonomic Or FUnctional Metagenomic Assembly and PrOfiling = TOFU-MAaPO 
 TOFU-MAaPO is a Nextflow pipeline designed for the analysis of metagenomic short reads. 
 
 It provides comprehensive functionalities for:
-- **Quality Controll**
+- **Quality control**
 - **Taxonomic profiling** and microbial abundance estimation
 - **Metabolic pathway** analysis
 - **Assembly** of metagenome-assembled genomes (MAGs)  
@@ -65,7 +65,8 @@ TOFU-MAaPO accepts the following types of input:
 * Direct download of sequencing data from SRA using project, sample or run IDs
 
 ## Database management
-The pipeline can download and install the required databases for **GTDBtk**, **MetaPhlAn** and **HUMAnN**. Refer to the [**usage documentation**](docs/usage.md#initialization-options) for more details.  
+The pipeline can download and install the required databases for **GTDBtk**, **MetaPhlAn** and **HUMAnN**. 
+Refer to the [**usage documentation**](docs/usage.md#initialization-options) for more details.  
 
 Following tools need manual creation or download of required databases:
 * [Bowtie2 (for host genome removal)](docs/hostgenome.md)
