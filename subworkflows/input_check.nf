@@ -7,6 +7,10 @@ include {
 	download_files
 } from '../modules/download.nf'
 
+include {
+	query_metadata
+} from '../modules/entrez.nf'
+
 include { COLLECTOR } from '../modules/QC/collect.nf'
 
 workflow input_check {
@@ -279,6 +283,7 @@ workflow input_sra {
 				}.set { output }
 
 			download_sra(output)
+			query_metadata(output)
 			reads = download_sra.out.reads
 		}else{
 			reads = Channel.empty()
@@ -313,6 +318,7 @@ workflow input_sra_list {
 				}.set { output }
 
 		download_sra(output)
+		query_metadata(output)
 		reads = download_sra.out.reads
 	emit:
 		reads
