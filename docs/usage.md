@@ -76,6 +76,7 @@ For analysis following modules are available:<br />
 `-work-dir` Set a custom work directory, default is "work".<br />
 `-r` Use a specific branch or release version of the pipeline.<br />
 `--publish_rawreads` Publish unprocessed/raw files downloaded from SRA in the output directory.<br />
+`--getmetadata` When using SRA input, download fitting runinfo metadata.<br />
 
 # Module specific options
 ## QC options

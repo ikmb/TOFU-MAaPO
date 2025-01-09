@@ -283,7 +283,9 @@ workflow input_sra {
 				}.set { output }
 
 			download_sra(output)
-			query_metadata(output)
+			if(params.getmetadata){
+				query_metadata(output)
+			}
 			reads = download_sra.out.reads
 		}else{
 			reads = Channel.empty()
@@ -318,7 +320,9 @@ workflow input_sra_list {
 				}.set { output }
 
 		download_sra(output)
-		query_metadata(output)
+		if(params.getmetadata){
+			query_metadata(output)
+		}
 		reads = download_sra.out.reads
 	emit:
 		reads
