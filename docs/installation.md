@@ -91,10 +91,11 @@ The pipeline requires databases to run HUMAnN and MetaPhlAn.
 
 Use the pipeline's built-in download functionality for HUMAnN and MetaPhlAn databases with the parameters:
 
-`--updatemetaphlan` for MetaPhlAn4.
-`--updatehumann` for HUMAnN3.
-Supply the paths to store the databases to using:
-`--metaphlan_db` for MetaPhlAn4.
+`--updatemetaphlan` for MetaPhlAn4.  
+`--updatehumann` for HUMAnN3.  
+
+Supply the paths to store the databases to using:  
+`--metaphlan_db` for MetaPhlAn4.  
 `--humann_db` for HUMAnN3.
 
 Run the pipeline with these parameters **during your initial run**.   
