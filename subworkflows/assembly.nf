@@ -93,10 +93,10 @@ workflow assembly{
 		 * Basic Genome Assembly:
 		 */
 		MINIMAP2_CATALOGUE( FILTERCONTIGS.out.contigs )
-		ch_versions = ch_versions.mix(MINIMAP2_CATALOGUE.out.versions )
+		ch_versions = ch_versions.mix(MINIMAP2_CATALOGUE.out.versions.first() )
 
 		MINIMAP2_CATALOGUE_INDEX( MINIMAP2_CATALOGUE.out.catalogue )
-		ch_versions = ch_versions.mix(MINIMAP2_CATALOGUE_INDEX.out.versions )
+		ch_versions = ch_versions.mix(MINIMAP2_CATALOGUE_INDEX.out.versions.first() )
 
 		ch_minimap2_mapping_input = ch_filteredcontigs.map{it -> meta = it[0]
 									return[meta.coassemblygroup, meta, it[1], it[2]]}
