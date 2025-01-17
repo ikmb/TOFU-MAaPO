@@ -1,4 +1,4 @@
-title: "Metagenomic workflows report"
+title: "IKMB TOFU-MAaPO QC report"
 subtitle: "Best-practice metagenome pipeline"
 custom_logo: "ikmblogo.png"
 custom_logo_title: "Insitute of Clinical Molecular Biology, Kiel"
@@ -14,6 +14,8 @@ extra_fn_clean_exts:
   - "_raw"
   - "_L003"
   - "_L004"
+  - "_1"
+  - "_2"
 
 report_comment: >
     This report has been generated automatically by the IKMB TOFU-MAaPO pipeline.

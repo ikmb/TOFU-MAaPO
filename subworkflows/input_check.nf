@@ -3,8 +3,13 @@
 //
 
 include {
-	download_sra
-} from '../modules/download_sra.nf'
+	download_sra;
+	download_files
+} from '../modules/download.nf'
+
+include {
+	query_metadata
+} from '../modules/entrez.nf'
 
 include { COLLECTOR } from '../modules/QC/collect.nf'
 
@@ -15,26 +20,53 @@ workflow input_check {
 				.from(file(params.reads))
 				.splitCsv ( header:true, sep:',' )
 				.map { row ->
+						
 						def id = row.id ? row.id : false
 						if(!id){ exit 1, "Empty id in csv-input found" }
 						def meta = [:]  
 						meta.id = id
+						performdownload = false
 
 						def read1 = row.read1 ? row.read1 : false
 						def read2 = row.read2 ? row.read2 : false
-						def readsize = [ read1, read2 ].count{ it }
-
-						if (!FileCheck.checkoutfile("$read1")) { exit 1, "Within the input csv the file $read1 in column read1 does not exist for $id"}
-						if (readsize == 2){ if (!FileCheck.checkoutfile("$read2")) { exit 1, "Within the input csv the file $read2 in column read2 does not exist for $id"} }
+						def read3 = row.read3 ? row.read2 : false
+						def readsize = [ read1, read2, read3 ].count{ it }
 
 						meta.single_end = readsize == 1 ? true : false
 
-						if (!read1) exit 1, "Invalid input samplesheet in at least column read1! Is your csv file comma separated?"
-						if (!hasExtension(read1, ".fastq.gz") ) exit 1, "Invalid file $read1 ! Reads need to end with .fastq.gz"
-						if ( !meta.single_end ){
-							if (!read2) exit 1, "Invalid input samplesheet in at least column read2"
-							if (!hasExtension(row.read2, ".fastq.gz") ) exit 1, "Invalid file $read2 ! Reads need to end with .fastq.gz"
+						if(!hasinternetprefix(read1) ){
+							// FILE IS LOCALLY AVAILABLE
+							if (!FileCheck.checkoutfile("$read1")) { exit 1, "Within the input csv the file $read1 in column read1 does not exist for $id"}
+							if (readsize >= 2){ if (!FileCheck.checkoutfile("$read2")) { exit 1, "Within the input csv the file $read2 in column read2 does not exist for $id"} }
+							if (readsize == 3){ if (!FileCheck.checkoutfile("$read3")) { exit 1, "Within the input csv the file $read3 in column read3 does not exist for $id"} }
+							if (!read1) exit 1, "Invalid input samplesheet in at least column read1! Is your csv file comma separated?"
+							if (!(hasExtension(read1, ".fastq.gz") || hasExtension(read1, ".fq.gz")) ) exit 1, "Invalid file $read1 ! Reads need to end with .fastq.gz"
+
+							if ( readsize >= 2 ){
+								if (!read2) exit 1, "Invalid input samplesheet in at least column read2"
+								if (!FileCheck.checkoutfile("$read2")) { exit 1, "Within the input csv the file $read2 in column read2 does not exist for $id"}
+								if (!(hasExtension(row.read2, ".fastq.gz") || hasExtension(row.read2, ".fq.gz")) ) exit 1, "Invalid file $read2 ! Reads need to end with .fastq.gz"
+							}
+							if (readsize == 3 ){
+								if (!read3) exit 1, "Invalid input samplesheet in at least column read3"
+								if (!FileCheck.checkoutfile("$read3")) { exit 1, "Within the input csv the file $read3 in column read3 does not exist for $id"}
+								if (!(hasExtension(row.read3, ".fastq.gz") || hasExtension(row.read3, ".fq.gz")) ) exit 1, "Invalid file $read3 ! Reads need to end with .fastq.gz"
+							}
+						}else{
+							// FILE IS ONLINE AVAILABLE
+							performdownload = true
+							//TODO: Ceck if file is valid and available
+							if (!(hasExtension(read1, ".fastq.gz") || hasExtension(read1, ".fq.gz")) ) exit 1, "Invalid file $read1 ! Reads need to end with .fastq.gz"
+							if ( readsize >= 2 ){
+								if (!read2) exit 1, "Invalid input samplesheet in at least column read2"
+								if (!(hasExtension(row.read2, ".fastq.gz") || hasExtension(row.read2, ".fq.gz")) ) exit 1, "Invalid file $read2 ! Reads need to end with .fastq.gz"
+							}
+							if (readsize == 3 ){
+								if (!read3) exit 1, "Invalid input samplesheet in at least column read3"
+								if (!(hasExtension(row.read3, ".fastq.gz") || hasExtension(row.read3, ".fq.gz")) ) exit 1, "Invalid file $read3 ! Reads need to end with .fastq.gz"
+							}
 						}
+
 						if(params.assemblymode == "group"){
 							def coassemblygroup = row.group //.ifEmpty(exit 1, "Invalid input samplesheet: No group column for coassembly was found")
 							if ( coassemblygroup == "null" || coassemblygroup == "") exit 1, "Invalid input samplesheet: No group column for coassembly was found or contains empty fields"
@@ -47,12 +79,21 @@ workflow input_check {
 							exit 1, "Only allowed modes for coassembly are all, group or single"
 						}
 						
-						if (meta.single_end)
-							return [meta, [ read1 ] ] 
-						else  
-							return [meta, [ read1, read2 ] ]
-				}
-				.set { reads }
+						if (readsize == 1){
+								return [meta, performdownload, [ read1 ] ] 
+						}else if (readsize == 2){
+								return [meta, performdownload, [ read1, read2 ] ] 
+						}else if (readsize == 3){
+								return [meta, performdownload, [ read1, read2, read3 ] ] 
+						}
+				}.branch { it ->
+						download: it[1] == true
+						local: it[1] == false
+					}.set { rawoutput }
+
+				download_files(rawoutput.download.map{it -> return [it[0], it[2]]})
+				ch_mix = Channel.empty().mix(rawoutput.local.map{it -> return [it[0], it[2]]}).mix(download_files.out.reads)
+				reads = ch_mix
 		} else {
 			Channel
 				.fromFilePairs(params.reads, size: params.single_end ? 1 : 2)
@@ -104,12 +145,12 @@ workflow input_check_qced {
 						meta.single_end = readsize == 1 ? true : false
 
 						if (!read1) exit 1, "Invalid input samplesheet in at least column read1! Is your csv file comma separated?"
-						if (!hasExtension(read1, ".fastq.gz") ) exit 1, "Invalid file $read1 ! Reads need to end with .fastq.gz"
+						if (!(hasExtension(read1, ".fastq.gz") || hasExtension(read1, ".fq.gz")) ) exit 1, "Invalid file $read1 ! Reads need to end with .fastq.gz"
 						if ( !meta.single_end ){
 							if (!read2) exit 1, "Invalid input samplesheet in at least column read2"
-							if (!hasExtension(read2, ".fastq.gz") ) exit 1, "Invalid file $read2 ! Reads need to end with .fastq.gz"
+							if (!(hasExtension(read2, ".fastq.gz") || hasExtension(read2, ".fq.gz")) ) exit 1, "Invalid file $read2 ! Reads need to end with .fastq.gz"
 							if ( read3 ){ 
-								if (!hasExtension(read3, ".fastq.gz") ) exit 1, "Invalid file $read3 ! Reads need to end with .fastq.gz"
+								if (!(hasExtension(read3, ".fastq.gz") || hasExtension(read3, ".fq.gz")) ) exit 1, "Invalid file $read3 ! Reads need to end with .fastq.gz"
 							}
 						}
 
@@ -242,6 +283,9 @@ workflow input_sra {
 				}.set { output }
 
 			download_sra(output)
+			if(params.getmetadata){
+				query_metadata(output)
+			}
 			reads = download_sra.out.reads
 		}else{
 			reads = Channel.empty()
@@ -276,6 +320,9 @@ workflow input_sra_list {
 				}.set { output }
 
 		download_sra(output)
+		if(params.getmetadata){
+			query_metadata(output)
+		}
 		reads = download_sra.out.reads
 	emit:
 		reads
@@ -283,6 +330,11 @@ workflow input_sra_list {
 
 def hasExtension(it, extension) {
 	it.toString().toLowerCase().endsWith(extension.toLowerCase())
+}
+
+def hasinternetprefix(it) {
+	inp = it.toString().toLowerCase()
+	inp.startsWith("ftp") || inp.startsWith("http") || inp.startsWith("https") || inp.startsWith("sftp") 
 }
 
 class FileCheck {

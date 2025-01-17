@@ -11,8 +11,8 @@ dependencies:
   - python=3.10
   - scikit-learn=1.1.0
   - metabat2
-  - metaphlan
-  - humann
+  - metaphlan=4.1
+  - humann=3.6
   - concoct=1.1.0
   - bowtie2
   - fastqc

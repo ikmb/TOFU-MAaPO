@@ -147,6 +147,8 @@ process MEGAHIT_assembly {
 				-t ${task.cpus}	
 		fi
 
+		[ -s output/final.contigs.fa ] || { echo "ERROR - final.contigs.fa is empty. Exiting."; exit 1; }
+
 		awk '{gsub (/^>k/, "$replacer");print}' output/final.contigs.fa | awk '{OFS=""} {gsub(/_k[0-9]+_/, "_${params.contig_sep}_");print}' > $output_final_contigs
 
 		cat <<-END_VERSIONS > versions.yml
