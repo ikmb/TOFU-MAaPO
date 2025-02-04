@@ -29,7 +29,7 @@ workflow input_check {
 
 						def read1 = row.read1 ? row.read1 : false
 						def read2 = row.read2 ? row.read2 : false
-						def read3 = row.read3 ? row.read2 : false
+						def read3 = row.read3 ? row.read3 : false
 						def readsize = [ read1, read2, read3 ].count{ it }
 
 						meta.single_end = readsize == 1 ? true : false
