@@ -180,6 +180,10 @@ nextflow pull ikmb/tofu-maapo
 ```
 You will find the pipeline code stored in `${HOME}/.nextflow/assets/ikmb/tofu-maapo`.<br />
 ## Configuration
+After downloading TOFU-MAaPO a basic quickstart profile is created in the Nextflow pipeline code folder which allows you 
+running quality control analysis with local FASTQ files, see the following quickstart example below. 
+All further analyses of the quickstart example require the creation of a separated custom configuration file.
+
 ### Quickstart profile
 TOFU-MAaPO includes a pre-configured quickstart profile for local testing:
 
