@@ -25,7 +25,7 @@ By default, only the **Quality Control** runs unless additional modules are spec
 
 Example command:
 ```bash
-nextflow run ikmb/TOFU-MAaPO --reads '/path/to/fastqfiles/*_R{1,2}_001.fastq.gz' -profile custom -c tofu.config
+nextflow run ikmb/tofu-maapo --reads '/path/to/fastqfiles/*_R{1,2}_001.fastq.gz' -profile custom -c tofu.config
 ```
 ## Input Options
 Choose one of the following options:
