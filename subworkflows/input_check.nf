@@ -29,7 +29,7 @@ workflow input_check {
 
 						def read1 = row.read1 ? row.read1 : false
 						def read2 = row.read2 ? row.read2 : false
-						def read3 = row.read3 ? row.read2 : false
+						def read3 = row.read3 ? row.read3 : false
 						def readsize = [ read1, read2, read3 ].count{ it }
 
 						meta.single_end = readsize == 1 ? true : false
@@ -252,8 +252,16 @@ workflow input_sra {
 							}
 						}
 				}
-				.set { rawoutput }
+				.set { raw_rawoutput }
 		}
+		if(!params.exact_matches){
+            rawoutput = raw_rawoutput
+        }else{
+            rawoutput = raw_rawoutput.filter { meta, files ->
+                def sampleid = meta.id
+                sampleid in ids
+            }
+        }
 		ch_collectedinput = rawoutput.collectFile(storeDir: "${params.outdir}", name: "parsed_sample_list.csv" ) { item ->
 						item[0].id + ',' + item[0].single_end + ',' +  item[0].coassemblygroup + ',' + item[1] + '\n'
 						}

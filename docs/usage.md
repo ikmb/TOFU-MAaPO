@@ -25,7 +25,7 @@ By default, only the **Quality Control** runs unless additional modules are spec
 
 Example command:
 ```bash
-nextflow run ikmb/TOFU-MAaPO --reads '/path/to/fastqfiles/*_R{1,2}_001.fastq.gz' -profile custom -c tofu.config
+nextflow run ikmb/tofu-maapo --reads '/path/to/fastqfiles/*_R{1,2}_001.fastq.gz' -profile custom -c tofu.config
 ```
 ## Input Options
 Choose one of the following options:
@@ -50,7 +50,7 @@ For mulitple IDs, use:
 ```bash
 --sra ['ERR908507', 'ERR908506', 'ERR908505'] --apikey **YOUR_NCBI_API_KEY**
 ```
-> **Note**: The Nextflow API call to NCBI may result in extra or missing samples. Ensure to verify downloaded data.
+> **Note**: The Nextflow API call to NCBI may result in extra or missing samples. Ensure to verify downloaded data. Use `--exact_matches` to allow only exact ID matches (only for run IDs).<br />
 
 # Available modules
 

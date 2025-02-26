@@ -176,10 +176,14 @@ singularity run library://sylabsed/examples/lolcow
 ## Downloading TOFU-MAaPO
 Use the following command to download or update the pipeline:<br />
 ```bash
-nextflow pull ikmb/TOFU-MAaPO
+nextflow pull ikmb/tofu-maapo
 ```
-You will find the pipeline code stored in `${HOME}/.nextflow/assets/ikmb/TOFU-MAaPO`.<br />
+You will find the pipeline code stored in `${HOME}/.nextflow/assets/ikmb/tofu-maapo`.<br />
 ## Configuration
+After downloading TOFU-MAaPO a basic quickstart profile is created in the Nextflow pipeline code folder which allows you 
+running quality control analysis with local FASTQ files, see the following quickstart example below. 
+All further analyses of the quickstart example require the creation of a separated custom configuration file.
+
 ### Quickstart profile
 TOFU-MAaPO includes a pre-configured quickstart profile for local testing:
 
@@ -222,7 +226,7 @@ tar -xvf PSM6XBR1.tar && rm PSM6XBR1.tar
 ```
 2. Run the pipeline for quality control:
 ```bash
-nextflow run ikmb/TOFU-MAaPO \
+nextflow run ikmb/tofu-maapo \
     -profile quickstart \
     --reads '*_R{1,2}.fastq.gz' \
     --cleanreads \
@@ -235,7 +239,7 @@ The `--cleanreads` flag copies quality controlled FASTQ files to the `results` d
    Go to to NCBI -> Account -> [Account Settings](https://ncbi.nlm.nih.gov/account/settings/) -> API Key Management.
 2. Run the pipeline using an SRA Run ID:
 ```bash
-nextflow run ikmb/TOFU-MAaPO \
+nextflow run ikmb/tofu-maapo \
     -profile quickstart \
     --sra 'SRX3105436' \
     --apikey **YOUR_NCBI_API_KEY** \
@@ -247,7 +251,7 @@ nextflow run ikmb/TOFU-MAaPO \
 
 **In the first run**, include the following flags to download required databases and run quality control and HUMAnN:
 ```bash
-nextflow run ikmb/TOFU-MAaPO \
+nextflow run ikmb/tofu-maapo \
     -profile custom \
     -c tofu.config \
     --reads '*_R{1,2}.fastq.gz' \
@@ -262,7 +266,7 @@ nextflow run ikmb/TOFU-MAaPO \
 **In subsequent runs**, exclude the database update flags `--updatehumann` and `--updatemetaphlan`:
 
 ```bash
-nextflow run ikmb/TOFU-MAaPO \
+nextflow run ikmb/tofu-maapo \
     -profile custom \
     -c tofu.config \
     --reads '*_R{1,2}.fastq.gz' \
@@ -277,7 +281,7 @@ nextflow run ikmb/TOFU-MAaPO \
 ## Running metagenome assembly
 1. **In the first run**, include the flag `--updategtdbtk` for the initial database setup:
 ```bash
-nextflow run ikmb/TOFU-MAaPO \
+nextflow run ikmb/tofu-maapo \
     -profile custom \
     -c tofu.config \
     --reads '*_R{1,2}.fastq.gz' \
@@ -290,7 +294,7 @@ nextflow run ikmb/TOFU-MAaPO \
 2. **For subsequent runs**, exclude the database update flag:
 
 ```bash
-nextflow run ikmb/TOFU-MAaPO \
+nextflow run ikmb/tofu-maapo \
     -profile custom \
     -c tofu.config \
     --reads '*_R{1,2}.fastq.gz' \
@@ -303,7 +307,7 @@ nextflow run ikmb/TOFU-MAaPO \
 1. **In your first run**, to download required databases add the `--updatemetaphlan` flag:
 
 ```bash
-nextflow run ikmb/TOFU-MAaPO \
+nextflow run ikmb/tofu-maapo \
     -profile custom \
     -c tofu.config \
     --reads '*_R{1,2}.fastq.gz' \
@@ -315,7 +319,7 @@ nextflow run ikmb/TOFU-MAaPO \
 
 2. **In subsequent runs**, skip the update flag:
 ```bash
-nextflow run ikmb/TOFU-MAaPO \
+nextflow run ikmb/tofu-maapo \
     -profile custom \
     -c tofu.config \
     --reads '*_R{1,2}.fastq.gz' \
