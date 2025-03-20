@@ -64,7 +64,7 @@ process download_files {
 	unpairednewname = sampleID + "_single_raw.fastq.gz"
     if (meta.single_end) {
 		"""
-        curl -s ${reads} -o $unpairednewname --retry 10 -C -
+        curl -s ${reads[0]} -o $unpairednewname --retry 10 -C -
         
         """
     } else {
