@@ -161,7 +161,7 @@ nextflow run hello
 ### Step 2: Install Singularity (Apptainer)
 You can install Singularity via:
 - the [Singularity Quickstart Guide](https://docs.sylabs.io/guides/3.9/user-guide/quick_start.html) or
-- [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html) (no `sudo` rights requriered): 
+- [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html) (no `sudo` rights required): 
 ```bash
 # Create a new conda environment for Singularity
 conda create --name sing_env -c conda-forge -c bioconda singularity=3.8 
@@ -218,13 +218,14 @@ TOFU-MAaPO offers following input options:
 - **FASTQ** (.fastq.gz) files: Single or paired-end reads stored locally.
 - **SRA IDs**: Run, sample, or project IDs (comma-separated).
 ### With Local FASTQ Files
-1. Create your working directory and download an example dataset:
+1. Create your working directory and download an example metagenome from HMP2:
 ```bash
 mkdir -p ${HOME}/tofu-quickstart && cd ${HOME}/tofu-quickstart
 wget https://ibdmdb.org/downloads/raw/HMP2/MGX/2018-05-04/PSM6XBR1.tar
 tar -xvf PSM6XBR1.tar && rm PSM6XBR1.tar
 ```
-2. Run the pipeline for quality control:
+> Note: If the HMP2 download portal is unavailable, you can manually [download the FASTQ file from SRA](https://trace.ncbi.nlm.nih.gov/Traces/?view=run_browser&acc=SRR5947050&display=download).
+1. Run the pipeline for quality control:
 ```bash
 nextflow run ikmb/tofu-maapo \
     -profile quickstart \
@@ -233,7 +234,7 @@ nextflow run ikmb/tofu-maapo \
     --outdir results
 ```
 The `--cleanreads` flag copies quality controlled FASTQ files to the `results` directory.
-
+> Note: For local single-end and interleaved metagenomes add the flag `--single_end`.
 ### With SRA IDs
 1. Obtain your personal NCBI API key:  
    Go to to NCBI -> Account -> [Account Settings](https://ncbi.nlm.nih.gov/account/settings/) -> API Key Management.
