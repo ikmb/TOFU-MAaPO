@@ -13,6 +13,8 @@ include {
 
 include { COLLECTOR } from '../modules/QC/collect.nf'
 
+include { ena_query } from '../modules/ena_query.nf'
+
 workflow input_check {
 	main:
 		if(hasExtension(params.reads, "csv")){
@@ -208,95 +210,137 @@ workflow input_check_qced {
 
 workflow input_sra {
 	main: 
-		if(!params.apikey){
-			exit 1, "No SRA apikey was declared."
-		}else{
-			ids = params.sra.split(',').collect()
-			Channel.fromSRA(ids, apiKey: params.apikey)
-				.map {row -> 
-						def meta = [:]
-						meta.id = row[0]
-
+		if(params.ena_query){
+			ena_query(params.sra)
+			ena_query.out.splitCsv ( header:true, sep:',' )
+				.map { row ->
+						def id = row.run_accession ? row.run_accession : false
+						if(!id){ exit 1, "Empty id in csv-input found" }
+						def meta = [:]  
+						meta.id = id
+						def reads= row.fastq_ftp.split(';')
+						def readsize = reads.count{ it }
+						meta.single_end = readsize == 1 ? true : false
 						if(params.assemblymode == "single"){
 							meta.coassemblygroup = meta.id
 						}else if( params.assemblymode == "all"){
 							meta.coassemblygroup = 1
 						}else{ 
-							exit 1, "Cannot use other modes than single or all for coassembly with this SRA input"
+							exit 1, "Cannot use other modes than single or all for coassembly with this inputmode"
 						}
-
-						def singleEnd = row[1].size() == -1
-						meta.single_end = singleEnd.toBoolean()
-						if( row[1].size() == 3){
-							fastq = row[1]
-							if (hasExtension(fastq[1], ".fastq.gz") && hasExtension(fastq[2], ".fastq.gz") && hasExtension(fastq[0], ".fastq.gz")){
-								//order shall be: meta, forward, reversed, unpaired
-								return [meta, [fastq[1], fastq[2], fastq[0]] ]
-							}else{
-								println "Invalid file paths in triplet ${row[1]}, they do not end with .fastq.gz"
-							}
-						}else if( row[1].size() == 2){
-							fastq = row[1]
-							if (hasExtension(fastq[0], ".fastq.gz") && hasExtension(fastq[1], ".fastq.gz")){
-								//order shall be: meta, forward, reversed
-								return [meta, [fastq[0], fastq[1]] ]
-							}else{
-								println "Invalid file paths in pair ${row[1]}, they do not end with .fastq.gz"
-							}
+						if (meta.single_end){
+							return [meta, [ reads ] ] 
 						}else{
-							if (hasExtension(row[1], ".fastq.gz")){
-								//order shall be: meta, unpaired
-								return [meta,  row[1] ]
-							}else{
-								println "Invalid file paths in single-end ${row[1]}, it does not end with .fastq.gz"
+							if (readsize == 3 ){
+								return [meta, [ reads[0], reads[1], reads[2] ] ]
+							}else {
+								return [meta, [ reads[0], reads[1] ] ]
 							}
 						}
+				}.set { raw_rawoutput }
+			if(!params.exact_matches){
+				rawoutput = raw_rawoutput
+			}else{
+				rawoutput = raw_rawoutput.filter { meta, files ->
+					def sampleid = meta.id
+					sampleid in ids
 				}
-				.set { raw_rawoutput }
-		}
-		if(!params.exact_matches){
-            rawoutput = raw_rawoutput
-        }else{
-            rawoutput = raw_rawoutput.filter { meta, files ->
-                def sampleid = meta.id
-                sampleid in ids
-            }
-        }
-		ch_collectedinput = rawoutput.collectFile(storeDir: "${params.outdir}", name: "parsed_sample_list.csv" ) { item ->
-						item[0].id + ',' + item[0].single_end + ',' +  item[0].coassemblygroup + ',' + item[1] + '\n'
-						}
-		if(!params.step1){
-
-			ch_collectedinput
-			.splitCsv ( header:false, sep:',' )
-			.map {row -> 
-					def read1 = row[3] ? row[3].replaceAll(/\[/, "").replaceAll(/\]/, "").replaceAll(/ /, "") : null
-					if (!read1) exit 1, "Invalid input samplesheet in at least four columns! Is your tsv file tab separated?"
-					def read2 = row[4] ? row[4].replaceAll(/\]/, "").replaceAll(/ /, "") : null
-					def read3 = row[5] ? row[5].replaceAll(/\]/, "").replaceAll(/ /, "") : null
-					if (!hasExtension(read1, ".fastq.gz") ) exit 1, "Invalid read names! Reads need to end with .fastq.gz"
-					def meta = [:]
-					meta.id = row[0]
-					def singleEnd = row[1]
-					meta.single_end = singleEnd.toBoolean()
-					meta.coassemblygroup = row[2]
-
-					if(row[5]){
-						return [meta,  [read1, read2, read3] ]
-					}else if(row[4]){
-						return [meta,  [read1, read2] ]
-					}else{
-						return [meta,  read1 ]
-					}
-				}.set { output }
-
-			download_sra(output)
-			if(params.getmetadata){
-				query_metadata(output)
 			}
-			reads = download_sra.out.reads
+			download_files(rawoutput)
+			reads = download_files.out.reads
+
 		}else{
-			reads = Channel.empty()
+			if(!params.apikey){
+				exit 1, "No SRA apikey was declared."
+			}else{
+				ids = params.sra.split(',').collect()
+				Channel.fromSRA(ids, apiKey: params.apikey)
+					.map {row -> 
+							def meta = [:]
+							meta.id = row[0]
+
+							if(params.assemblymode == "single"){
+								meta.coassemblygroup = meta.id
+							}else if( params.assemblymode == "all"){
+								meta.coassemblygroup = 1
+							}else{ 
+								exit 1, "Cannot use other modes than single or all for coassembly with this SRA input"
+							}
+
+							def singleEnd = row[1].size() == -1
+							meta.single_end = singleEnd.toBoolean()
+							if( row[1].size() == 3){
+								fastq = row[1]
+								if (hasExtension(fastq[1], ".fastq.gz") && hasExtension(fastq[2], ".fastq.gz") && hasExtension(fastq[0], ".fastq.gz")){
+									//order shall be: meta, forward, reversed, unpaired
+									return [meta, [fastq[1], fastq[2], fastq[0]] ]
+								}else{
+									println "Invalid file paths in triplet ${row[1]}, they do not end with .fastq.gz"
+								}
+							}else if( row[1].size() == 2){
+								fastq = row[1]
+								if (hasExtension(fastq[0], ".fastq.gz") && hasExtension(fastq[1], ".fastq.gz")){
+									//order shall be: meta, forward, reversed
+									return [meta, [fastq[0], fastq[1]] ]
+								}else{
+									println "Invalid file paths in pair ${row[1]}, they do not end with .fastq.gz"
+								}
+							}else{
+								if (hasExtension(row[1], ".fastq.gz")){
+									//order shall be: meta, unpaired
+									return [meta,  row[1] ]
+								}else{
+									println "Invalid file paths in single-end ${row[1]}, it does not end with .fastq.gz"
+								}
+							}
+					}
+					.set { raw_rawoutput }
+				}
+			
+			if(!params.exact_matches){
+				rawoutput = raw_rawoutput
+			}else{
+				rawoutput = raw_rawoutput.filter { meta, files ->
+					def sampleid = meta.id
+					sampleid in ids
+				}
+			}
+			ch_collectedinput = rawoutput.collectFile(storeDir: "${params.outdir}", name: "parsed_sample_list.csv" ) { item ->
+							item[0].id + ',' + item[0].single_end + ',' +  item[0].coassemblygroup + ',' + item[1] + '\n'
+							}
+			if(!params.step1){
+
+				ch_collectedinput
+				.splitCsv ( header:false, sep:',' )
+				.map {row -> 
+						def read1 = row[3] ? row[3].replaceAll(/\[/, "").replaceAll(/\]/, "").replaceAll(/ /, "") : null
+						if (!read1) exit 1, "Invalid input samplesheet in at least four columns! Is your tsv file tab separated?"
+						def read2 = row[4] ? row[4].replaceAll(/\]/, "").replaceAll(/ /, "") : null
+						def read3 = row[5] ? row[5].replaceAll(/\]/, "").replaceAll(/ /, "") : null
+						if (!hasExtension(read1, ".fastq.gz") ) exit 1, "Invalid read names! Reads need to end with .fastq.gz"
+						def meta = [:]
+						meta.id = row[0]
+						def singleEnd = row[1]
+						meta.single_end = singleEnd.toBoolean()
+						meta.coassemblygroup = row[2]
+
+						if(row[5]){
+							return [meta,  [read1, read2, read3] ]
+						}else if(row[4]){
+							return [meta,  [read1, read2] ]
+						}else{
+							return [meta,  read1 ]
+						}
+					}.set { output }
+
+				download_sra(output)
+				if(params.getmetadata){
+					query_metadata(output)
+				}
+				reads = download_sra.out.reads
+			}else{
+				reads = Channel.empty()
+			}
 		}
 	emit:
 		reads
