@@ -216,8 +216,9 @@ Refer to the [installation and configuration documentation](docs/installation.md
 TOFU-MAaPO offers following input options:
 
 - **FASTQ** (.fastq.gz) files: Single or paired-end reads stored locally.
-- **SRA IDs**: Run, sample, or project IDs (comma-separated).
+- **SRA IDs**: Run, sample, or project IDs (comma-separated).  
 ### With Local FASTQ Files
+> Note: The expected running time for this quality control example run is about 20 minutes.
 1. Create your working directory and download an example metagenome from HMP2:
 ```bash
 mkdir -p ${HOME}/tofu-quickstart && cd ${HOME}/tofu-quickstart
