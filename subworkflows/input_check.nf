@@ -157,7 +157,8 @@ workflow input_check_qced {
 						}
 
 						if(params.assemblymode == "group"){
-							def coassemblygroup = row.group.ifEmpty(exit 1, "Invalid input samplesheet: No group column for coassembly was found")
+							def coassemblygroup = row.group //.ifEmpty(exit 1, "Invalid input samplesheet: No group column for coassembly was found")
+							if ( coassemblygroup == "null" || coassemblygroup == "") exit 1, "Invalid input samplesheet: No group column for coassembly was found or contains empty fields"
 							meta.coassemblygroup = coassemblygroup
 						}else if(params.assemblymode == "all"){
 							meta.coassemblygroup = 1
