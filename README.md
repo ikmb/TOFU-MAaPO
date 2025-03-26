@@ -222,7 +222,7 @@ TOFU-MAaPO offers following input options:
 1. Create your working directory and download an example metagenome from HMP2:
 ```bash
 mkdir -p ${HOME}/tofu-quickstart && cd ${HOME}/tofu-quickstart
-wget https://ibdmdb.org/downloads/raw/HMP2/MGX/2018-05-04/PSM6XBR1.tar
+wget https://g-227ca.190ebd.75bc.data.globus.org/ibdmdb/raw/HMP2/MGX/2018-05-04/PSM6XBR1.tar
 tar -xvf PSM6XBR1.tar && rm PSM6XBR1.tar
 ```
 > Note: If the HMP2 download portal is unavailable, you can manually [download the FASTQ file from SRA](https://trace.ncbi.nlm.nih.gov/Traces/?view=run_browser&acc=SRR5947050&display=download).
