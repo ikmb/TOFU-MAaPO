@@ -97,7 +97,7 @@ workflow input_check {
 		} else {
 			Channel
 				.fromFilePairs(params.reads, size: params.single_end ? 1 : 2)
-				.ifEmpty { exit 1, "Cannot find any matching reads in ${params.reads}\nPaths must be in enclosed quotes"}
+				.ifEmpty { exit 1, "Cannot find any matching reads in ${params.reads}\nPaths must be in enclosed quotes.\nIf you are have single-end reads, make sure to add the parameter --single_end."}
 				.map { row ->
 						def meta = [:]
 						meta.id = row[0]
@@ -211,7 +211,7 @@ workflow input_sra {
 		if(!params.apikey){
 			exit 1, "No SRA apikey was declared."
 		}else{
-			ids = params.sra.split(',').collect()
+			ids = params.sra.split(',').collect{it.trim()}
 			Channel.fromSRA(ids, apiKey: params.apikey)
 				.map {row -> 
 						def meta = [:]
