@@ -77,13 +77,18 @@ workflow tofumaapo {
 
 	//humann:
 		if(params.humann || params.updatehumann){
-			humann(QCout)
+			if(params.updatemetaphlan){
+				mphlan_ready = metaphlan.out.metaphlan_ready
+			}else{
+				mphlan_ready = Channel.of('true')
+			}
+			humann(QCout, mphlan_ready)
 
 			ch_versions = ch_versions.mix( humann.out.versions )
 		}
 		
 	//genome assembly:
-		if( params.assembly || params.coassembly ){
+		if( params.assembly || params.coassembly || params.updategtdbtk ){
 			assembly(QCout)
 
 			ch_versions = ch_versions.mix( assembly.out.versions )

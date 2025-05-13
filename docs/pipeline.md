@@ -1,1 +1,1 @@
-![](../images/metawo_dag.svg)
+![](../images/TOFU-MAaPO_dag.svg)

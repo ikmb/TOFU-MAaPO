@@ -84,7 +84,7 @@ process MAGSCOT {
 
 	label 'magscot'
 	scratch params.scratch
-	errorStrategy  { task.attempt <= maxRetries  ? 'retry' : 'ignore' }
+	errorStrategy  { task.exitStatus in [42] ? 'ignore' : task.attempt <= maxRetries  ? 'retry' : 'ignore' }
 	tag "$sampleID"
 	publishDir "${params.outdir}/magscot/${sampleID}", mode: 'copy'
 
@@ -103,6 +103,9 @@ process MAGSCOT {
 		stats_outfile = sampleID + '.refined.out'
 		full_stats = sampleID + '.scores.out'
 	"""
+		#If the input couldn't be binned with any binner, we ignore that specific error and create a specific error code to ignore it with nextflow
+		set +e
+		{
 		Rscript /opt/MAGScoT.R \
 			-i $formatted_contigs_to_bin \
 			--hmm $samplehmm \
@@ -113,7 +116,16 @@ process MAGSCOT {
 			-c ${params.magscot_score_c} \
 			-t ${params.magscot_threshold} \
 			-m ${params.magscot_min_markers} \
-			-n ${params.magscot_iterations}
+			-n ${params.magscot_iterations}  > log.txt
+
+		if grep -q "HMM input file should have three tab-separated colums without a header: Protein ID, Marker ID, e-value" log.txt; then
+            # Set the error code to 42
+            exit_code=42
+        else
+            # If no error or different error, continue with the script
+            echo "No specific error encountered, continuing with the script."
+            exit_code=\$?
+        fi
 
 		cat <<-END_VERSIONS > versions.yml
 		"${task.process}":
@@ -121,6 +133,10 @@ process MAGSCOT {
 		R: \$(Rscript --version | awk '{print \$4}')
 		END_VERSIONS
 
+		}
+		set -e
+
+		exit \$exit_code
 	"""
 }
 

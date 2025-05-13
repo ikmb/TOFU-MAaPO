@@ -26,32 +26,27 @@ process CLEANREADS {
 		left_clean = sampleID + "_R1_cleanwithhost.fastq.gz"
 		right_clean = sampleID + "_R2_cleanwithhost.fastq.gz"
 		artifact_stats = sampleID + ".bbduk.artifacts.stats"
+		//in case single_end files were actually interleaved sequences we reevaluate the single_end value
+		def readsize = reads.count{ it }
+		meta.single_end = readsize == 1 ? true : false
 
-		if (meta.single_end) {
-			"""
+		"""
+		if [[ "${readsize}" -eq 1 ]]; then
 			bbduk.sh threads=${task.cpus} in=$unpaired  k=31 ref=artifacts,phix ordered cardinality out1=${unpaired_clean} minlength=${params.min_read_length}
 
-			cat <<-END_VERSIONS > versions.yml
-			"${task.process}":
-			BBMap: \$(bbduk.sh --version 2>&1 | awk 'FNR==2{print \$0}' | sed -e "s/BBMap //g" | sed -e "s/version //g" )
-			END_VERSIONS
-
-			"""
-		} else {
-			"""
+		else
 			bbduk.sh stats=$artifact_stats threads=${task.cpus} in=${left_trimmed} in2=${right_trimmed} k=31 ref=artifacts,phix ordered cardinality out1=${left_clean} out2=${right_clean} minlength=${params.min_read_length}
 
 			bbduk.sh threads=${task.cpus} in=$unpaired  k=31 ref=artifacts,phix ordered cardinality out1=${unpaired_clean} minlength=${params.min_read_length}
+		fi
 
-			cat <<-END_VERSIONS > versions.yml
-			"${task.process}":
-			BBMap: \$(bbduk.sh --version 2>&1 | awk 'FNR==2{print \$0}' | sed -e "s/BBMap //g" | sed -e "s/version //g" )
-			END_VERSIONS
-			
-			"""
-		}
+		cat <<-END_VERSIONS > versions.yml
+		"${task.process}":
+		BBMap: \$(bbduk.sh --version 2>&1 | awk 'FNR==2{print \$0}' | sed -e "s/BBMap //g" | sed -e "s/version //g" )
+		END_VERSIONS
+		"""
 }
-
+//TODO: handle possible unpaired read file in input stream
 process TRIMREADS {
 	tag "$sampleID"
 	label 'bbmap'
@@ -84,9 +79,11 @@ process TRIMREADS {
 			bbduk.sh stats=$bbduk_adapter_stats \
 					threads=${task.cpus} \
 					in=${leftnewname} \
-					out=${left_trimmed} \
+					out1=${left_trimmed} \
+					out2=${right_trimmed} \
 					outs=$unpaired \
 					ref=${params.adapters} \
+					qtrim=rl trimq=10 maq=10 \
 					ktrim=r \
 					k=23 \
 					mink=11 \
@@ -94,7 +91,9 @@ process TRIMREADS {
 					minlength=${params.min_read_length} \
 					tpe \
 					tbo
-			rm ${left_trimmed}
+			#rm ${left_trimmed}
+			find . -type f -name "${left_trimmed}" -size -100k -delete
+			find . -type f -name "${right_trimmed}" -size -100k -delete
 
 			cat <<-END_VERSIONS > versions.yml
 			"${task.process}":
@@ -114,6 +113,7 @@ process TRIMREADS {
 					out2=${right_trimmed} \
 					outs=$unpaired \
 					ref=${params.adapters} \
+					qtrim=rl trimq=10 maq=10 \
 					ktrim=r \
 					k=23 \
 					mink=11 \

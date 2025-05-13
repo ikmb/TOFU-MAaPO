@@ -61,9 +61,21 @@ workflow assembly{
 		/*
 		* Contigs
 		*/
-		megahit_coas_input = data.map { it ->
-			metas = it[0]
-			return[metas.coassemblygroup, it[1]]}.groupTuple(by:0).map{ it -> return[it[0], it[1].flatten()]}.unique()
+		if(params.assemblymode == "single"){
+			megahit_coas_input = data.unique()
+				.map { it ->
+					metas = it[0]
+					return[metas.coassemblygroup, it[1].flatten()]}
+		}else{
+			megahit_coas_input = data.unique()
+				.map { it ->
+					metas = it[0]
+					return[metas.coassemblygroup, it[1]]}
+				.flatMap { id, reads -> 
+					reads.collect { read -> [id, read] }
+				}
+				.groupTuple()
+		}
 
 		MEGAHIT_assembly(megahit_coas_input)
 		ch_versions = ch_versions.mix(MEGAHIT_assembly.out.versions.first() )
@@ -81,10 +93,10 @@ workflow assembly{
 		 * Basic Genome Assembly:
 		 */
 		MINIMAP2_CATALOGUE( FILTERCONTIGS.out.contigs )
-		ch_versions = ch_versions.mix(MINIMAP2_CATALOGUE.out.versions )
+		ch_versions = ch_versions.mix(MINIMAP2_CATALOGUE.out.versions.first() )
 
 		MINIMAP2_CATALOGUE_INDEX( MINIMAP2_CATALOGUE.out.catalogue )
-		ch_versions = ch_versions.mix(MINIMAP2_CATALOGUE_INDEX.out.versions )
+		ch_versions = ch_versions.mix(MINIMAP2_CATALOGUE_INDEX.out.versions.first() )
 
 		ch_minimap2_mapping_input = ch_filteredcontigs.map{it -> meta = it[0]
 									return[meta.coassemblygroup, meta, it[1], it[2]]}
