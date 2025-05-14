@@ -18,6 +18,7 @@ workflow tofumaapo {
 	main:
 
 		ch_versions = Channel.from([])
+		ch_raw_reads = Channel.from([])
 
 	// inputs:
 		if(!params.no_qc){
@@ -26,16 +27,15 @@ workflow tofumaapo {
 			}
 
 			if(params.reads){
-			input_check()
-			ch_raw_reads = input_check.out.reads
-			} else {
-				if(params.sra){
-					input_sra()
-					ch_raw_reads = input_sra.out.reads
-				}else{
-					exit 1, "No input was declared! Please declare input with --reads or --sra !"
-				}
+				input_check()
+				ch_raw_reads = ch_raw_reads.mix(input_check.out.reads)
 			}
+
+			if(params.sra){
+				input_sra()
+				ch_raw_reads = ch_raw_reads.mix(input_sra.out.reads)
+			}
+
 	//QC:
 			QC(ch_raw_reads)
 			QCout = QC.out.qcedreads
