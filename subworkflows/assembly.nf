@@ -21,11 +21,10 @@ include {   METABAT;
 
 include {
 	VAMB_CATALOGUE;
-	VAMB_CATALOGUE_INDEX;
-	VAMB_MAPPING;
-//	VAMB_COLLECT_DEPTHS;
 	VAMB_CONTIGS_SELECTION;
 	VAMB;
+	VAMB_strobealign;
+	VAMB_merge_aemb;
 	group_vamb
 	} from '../modules/assembly/vamb.nf'
 
@@ -156,31 +155,29 @@ workflow assembly{
 					//add to tuple meta vamb_group the tuple contigs with reads
 					ch_vambgroup_contigs = ch_sample_to_vambgroup.join( ch_filteredcontigs )//.map{row -> tuple(row[1], row[0], row[1], row[2], row[3], row[4])}
 
-					ch_contigs_perkey = group_vamb.out.contigs_perkey
+
+					vamb_catalogue_in = group_vamb.out.contigs_perkey
 						.splitCsv ( header:false, sep:',' )
 						.map { row -> tuple(row[0], row[1]) }
 
-
-					vamb_catalogue_in = ch_contigs_perkey
-
-
-					// Minimap2 Index from all samples
+					// concatenate all contigs to a catalogue per vamb_key
 					VAMB_CATALOGUE(vamb_catalogue_in)
 					ch_versions = ch_versions.mix(VAMB_CATALOGUE.out.versions.first() )
 
-
-					//VAMB_CATALOGUE(ch_collected_filtered_contigs  )
-					VAMB_CATALOGUE_INDEX( VAMB_CATALOGUE.out.catalogue )
-					ch_versions = ch_versions.mix(VAMB_CATALOGUE_INDEX.out.versions.first() )
-
 					//add to ch_vambgroup_contigs the catalogue based on vamb_group
-					ch_mapping_vamb_input = ch_vambgroup_contigs.combine( VAMB_CATALOGUE_INDEX.out.catalogue, by: 1 )
+					ch_mapping_vamb_input = ch_vambgroup_contigs
+						.map{row -> tuple(row[1], row[0], row[3])} //vamb_key, meta, reads
+						.combine( VAMB_CATALOGUE.out.catalogue, by: 0 )// vamb_key, meta, reads, catalogue
 
+					VAMB_strobealign( ch_mapping_vamb_input )
+					ch_versions = ch_versions.mix(VAMB_strobealign.out.versions.first() )
+					
+					VAMB_merge_aemb( VAMB_strobealign.out.abundance.groupTuple() )
+					ch_versions = ch_versions.mix(VAMB_merge_aemb.out.versions.first() )
+					//VAMB_MAPPING( ch_mapping_vamb_input )
+					//ch_versions = ch_versions.mix(VAMB_MAPPING.out.versions.first() )
 
-					VAMB_MAPPING( ch_mapping_vamb_input )
-					ch_versions = ch_versions.mix(VAMB_MAPPING.out.versions.first() )
-
-					VAMB(   VAMB_CATALOGUE_INDEX.out.catalogue_indexfirst.join( VAMB_MAPPING.out.vambkey_bam.groupTuple() )       
+					VAMB(   VAMB_CATALOGUE.out.catalogue.join( VAMB_merge_aemb.out.abundance )       
 						)
 					ch_versions = ch_versions.mix(VAMB.out.versions.first() )
 					ch_vambgroup_sampleid = ch_sample_to_vambgroup.map{ row -> tuple(row[1], row[0]) }.combine(VAMB.out.all_samples_clustertable, by: 0)

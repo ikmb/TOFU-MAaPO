@@ -23,122 +23,54 @@
 			"""
 	}
 
-	process VAMB_CATALOGUE_INDEX {
-		label 'default_highmemory'
-		cache 'lenient'
-		scratch params.scratch
-		tag "$vamb_key"
-
-		input:
-			tuple val(vamb_key), path(catalogue)
-
-		output:
-			tuple  path(catalogue), val(vamb_key), path(catalogue_index), emit: catalogue
-			tuple  val(vamb_key), path(catalogue), path(catalogue_index), emit: catalogue_indexfirst
-			path("versions.yml"), emit: versions
-		shell:
-			catalogue_index = "catalogue.mmi"
-
-			"""
-			minimap2 -d !{catalogue_index} !{catalogue} -m 2000 --print-qname -I!{params.minimap_indexsize}g
-			# make index #uses default 3 threads
-
-			cat <<-END_VERSIONS> versions.yml
-			"${task.process}":
-			minimap2: \$(minimap2 --version)
-			END_VERSIONS
-
-			"""
-	}
-//-I100G
-process VAMB_MAPPING{
-	cache 'lenient'
-	label 'bowtie2'
+process VAMB_strobealign {
+	label 'strobealing'
 	scratch params.scratch
-	tag "$sampleID"
-	//publishDir "${params.outdir}/${sampleID}/Mapping", mode: 'copy'
-
+	tag "${vamb_key}_${meta.id}"
+	
 	input:
-		tuple val(vamb_key), val(meta), file(fcontigs), path(reads), path(catalogue), path(catalogue_index)
+		tuple val(vamb_key), val(meta), path(reads), path(catalogue)
 
 	output:
-		tuple val(vamb_key), path(depthout), emit: counttable 
-		val(meta), emit: sampleid
-		tuple val(meta), file(fcontigs), file(depthout), emit: maps
-		tuple val(meta), file(mappingbam), file(mappingbam_index), emit: bam
-		tuple val(vamb_key), file(mappingbam), file(mappingbam_index), emit: vambkey_bam
-		path("error.log"),    optional: true, emit: errorlog
+		tuple val(vamb_key), path(abundance_table), emit: abundance
 		path("versions.yml"), emit: versions
-
 	script:
 		sampleID = meta.id
-
-		left_clean = sampleID + "_R1_clean.fastq.gz"
-		right_clean = sampleID + "_R2_clean.fastq.gz"
-		single_clean = sampleID + "_single_clean.fastq.gz"
-
-		depthout = sampleID + '_depth.txt'
-		mappingbam = sampleID + '_mapping_minimap.bam'
-		mappingbam_index = sampleID + '_mapping_minimap.bam.bai'
-
-		sample_total_reads = sampleID + '_totalreads.txt'
-		if (!meta.single_end) {  
-			"""
-			#minimap2 -I100G -d catalogue.mmi $catalogue; # make index
-			minimap2 -t ${task.cpus} -N 50 -ax sr  $catalogue_index $left_clean $right_clean | samtools view -F 3584 -b --threads ${task.cpus} | samtools sort > $mappingbam 2> error.log # -n 
-			samtools index $mappingbam
-			jgi_summarize_bam_contig_depths $mappingbam --outputDepth $depthout
-
-			cat <<-END_VERSIONS > versions.yml
-			"${task.process}":
-			minimap2: \$(minimap2 --version)
-			samtools: \$(samtools --version | head -1 | sed -e "s/samtools //g")
-			jgi_summarize_bam_contig_depths: \$(jgi_summarize_bam_contig_depths 2>&1 | head -1 | awk '{print \$2}' )
-			END_VERSIONS
-
-			"""
-		} else {
-			"""	
-			#minimap2 -d catalogue.mmi $catalogue; # make index
-			minimap2 -t ${task.cpus} -N 50 -ax sr $catalogue_index $single_clean | samtools view -F 3584 -b --threads ${task.cpus}| samtools sort  > $mappingbam 2> error.log #-n
-			samtools index $mappingbam
-			jgi_summarize_bam_contig_depths $mappingbam --outputDepth $depthout
-
-			cat <<-END_VERSIONS > versions.yml
-			"${task.process}":
-			minimap2: \$(minimap2 --version)
-			samtools: \$(samtools --version | head -1 | sed -e "s/samtools //g")
-			jgi_summarize_bam_contig_depths: \$(jgi_summarize_bam_contig_depths 2>&1 | head -1 | awk '{print \$2}')
-			END_VERSIONS
-
-			"""		
-		}
+		abundance_table = sampleID + "_abundance.tsv"
+		//strobealign cannot deal with the unpaired file in a paired read set
+		def selected_reads = reads.size() >= 2 ? reads[0..1] : [reads[0]]
+    	def reads_str = selected_reads.collect { it.toString() }.join(' ')
+		"""
+		strobealign -t ${task.cpus} --aemb $catalogue $reads_str > ${abundance_table}
+		
+		cat <<-END_VERSIONS> versions.yml
+		"${task.process}":
+		strobealign: \$(strobealign --version )
+		END_VERSIONS
+		"""
 }
 
-process VAMB_COLLECT_DEPTHS {
-	cache 'lenient'
-	label 'default'
+process VAMB_merge_aemb {
+	label 'vamb'
 	scratch params.scratch
 	tag "$vamb_key"
-	//publishDir "${params.outdir}/${sampleID}/vamb", mode: 'copy'
 
 	input:
-		tuple val(vamb_key), path(depthout)
-
+		tuple val(vamb_key), path(abundance_table)
 	output:
-		tuple val(vamb_key), path(alldepths), emit: alldepths
+		tuple val(vamb_key), path(combined_abundance), emit: abundance
 		path("versions.yml"), emit: versions
 	script:
-
-		alldepths = vamb_key + '_all_depths.tsv'
+		combined_abundance = vamb_key + "_abundance.tsv"
 
 		"""
-		Rscript ${baseDir}/bin/collectmapping.R $alldepths
-		sed -i "s/[.]var/-var/g" $alldepths
+		mkdir input && mv ${abundance_table} input/
 
-		cat <<-END_VERSIONS > versions.yml
+		python3 /workspace/vamb/src/merge_aemb.py input/ $combined_abundance
+
+		cat <<-END_VERSIONS> versions.yml
 		"${task.process}":
-		R: \$(Rscript --version 2>&1 | awk '{print \$5}')
+		Python: \$(python --version | sed -e "s/Python //g" )
 		END_VERSIONS
 
 		"""
@@ -151,9 +83,9 @@ process VAMB {
 	label 'exclusive' // vamb does not control for numpy threads, which takes all threads by default
 	scratch false//params.scratch
 	tag "$vamb_key"
-
+	containerOptions { params.gpu ? '--nv' : '' }
 	input:
-        tuple val(vamb_key), path(catalogue), path(catalogue_index), path(mappingbam), path(mappingbam_index)//path(alldepths)
+        tuple val(vamb_key), path(catalogue), path(abundance)//path(alldepths)
 
 	output:
 		tuple val(vamb_key), path(cluster_table), emit: all_samples_clustertable
@@ -161,15 +93,15 @@ process VAMB {
 
 	script:
 		cluster_table = 'all_vamb_contigs_to_bin.tsv'
-		def gpu_option = params.gpu ? "--cuda=True" : ""
+		def gpu_option = params.gpu ? "--cuda" : ""
 		"""
-		vamb \
+		vamb bin default \
 			--outdir bin \
 			--fasta $catalogue \
-			--bamfiles ${mappingbam.join(" ")} \
-			-o _${params.contig_sep}_ \
-			$gpu_option
-
+			--abundance_tsv $abundance \
+			$gpu_option \
+			-o _${params.contig_sep}_
+			
 		cat bin/vae_clusters*.tsv > $cluster_table
 
 		cat <<-END_VERSIONS > versions.yml
@@ -180,7 +112,7 @@ process VAMB {
 
 		"""
 }
-//--jgi $alldepths
+
 process VAMB_CONTIGS_SELECTION{
 	
 	label 'default'
