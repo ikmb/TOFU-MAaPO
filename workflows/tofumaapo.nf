@@ -22,8 +22,8 @@ workflow tofumaapo {
 
 	// inputs:
 		if(!params.no_qc){
-			if(params.reads && params.sra){
-				exit 1, "Please only declare either --sra or --read. Not both!"
+			if(!params.reads && !params.sra){
+				exit 1, "Please declare an input! You can do so with --sra and --reads."
 			}
 
 			if(params.reads){
