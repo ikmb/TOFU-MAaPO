@@ -99,10 +99,11 @@ process VAMB {
 			--outdir bin \
 			--fasta $catalogue \
 			--abundance_tsv $abundance \
+			-p ${task.cpus} \
 			$gpu_option \
 			-o _${params.contig_sep}_
 			
-		cat bin/vae_clusters*.tsv > $cluster_table
+		cat bin/vae_clusters_split.tsv > $cluster_table
 
 		cat <<-END_VERSIONS > versions.yml
 		"${task.process}":
