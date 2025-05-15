@@ -129,7 +129,7 @@ process MAGSCOT {
 
 		cat <<-END_VERSIONS > versions.yml
 		"${task.process}":
-		MAGScoT: 1.0.0
+		MAGScoT: 1.1.0
 		R: \$(Rscript --version | awk '{print \$4}')
 		END_VERSIONS
 
