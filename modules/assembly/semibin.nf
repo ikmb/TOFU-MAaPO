@@ -20,7 +20,7 @@ process SEMIBIN {
 
 	script:
 		sampleID = meta.id
-		semibin_contigs_to_bin = sampleID + '_semibin_contigs_to_bin.tsv'
+		semibin_contigs_to_bin = sampleID + '_semibin_output/contig_bins.tsv'
 		formatted_contigs_to_bin = sampleID + '_semibin_magscot_contigs_to_bin.tsv'
 		def engine = params.gpu ? 'gpu' : 'cpu'
 			"""
@@ -29,21 +29,14 @@ process SEMIBIN {
 				-b $mappingbam \
 				-o ${sampleID}_semibin_output \
 				--engine ${engine} \
+				-t ${task.cpus} \
 				--environment ${params.semibin_environment} 
 
-			set +e
-			{
-				grep '>' ${sampleID}_semibin_output/output_recluster_bins/*.fa | cut -d '/' -f 3 | sed 's/:>/\\ /' > $semibin_contigs_to_bin
-			}
-			set -e
-
-			gawk '{print \$1"\t"\$2"\tsemibin2"}' $semibin_contigs_to_bin > $formatted_contigs_to_bin
+			gawk 'NR>1 {print "semibin2_"\$2"\t"\$1"\tsemibin2"}' $semibin_contigs_to_bin > $formatted_contigs_to_bin
 
 			cat <<-END_VERSIONS> versions.yml
 			"${task.process}":
 			SemiBin2: \$(SemiBin2 --version 2>&1)
 			END_VERSIONS
-
 			"""
-
 }
