@@ -28,7 +28,7 @@ Example command:
 nextflow run ikmb/tofu-maapo --reads '/path/to/fastqfiles/*_R{1,2}_001.fastq.gz' -profile custom -c tofu.config
 ```
 ## Input Options
-Choose one of the following options:
+You may use one or both of the following options to provide input data:
 ### 1. FASTQ Files  
 Use the `--reads` parameter with a **glob pattern** for your .fastq.gz files as seen above **or** 
 provide a **CSV file** with the following columns:
@@ -38,6 +38,8 @@ provide a **CSV file** with the following columns:
 - `read2`: Path to the reverse reads (for paired-end data)  
   
 For single-end reads, include only `id` and `read1`.
+
+The `read1` and `read2` fields may contain local file paths or remote links using http(s) or (s)ftp.
 
 ### 2. SRA Accessions
 Provide SRA Accession IDs via the `--sra` option.  <br />
@@ -75,9 +77,10 @@ For analysis following modules are available:<br />
 `-profile` Change the configuration of the pipeline. Valid options are medcluster (default), local or custom. You can add a new profile for your compute system by editing the file custom.config in the folder conf or create a new one and add it in the file nextflow.config under 'profiles'.<br />
 `-work-dir` Set a custom work directory, default is "work".<br />
 `-r` Use a specific branch or release version of the pipeline.<br />
+`--gpu` Use GPU acceleration in binning tools (vamb and Semibin2) 
 `--publish_rawreads` Publish unprocessed/raw files downloaded from SRA in the output directory.<br />
 `--getmetadata` When using SRA input, download fitting runinfo metadata.<br />
-
+`--single_end` Required when using --reads with an input glob to single_end files. For inputs with a mix of paired and single_end reads use a CSV file instead.
 # Module specific options
 ## QC options
 - `--cleanreads`  Save QC'ed FASTQ files (disabled by default).<br /> 
@@ -95,7 +98,7 @@ For analysis following modules are available:<br />
     - **group** Group-based co-assembly (requires input as CSV with `group` column).
     - **all** Cohort-wide co-assembly
 > We recommend co-assembly with only moderate group sizes (~100 samples) due to hardware restrictions.<br />
-- `--binner` Comma-separated list of binning tools (default: all). Options: **concoct**,**maxbin**,**semibin**,**metabat**,**vamb** <br />
+- `--binner` Comma-separated list of binning tools (default: "concoct,maxbin,semibin,metabat,vamb"). Options: **concoct**,**maxbin**,**semibin**,**metabat**,**vamb** <br />
 - `--contigsminlength` Minimum contig length (default: 2000). <br />
 - `--semibin_environment` Specify SemiBin2 environment (default: **human_gut**). See the [SemiBin Documentation](https://github.com/BigDataBiology/SemiBin/#easy-singleco-assembly-binning-mode) for other options. Choose **global** if no other environment is appropiate.  <br />
 - `--skip_gtdbtk` Skip GTDB-TK for taxonomical assignment. <br />
