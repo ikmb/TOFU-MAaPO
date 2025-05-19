@@ -1,6 +1,7 @@
 process FASTQC_raw {
 
 	label 'fastqc'
+	label 'short_run'
 	tag "$sampleID"
 	publishDir "${params.outdir}/FastQC", mode: 'copy', pattern: "*.zip"
 	publishDir "${params.outdir}/FastQC", mode: 'copy', pattern: "*.html"
@@ -51,6 +52,7 @@ process FASTQC_raw {
 process FASTQC_clean {
 	tag "$sampleID"
 	label 'fastqc'
+	label 'short_run'
 
 	publishDir "${params.outdir}/FastQC", mode: 'copy', pattern: "*.zip"
 	publishDir "${params.outdir}/FastQC", mode: 'copy', pattern: "*.html"

@@ -2,6 +2,7 @@ process PREPARE_METAPHLAN {
 
 	executor 'local'
 	label 'local_run'
+	label 'long_run'
 	output: 
 		val 'true', emit: readystate
 	script:
@@ -32,6 +33,7 @@ process PREPARE_METAPHLAN {
 process METAPHLAN {
 
 	label 'metaphlan'
+	label 'long_run'
 	tag "$sampleID"
 	scratch params.scratch
    	//publishDir "${params.outdir}/${sampleID}/Metaphlan4", mode: 'copy'
@@ -167,6 +169,7 @@ process METAPHLAN {
 
 process ABUNDANCE_REL_MERGE {
 	label 'default'
+	label 'short_run'
 	publishDir "${params.outdir}/Metaphlan4", mode: 'copy', pattern: "*.txt"
 	scratch params.scratch
 
@@ -193,6 +196,7 @@ process ABUNDANCE_REL_MERGE {
 
 process ABUNDANCE_ABS_MERGE {
 	label 'default'
+	label 'short_run'
 	publishDir "${params.outdir}/Metaphlan4", mode: 'copy', pattern: "*.txt"
 	scratch params.scratch
 

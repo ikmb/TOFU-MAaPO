@@ -1,6 +1,7 @@
 process CONTIGS_MAPPING{
 
 	label 'bowtie2'
+	label 'very_long_run'
 	scratch params.scratch
 	tag "$sampleID"
 	//publishDir "${params.outdir}/${sampleID}/Mapping", mode: 'copy'

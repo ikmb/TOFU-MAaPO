@@ -1,5 +1,6 @@
 process query_metadata {
 	label 'entrez'
+	label 'short_run'
 	tag "$sampleID"
 	scratch params.scratch
 	publishDir "${params.outdir}/metadata", mode: 'copy', pattern: "*.csv"

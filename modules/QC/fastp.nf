@@ -2,6 +2,7 @@
 process FASTP {
 	tag "$sampleID"
 	label 'fastp'
+	label 'short_run'
 	scratch params.scratch
 	publishDir "${params.outdir}/FASTP", mode: 'copy', pattern: "*.html"
 

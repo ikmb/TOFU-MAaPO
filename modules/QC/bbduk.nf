@@ -1,6 +1,7 @@
 process CLEANREADS {
 	tag "$sampleID"
 	label 'bbmap'
+	label 'short_run'
 
 	scratch params.scratch
 
@@ -50,6 +51,7 @@ process CLEANREADS {
 process TRIMREADS {
 	tag "$sampleID"
 	label 'bbmap'
+	label 'short_run'
 	//errorStrategy 'ignore'
 	scratch params.scratch
 

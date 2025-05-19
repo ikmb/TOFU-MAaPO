@@ -1,5 +1,6 @@
 process download_sra {
 	label 'local_download'
+    label 'short_run'
 	tag "$sampleID"
 	publishDir "${params.outdir}/raw_reads", mode: 'copy', enabled: params.publish_rawreads
 
@@ -47,6 +48,7 @@ process download_sra {
 
 process download_files {
 	label 'local_download'
+    label 'short_run'
 	tag "$sampleID"
 	publishDir "${params.outdir}/raw_reads", mode: 'copy', enabled: params.publish_rawreads
 

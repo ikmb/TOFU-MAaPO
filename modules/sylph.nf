@@ -1,6 +1,7 @@
 process SYLPH_SKETCH {
 tag "$sampleID"
 label 'sylph_sketch'
+label 'short_run'
 
 input:
 	tuple val(meta), path(reads)
@@ -31,6 +32,7 @@ script:
 process SYLPH_PROFILING {
 tag params.sylph_merge ? "all" : "${meta.id}"
 label 'sylph_profile'
+label 'short_run'
 publishDir "${params.outdir}/sylph", mode: 'copy', pattern: "*.tbl"
 
 input:

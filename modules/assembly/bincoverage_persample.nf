@@ -1,5 +1,6 @@
 process BINCOVERAGE_PERSAMPLE{
 	label 'default'
+	label 'short_run'
 	scratch params.scratch
 	tag "$sampleID"
 	publishDir "${params.outdir}/MAG_abundance/${sampleID}", mode: 'copy', pattern: "*.tbl"
@@ -26,6 +27,7 @@ process BINCOVERAGE_PERSAMPLE{
 
 process MERGE_MAG_ABUNDANCE{
 	label 'default'
+	label 'short_run'
 	scratch params.scratch
 	publishDir "${params.outdir}/MAG_abundance", mode: 'copy', pattern: "*.tbl"
 	publishDir "${params.outdir}/MAG_abundance", mode: 'copy', pattern: "*.png"

@@ -1,5 +1,6 @@
 	process VAMB_CATALOGUE {
 		label 'vamb'
+		label 'long_run'
 		scratch params.scratch
 		tag "$vamb_key"
 
@@ -25,6 +26,7 @@
 
 	process VAMB_CATALOGUE_INDEX {
 		label 'default_highmemory'
+		label 'long_run'
 		cache 'lenient'
 		scratch params.scratch
 		tag "$vamb_key"
@@ -54,6 +56,7 @@
 process VAMB_MAPPING{
 	cache 'lenient'
 	label 'bowtie2'
+	label 'very_long_run'
 	scratch params.scratch
 	tag "$sampleID"
 	//publishDir "${params.outdir}/${sampleID}/Mapping", mode: 'copy'
@@ -117,6 +120,7 @@ process VAMB_MAPPING{
 process VAMB_COLLECT_DEPTHS {
 	cache 'lenient'
 	label 'default'
+	label 'short_run'
 	scratch params.scratch
 	tag "$vamb_key"
 	//publishDir "${params.outdir}/${sampleID}/vamb", mode: 'copy'
@@ -146,6 +150,7 @@ process VAMB_COLLECT_DEPTHS {
 process VAMB {
 	cache 'lenient'
 	label 'vamb'
+	label 'very_long_run'
 	label 'exclusive' // vamb does not control for numpy threads, which takes all threads by default
 	scratch params.scratch
 	tag "$vamb_key"
@@ -174,7 +179,7 @@ process VAMB {
 }
 
 process VAMB_CONTIGS_SELECTION{
-	
+	label 'short_run'
 	label 'default'
 	scratch params.scratch
 	tag "$sampleID"
@@ -199,8 +204,8 @@ process VAMB_CONTIGS_SELECTION{
 }
 
 process group_vamb {
-	
 	label 'default'
+	label 'short_run'
 	scratch params.scratch
 
 	input:
