@@ -1,5 +1,6 @@
 process MINIMAP2_CATALOGUE {
 	label 'vamb'
+	label 'long_run'
 	scratch params.scratch
 	tag "$coassemblygroup"
 	input:
@@ -23,6 +24,7 @@ process MINIMAP2_CATALOGUE {
 
 process MINIMAP2_CATALOGUE_INDEX {
 	label 'default'
+	label 'short_run'
 	scratch params.scratch
 	tag "$coassemblygroup"
 	input:
@@ -51,6 +53,7 @@ process MINIMAP2_CATALOGUE_INDEX {
 process MINIMAP2_MAPPING{
 	cache 'lenient'
 	label 'bowtie2'
+	label 'very_long_run'
 	scratch params.scratch
 	tag "$sampleID"
 	//publishDir "${params.outdir}/${sampleID}/Mapping", mode: 'copy'

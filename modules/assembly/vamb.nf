@@ -1,5 +1,6 @@
 	process VAMB_CATALOGUE {
 		label 'vamb'
+		label 'long_run'
 		scratch params.scratch
 		tag "$vamb_key"
 
@@ -25,6 +26,7 @@
 
 process VAMB_strobealign {
 	label 'strobealing'
+	label 'long_run'
 	scratch params.scratch
 	tag "${vamb_key}_${meta.id}"
 	
@@ -52,6 +54,7 @@ process VAMB_strobealign {
 
 process VAMB_merge_aemb {
 	label 'vamb'
+	label 'short_run'
 	scratch params.scratch
 	tag "$vamb_key"
 
@@ -80,6 +83,7 @@ process VAMB {
 	cache 'lenient'
 	label 'vamb'
 	label 'gpu'
+	label 'very_long_run'
 	label 'exclusive' // vamb does not control for numpy threads, which takes all threads by default
 	scratch false//params.scratch
 	tag "$vamb_key"
@@ -115,7 +119,7 @@ process VAMB {
 }
 
 process VAMB_CONTIGS_SELECTION{
-	
+	label 'short_run'
 	label 'default'
 	scratch params.scratch
 	tag "$sampleID"
@@ -140,8 +144,8 @@ process VAMB_CONTIGS_SELECTION{
 }
 
 process group_vamb {
-	
 	label 'default'
+	label 'short_run'
 	scratch params.scratch
 
 	input:

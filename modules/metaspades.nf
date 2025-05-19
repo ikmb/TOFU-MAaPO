@@ -3,6 +3,7 @@ process metaspades {
 	publishDir "${params.outdir}/${sampleID}/metaspades", mode: 'copy'
 	scratch params.scratch
 	label 'megahit'
+	label 'very_long_run'
 	tag "$sampleID"
 
 	input:
