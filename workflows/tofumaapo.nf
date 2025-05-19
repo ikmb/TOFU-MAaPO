@@ -1,4 +1,4 @@
-include { input_check; input_check_qced; input_sra } from '../subworkflows/input_check'
+include { input_check; input_sra } from '../subworkflows/input_check'
 include { QC } from '../subworkflows/QC'
 include { MULTIQC } from '../modules/QC/multiqc'
 include { metaphlan } from '../subworkflows/metaphlan'
@@ -21,30 +21,30 @@ workflow tofumaapo {
 		ch_raw_reads = Channel.from([])
 
 	// inputs:
-		if(!params.no_qc){
-			if(!params.reads && !params.sra){
-				exit 1, "Please declare an input! You can do so with --sra and --reads."
-			}
+		
+		if(!params.reads && !params.sra){
+			exit 1, "Please declare an input! You can do so with --sra and --reads."
+		}
 
-			if(params.reads){
-				input_check()
-				ch_raw_reads = ch_raw_reads.mix(input_check.out.reads)
-			}
+		if(params.reads){
+			input_check()
+			ch_raw_reads = ch_raw_reads.mix(input_check.out.reads)
+		}
 
-			if(params.sra){
-				input_sra()
-				ch_raw_reads = ch_raw_reads.mix(input_sra.out.reads)
-			}
+		if(params.sra){
+			input_sra()
+			ch_raw_reads = ch_raw_reads.mix(input_sra.out.reads)
+		}
 
 	//QC:
+		if(!params.no_qc){			
 			QC(ch_raw_reads)
 			QCout = QC.out.qcedreads
 			Fastqcoutput = QC.out.qcreports
 			ch_versions = ch_versions.mix( QC.out.versions )
 
 		}else{
-			input_check_qced()
-			QCout = input_check_qced.out.reads
+			QCout = ch_raw_reads
 		}
 
 	//kraken:
