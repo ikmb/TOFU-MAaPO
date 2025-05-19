@@ -3,6 +3,7 @@ process KRAKEN2 {
 
 tag "$sampleID"
 label 'kraken'
+label 'long_run'
 publishDir "${params.outdir}/Kraken/${sampleID}/", mode: 'copy', pattern: "*.txt"
 
 input:
@@ -55,6 +56,7 @@ script:
 
 process KRAKEN2MPA {
 	label 'default'
+	label 'short_run'
 	input:
 		file(report)
 
@@ -76,6 +78,7 @@ process KRAKEN2MPA {
 
 process KRAKEN2YAML {
 	label 'default'
+	label 'short_run'
 	input:
 		path(reports)
 
@@ -98,6 +101,7 @@ process KRAKEN2YAML {
 
 process KRAKENMERGEREPORTS {
 	label 'default'
+	label 'short_run'
 	publishDir "${params.outdir}/Kraken", mode: 'copy', pattern: "*.txt"
 
 	input:
@@ -123,6 +127,7 @@ process KRAKENMERGEREPORTS {
 
 process KRAKENMPAMERGE {
 	label 'default'
+	label 'short_run'
 	publishDir "${params.outdir}/Kraken", mode: 'copy', pattern: "*.txt"
 
 	input:
@@ -150,6 +155,7 @@ process BRACKEN {
 
 	tag "$sampleID"
 	label 'bracken'
+	label 'long_run'
 	publishDir "${params.outdir}/Kraken/${sampleID}/", mode: 'copy', pattern: "*.bracken"
 
 	input:
@@ -175,6 +181,7 @@ process BRACKEN {
 process BRACKENMERGE {
 
 	label 'bracken'
+	label 'short_run'
 	publishDir "${params.outdir}/Kraken", mode: 'copy', pattern: "*.txt"
 
 	input:

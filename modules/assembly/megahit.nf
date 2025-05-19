@@ -2,6 +2,7 @@
 process MEGAHIT {
 	scratch params.scratch
 	label 'megahit'
+	label 'very_long_run'
 	tag "$sampleID"
 	publishDir {"${params.outdir}/Megahit"}, mode: 'copy', pattern: '*_final.contigs.fa', enabled: params.publish_megahit
 
@@ -80,6 +81,7 @@ process MEGAHIT {
 process MEGAHIT_assembly {
 	scratch params.scratch
 	label 'megahit'
+	label 'very_long_run'
 	tag "$coassemblygroup"
 	publishDir {"${params.outdir}/Megahit"}, mode: 'copy', pattern: '*_final.contigs.fa', enabled: params.publish_megahit
 

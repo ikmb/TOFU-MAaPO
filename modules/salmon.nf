@@ -3,6 +3,7 @@ process SALMON {
 scratch params.scratch
 tag "$sampleID"
 label 'salmon'
+label 'short_run'
 publishDir "${params.outdir}/salmon", mode: 'copy', pattern: "*.sf"
 publishDir "${params.outdir}/salmon", mode: 'copy', pattern: "*.log"
 
@@ -63,6 +64,7 @@ script:
 
 process SALMON_merge {
 	label 'default'
+	label 'short_run'
 	publishDir "${params.outdir}/SALMON", mode: 'copy', pattern: "*.tbl"
 
 	input:

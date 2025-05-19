@@ -1,6 +1,7 @@
 process MAXBIN2 {
 
 	label 'maxbin2'
+	label 'long_run'
 	scratch params.scratch
 	tag "$sampleID"
 	publishDir "${params.outdir}/maxbin2/${sampleID}", mode: 'copy', enabled: params.publish_rawbins

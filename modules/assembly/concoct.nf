@@ -1,5 +1,6 @@
 process CONCOCT {
 	label 'concoct'
+    label 'long_run'
     cache 'lenient'
 	scratch params.scratch
 	tag "$sampleID"

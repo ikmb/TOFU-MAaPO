@@ -2,7 +2,7 @@ process FILTERCONTIGS {
 	scratch params.scratch
 	tag "$coassemblygroup"
 	label 'default'
-
+	label 'short_run'
 	input:
 		tuple val(coassemblygroup), file(finalcontigs)
 

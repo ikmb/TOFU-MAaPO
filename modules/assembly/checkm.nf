@@ -1,6 +1,7 @@
 process checkm {
 
 	label 'checkm'
+	label 'long_run'
 	scratch params.scratch
 	tag "$sampleID"
 	publishDir "${params.outdir}/checkm/${sampleID}", mode: 'copy'

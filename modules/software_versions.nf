@@ -1,5 +1,6 @@
 process SOFTWARE_VERSIONS {
 	label 'default'
+	label 'short_run'
 	label 'googlecontainer'
 	scratch params.scratch
 	publishDir "${params.outdir}/pipeline_info", mode: 'copy', pattern: "*.txt"

@@ -1,6 +1,7 @@
 process FILTERREADS {
 	tag "$sampleID"
 	label 'bowtie2qc'
+	label 'medium_run'
 	scratch params.scratch
 
 	publishDir "${params.outdir}/qced_fastq", mode: 'copy', pattern: "*.gz", enabled: params.cleanreads
