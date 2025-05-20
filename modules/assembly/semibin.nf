@@ -33,7 +33,7 @@ process SEMIBIN {
 				-t ${task.cpus} \
 				--environment ${params.semibin_environment} 
 
-			gawk 'NR>1 {print "semibin2_"\$2"\t"\$1"\tsemibin2"}' $semibin_contigs_to_bin > $formatted_contigs_to_bin
+			awk 'NR>1 {print "semibin2_"\$2"\t"\$1"\tsemibin2"}' $semibin_contigs_to_bin > $formatted_contigs_to_bin
 
 			cat <<-END_VERSIONS> versions.yml
 			"${task.process}":
