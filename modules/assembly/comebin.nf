@@ -2,6 +2,7 @@ process COMEBIN {
 
 	label 'comebin'
 	label 'gpu'
+	label 'long_run'
 	scratch params.scratch
 	tag "$sampleID"
 	cache 'lenient'
