@@ -98,7 +98,7 @@ For analysis following modules are available:<br />
     - **group** Group-based co-assembly (requires input as CSV with `group` column).
     - **all** Cohort-wide co-assembly
 > We recommend co-assembly with only moderate group sizes (~100 samples) due to hardware restrictions.<br />
-- `--binner` Comma-separated list of binning tools (default: "concoct,maxbin,semibin,metabat,vamb"). Options: **concoct**,**maxbin**,**semibin**,**metabat**,**vamb** <br />
+- `--binner` Comma-separated list of binning tools (default: "concoct,maxbin,semibin,metabat,vamb"). Options: **concoct**,**maxbin**,**semibin**,**metabat**,**vamb**, **comebin** <br />
 - `--contigsminlength` Minimum contig length (default: 2000). <br />
 - `--semibin_environment` Specify SemiBin2 environment (default: **human_gut**). See the [SemiBin Documentation](https://github.com/BigDataBiology/SemiBin/#easy-singleco-assembly-binning-mode) for other options. Choose **global** if no other environment is appropiate.  <br />
 - `--skip_gtdbtk` Skip GTDB-TK for taxonomical assignment. <br />

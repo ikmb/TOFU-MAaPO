@@ -105,9 +105,10 @@ Reads are assembled into contigs using **Megahit** (for individual samples, grou
 Contigs are catalogued and indexed using **Minimap2**.
 
 #### Binning
-Binning is performed with up to five tools:
+Binning is performed with up to six tools:
 - **Metabat2**
 - **Concoct**
+- **COMEBin**
 - **Maxbin2**
 - **Semibin2** and/or
 - **Vamb**

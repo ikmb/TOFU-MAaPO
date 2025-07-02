@@ -133,7 +133,7 @@ ${info_line}
 
 	Assembly:
 		--assemblymode          Select an assembly mode, can be "single" or for co-assembly "all". Also possible: "group" if input is a csv-file that contains a column "group"
-		--binner                Select which binning tools to use, comma separated, default is: "concoct,maxbin,semibin,metabat,vamb"
+		--binner                Select which binning tools to use, comma separated, default is: "concoct,maxbin,semibin,metabat,vamb,comebin"
 		--contigsminlength	    Minimum length of contigs. Default: 2000
 		--gtdbtk_reference      Directory of database. REQUIRED for GTDB-Tk!
 		--skip_gtdbtk           Skip GTDB-Tk.

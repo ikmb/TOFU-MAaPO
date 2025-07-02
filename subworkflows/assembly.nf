@@ -9,6 +9,7 @@ include { checkm } from '../modules/assembly/checkm.nf'
 include { MAXBIN2 } from '../modules/assembly/maxbin2.nf'
 include { CONCOCT } from '../modules/assembly/concoct.nf'
 include { SEMIBIN } from '../modules/assembly/semibin.nf'
+include { COMEBIN } from '../modules/assembly/comebin.nf'
 include { getCountTable } from '../modules/assembly/assembly_util.nf'
 
 include {   GTDBTK; 
@@ -221,6 +222,15 @@ workflow assembly{
 			SEMIBIN( ch_mapping.join( ch_bam ) )
 			ch_contig_bin_list = ch_contig_bin_list.mix(SEMIBIN.out.magscot_contigbinlist)
 			ch_versions = ch_versions.mix(SEMIBIN.out.versions.first() )
+			}
+
+			/*
+			* COMEBIN Workflow
+			*/
+			if ( 'comebin' in binner ) {
+				COMEBIN( ch_mapping.join( ch_bam))
+				ch_contig_bin_list = ch_contig_bin_list.mix(COMEBIN.out.magscot_contigbinlist)
+				ch_versions = ch_versions.mix(COMEBIN.out.versions.first() )
 			}
 
 			/*
