@@ -1,15 +1,12 @@
 process COMEBIN {
 
 	label 'comebin'
-	label 'gpu'
 	label 'long_run'
 	scratch params.scratch
 	tag "$sampleID"
 	cache 'lenient'
 
-	container  { params.gpu ?	"docker://eikematthias/comebin:1.0.4" : 
-								"docker://eikematthias/comebin:1.0.4" } //TODO: create small non-gpu container
-	containerOptions { params.gpu ? '--nv' : '' }
+	container  "docker://eikematthias/comebin:1.0.4"
 
 	publishDir "${params.outdir}/comebin/${sampleID}", mode: 'copy', enabled: params.publish_rawbins
 
