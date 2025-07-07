@@ -8,7 +8,7 @@ process COMEBIN {
 	cache 'lenient'
 
 	container  { params.gpu ?	"docker://eikematthias/comebin:1.0.4" : 
-								"docker://quay.io/biocontainers/comebin:1.0.4--hdfd78af_0" }
+								"docker://eikematthias/comebin:1.0.4" } //TODO: create small non-gpu container
 	containerOptions { params.gpu ? '--nv' : '' }
 
 	publishDir "${params.outdir}/comebin/${sampleID}", mode: 'copy', enabled: params.publish_rawbins
