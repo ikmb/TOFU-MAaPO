@@ -73,10 +73,16 @@ workflow input_check {
 							def coassemblygroup = row.group //.ifEmpty(exit 1, "Invalid input samplesheet: No group column for coassembly was found")
 							if ( coassemblygroup == "null" || coassemblygroup == "") exit 1, "Invalid input samplesheet: No group column for coassembly was found or contains empty fields"
 							meta.coassemblygroup = coassemblygroup
+							meta.binninggroup = coassemblygroup
 						}else if(params.assemblymode == "all"){
 							meta.coassemblygroup = 1
+							meta.binninggroup = meta.coassemblygroup
 						}else if(params.assemblymode == "single"){
 							meta.coassemblygroup = meta.id
+							def binninggroup = row.group // reuse group annotation for co-binning with vamb instead of coassembly when available
+							if ( binninggroup != "null" || binninggroup != ""){
+								meta.binninggroup = binninggroup
+							}						
 						}else{ 
 							exit 1, "Only allowed modes for coassembly are all, group or single"
 						}
@@ -135,7 +141,7 @@ workflow input_check {
 workflow input_sra {
 	main: 
 		if(params.ena_query){
-			ena_query(params.sra)
+			ena_query(params.sra.replaceAll("\\s","").toUpperCase())
 			ena_query.out.splitCsv ( header:true, sep:',' )
 				.map { row ->
 						def id = row.run_accession ? row.run_accession : false
