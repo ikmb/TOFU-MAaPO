@@ -325,7 +325,7 @@ workflow assembly{
 		getCountTable(ch_bam)
 		ch_versions = ch_versions.mix(getCountTable.out.versions.first() )
 
-		if(params.magscot.toBoolean()){
+		if(params.magscot.toBoolean() && !params.skip_gtdbtk){
 			/*
 			* Abundance Table for MAGS
 			*/
@@ -334,7 +334,6 @@ workflow assembly{
 
 			MERGE_MAG_ABUNDANCE(BINCOVERAGE_PERSAMPLE.out.abundancetable.collect() )
 			ch_versions = ch_versions.mix(MERGE_MAG_ABUNDANCE.out.versions )
-
 		}
 
 
