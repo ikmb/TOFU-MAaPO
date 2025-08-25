@@ -83,9 +83,8 @@ process VAMB {
 	cache 'lenient'
 	label 'vamb'
 	label 'gpu'
-	label 'very_long_run'
 	label 'exclusive' // vamb does not control for numpy threads, which takes all threads by default
-	scratch false//params.scratch
+	scratch params.scratch
 	tag "$vamb_key"
 	containerOptions { params.gpu ? '--nv' : '' }
 	input:

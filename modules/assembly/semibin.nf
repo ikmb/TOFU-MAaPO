@@ -2,7 +2,7 @@ process SEMIBIN {
 
 	label 'semibin'
 	label 'gpu'
-	label 'very_long_run'
+
 	scratch params.scratch
 	tag "$sampleID"
 	cache 'lenient'
