@@ -28,7 +28,7 @@ Example command:
 nextflow run ikmb/tofu-maapo --reads '/path/to/fastqfiles/*_R{1,2}_001.fastq.gz' -profile custom -c tofu.config
 ```
 ## Input Options
-You may use one or both of the following options to provide input data:
+You may use one or both of the following parameters to provide input data:
 ### 1. FASTQ Files  
 Use the `--reads` parameter with a **glob pattern** for your .fastq.gz files as seen above **or** 
 provide a **CSV file** with the following columns:
@@ -37,7 +37,7 @@ provide a **CSV file** with the following columns:
 - `read1`: Path to the forward reads
 - `read2`: Path to the reverse reads (for paired-end data)  
   
-For single-end reads, include only `id` and `read1`.
+> **Note**: For single-end reads, include only `id` and `read1`.<br />
 
 The `read1` and `read2` fields may contain local file paths or remote links using http(s) or (s)ftp.
 
@@ -53,6 +53,8 @@ For mulitple IDs, use:
 --sra "ERR908507,ERR908506,ERR908505" --apikey **YOUR_NCBI_API_KEY**
 ```
 > **Note**: The Nextflow API call to NCBI may result in extra or missing samples. Ensure to verify downloaded data. Use `--exact_matches` to allow only exact ID matches (only for run IDs).<br />
+
+> **Note**: By adding the flag `--ena_query` you can query ENA for the supplied IDs, which does not require the NCBI API key. This feature is currently work in progress and may contain bugs. <br />
 
 # Available modules
 
