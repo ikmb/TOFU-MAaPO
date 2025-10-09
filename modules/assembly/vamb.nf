@@ -146,21 +146,33 @@ process group_vamb {
 	label 'default'
 	label 'short_run'
 	scratch params.scratch
-
+	publishDir "${params.outdir}/", mode: 'copy', enabled: params.publish_rawbins
+	
 	input:
 		path(reads_table)
 	output:
-		path("meta_contigkey.csv"), emit: sample_vambkey
-		path("contigs_perkey.csv"), emit: contigs_perkey
-		path("temp2_csv.csv"), emit: overview_csv
+		path("binninggroup_to_sample.csv"), emit: sample_vambkey
+		//path("contigs_perkey.csv"), emit: contigs_perkey
+		//path("temp2.csv"), emit: overview_csv
 	script:
 	"""
-	awk '{print int((NR-1)/${params.vamb_groupsize}) "," \$0}' ${reads_table} | sed 's/\\]//' | sed 's/\\[//' > temp2_csv.csv
+	#If all values for co-binning are unique, we need to create a new grouping to force co-binning with vamb
+	if awk  -F';' 'NF { if (++seen[\$1] > 1) dup=1 } END { exit dup }' "${reads_table}"; then
+		echo "unique grouping"
+		awk  -F';' '{print int((NR-1)/${params.vamb_groupsize}) "," \$0}' ${reads_table} > temp2.csv
+	else
+	# Co-binning is to be performed with the given co-binning grouping
+		echo "using available grouping"
+		awk  -F';' '{print \$1 ";" \$0}' ${reads_table} > temp2.csv
+	fi
+
+
 
 	#meta and contig-key:
-	awk -F, '{print \$2","\$3","\$4","\$1}' temp2_csv.csv > meta_contigkey.csv
+	awk -F';' '{print \$1";"\$3}' temp2.csv | sed 's/ //' > binninggroup_to_sample.csv #binninggroup, id
 
-	awk -F, '{OFS=","; a[\$1]=a[\$1]" "\$5} END {for (i in a) print i a[i]}' temp2_csv.csv | sed 's/ /,/' > contigs_perkey.csv
 	
 	"""
 }
+//#awk -F';' '{a[\$1]=a[\$1]"\t"\$4} END {for (i in a) print i a[i]}' temp2.csv | sed 's/ /,/' > contigs_perkey.csv
+	
