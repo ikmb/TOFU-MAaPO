@@ -278,34 +278,33 @@ workflow assembly{
 			checkm( ch_bins )
 			ch_versions = ch_versions.mix(checkm.out.versions.first() )
 		}
-		if(!params.skip_gtdbtk){
-			if(params.updategtdbtk){
-				PREPARE_GTDBTK()
-				ch_readygtdbtk = PREPARE_GTDBTK.out.readystate
-			}else{
-				ch_readygtdbtk = Channel.of('true')
-			}
-			GTDBTK(ch_bins, ch_readygtdbtk)
-			ch_versions = ch_versions.mix(GTDBTK.out.versions.first() )
-			
+		
+		if(params.updategtdbtk){
+			PREPARE_GTDBTK()
+			ch_readygtdbtk = PREPARE_GTDBTK.out.readystate
 		}else{
 			ch_readygtdbtk = Channel.of('true')
-			if(params.updategtdbtk){
-				PREPARE_GTDBTK()
-			}
 		}
+
+		if(!params.skip_gtdbtk){
+			GTDBTK(ch_bins, ch_readygtdbtk)
+			ch_versions = ch_versions.mix(GTDBTK.out.versions.first() )
+		}
+
 		getCountTable(ch_bam)
 		ch_versions = ch_versions.mix(getCountTable.out.versions.first() )
 
-		if(params.magscot.toBoolean() && !params.skip_gtdbtk){
-			/*
-			* Abundance Table for MAGS
-			*/
-			BINCOVERAGE_PERSAMPLE( MINIMAP2_MAPPING.out.sample_depth.join( MAGSCOT.out.contigs_to_bins_table ).join( GTDBTK.out.taxonomic_table ) )
-			ch_versions = ch_versions.mix(BINCOVERAGE_PERSAMPLE.out.versions.first() )
+		if(params.magscot.toBoolean() ){
+			if(!params.skip_gtdbtk.toBoolean()){
+				/*
+				* Abundance Table for MAGS
+				*/
+				BINCOVERAGE_PERSAMPLE( MINIMAP2_MAPPING.out.sample_depth.join( MAGSCOT.out.contigs_to_bins_table ).join( GTDBTK.out.taxonomic_table ) )
+				ch_versions = ch_versions.mix(BINCOVERAGE_PERSAMPLE.out.versions.first() )
 
-			MERGE_MAG_ABUNDANCE(BINCOVERAGE_PERSAMPLE.out.abundancetable.collect() )
-			ch_versions = ch_versions.mix(MERGE_MAG_ABUNDANCE.out.versions )
+				MERGE_MAG_ABUNDANCE(BINCOVERAGE_PERSAMPLE.out.abundancetable.collect() )
+				ch_versions = ch_versions.mix(MERGE_MAG_ABUNDANCE.out.versions )
+			}
 		}
 
 
