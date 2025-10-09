@@ -136,11 +136,15 @@ params {
 }
 ```
 
-# Kiel Medcluster
-On Kiel Medcluster, please load the following modules with:
+# Kiel CAUcluster
+On Kiel Caucluster, please load the following modules with:
 ```bash
+module load gcc12-env
 module load singularity nextflow
 ```
-When starting TOFU-MAaPO, make sure the medcluster profile is selected, by using: `-profile medcluster`
-No further action is required! <br />
+When starting TOFU-MAaPO, make sure the CAUcluster profile is selected, by using: `-profile caucluster`.
+No further action or initialization steps are required for IKMB users! <br />
 Databases for all tools (with the exception of Salmon) and the host genomes human, mouse and chimp are already set up.
+>Note: Due to permission-restrictions all non-IKMB users need to initialize the pipeline and download their databases in their own directories. Create a configuration file as described above for all database and reference paths. You do not need to set the other configurations, but can simply use `-profile caucluster`.  <br />
+
+> Note: It is recommended to start the pipeline in a tmux or screen session directly on one of the head nodes. This avoids SLURM timelimits, which could kill your pipeline run before it finishes, if you start the pipeline via a SLURM script. <br />
