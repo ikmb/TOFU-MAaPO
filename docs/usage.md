@@ -31,7 +31,10 @@ nextflow run ikmb/tofu-maapo --reads '/path/to/fastqfiles/*_R{1,2}_001.fastq.gz'
 You may use one or both of the following parameters to provide input data:
 ### 1. FASTQ Files  
 Use the `--reads` parameter with a **glob pattern** for your .fastq.gz files as seen above **or** 
-provide a **CSV file** with the following columns:
+provide a **CSV file**.
+
+#### CSV File Format
+Provide a truly comma-separated CSV file with the following columns:
 
 - `id`: Sample identifier  
 - `read1`: Path to the forward reads
@@ -39,7 +42,11 @@ provide a **CSV file** with the following columns:
   
 > **Note**: For single-end reads, include only `id` and `read1`.<br />
 
-The `read1` and `read2` fields may contain local file paths or remote links using http(s) or (s)ftp.
+The `read1` and `read2` fields may contain local file paths or remote links using http(s) or (s)ftp.  
+
+Optional column:
+- `group`: Set the same value for samples that should be co-assembled together when [`--assemblymode`](#assembly-options) is set to **group**. If `--assemblymode` is not set or set to **single**, the group column will be used for co-binning grouping in VAMB.<br />
+- `read3`: When supplying already qc'ed paired fastq files with [`--no_qc`](#qc-options), the path to the unpaired read file can be supplied in this column.
 
 ### 2. SRA Accessions
 Provide SRA Accession IDs via the `--sra` option.  <br />
