@@ -1,28 +1,28 @@
-	process VAMB_CATALOGUE {
-		label 'vamb'
-		label 'long_run'
-		scratch params.scratch
-		tag "$vamb_key"
+process VAMB_CATALOGUE {
+	label 'vamb'
+	label 'long_run'
+	scratch params.scratch
+	tag "$vamb_key"
 
-		input:
-			tuple val(vamb_key), val(contigs)
+	input:
+		tuple val(vamb_key), path(contigs)
 
-		output:
-			tuple val(vamb_key), path(catalogue), emit: catalogue
-			path("versions.yml"), emit: versions
-		script:
-			catalogue = vamb_key + "_collected_catalogue.fna.gz"
+	output:
+		tuple val(vamb_key), path(catalogue), emit: catalogue
+		path("versions.yml"), emit: versions
+	script:
+		catalogue = vamb_key + "_collected_catalogue.fna.gz"
 
-			"""
-			concatenate.py $catalogue ${contigs} --keepnames
+		"""
+		concatenate.py $catalogue ${contigs} --keepnames
 
-			cat <<-END_VERSIONS> versions.yml
-			"${task.process}":
-			Python: \$(python --version | sed -e "s/Python //g" )
-			END_VERSIONS
+		cat <<-END_VERSIONS> versions.yml
+		"${task.process}":
+		Python: \$(python --version | sed -e "s/Python //g" )
+		END_VERSIONS
 
-			"""
-	}
+		"""
+}
 
 process VAMB_strobealign {
 	label 'strobealing'
@@ -40,7 +40,7 @@ process VAMB_strobealign {
 		sampleID = meta.id
 		abundance_table = sampleID + "_abundance.tsv"
 		//strobealign cannot deal with the unpaired file in a paired read set
-		def selected_reads = reads.size() >= 2 ? reads[0..1] : [reads[0]]
+		def selected_reads = reads.flatten().collect().size() >= 2 ? reads[0..1] : [reads[0]]
     	def reads_str = selected_reads.collect { it.toString() }.join(' ')
 		"""
 		strobealign -t ${task.cpus} --aemb $catalogue $reads_str > ${abundance_table}
