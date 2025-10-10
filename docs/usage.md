@@ -77,7 +77,6 @@ For analysis following modules are available:<br />
 `-profile` Change the configuration of the pipeline. Valid options are medcluster (default), local or custom. You can add a new profile for your compute system by editing the file custom.config in the folder conf or create a new one and add it in the file nextflow.config under 'profiles'.<br />
 `-work-dir` Set a custom work directory, default is "work".<br />
 `-r` Use a specific branch or release version of the pipeline.<br />
-`--gpu` Use GPU acceleration in binning tools (vamb and Semibin2) 
 `--publish_rawreads` Publish unprocessed/raw files downloaded from SRA in the output directory.<br />
 `--getmetadata` When using SRA input, download fitting runinfo metadata.<br />
 `--single_end` Required when using --reads with an input glob to single_end files. For inputs with a mix of paired and single_end reads use a CSV file instead.

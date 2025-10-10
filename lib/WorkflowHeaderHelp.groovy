@@ -100,7 +100,6 @@ ${info_line}
 	General:
 		-profile                The nextflow execution profile to use (custom, local or medcluster [default])
 		--single_end            When using --reads and a glob to the files, run the pipeline with only single-end metagenomic reads
-		--gpu				 	Use GPU for binning tools (Vamb and SemiBin2)
 		-work-dir               Set a custom work directory, default is "work".
 		--outdir                Set a custom work directory for all outputs, default is "results".
 		-resume                 Resumes pipeline and will continue the run with already completed, cached processes.
