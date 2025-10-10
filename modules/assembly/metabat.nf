@@ -28,7 +28,7 @@ process METABAT {
 		"""
 }
 
-process contigs_to_bins {
+process METABAT_contigs_to_bins {
 
 	label 'default'
 	label 'short_run'

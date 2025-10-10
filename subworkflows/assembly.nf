@@ -17,7 +17,7 @@ include {   GTDBTK;
 } from '../modules/assembly/gtdbtk.nf'
 
 include {   METABAT;
-			contigs_to_bins
+			METABAT_contigs_to_bins
 } from '../modules/assembly/metabat.nf'
 
 include {
@@ -138,9 +138,8 @@ workflow assembly{
 			METABAT(ch_mapping)
 			ch_versions = ch_versions.mix(METABAT.out.versions.first() )
 		
-			contigs_to_bins(METABAT.out.metabatout)
-			ch_contig_bin_list = ch_contig_bin_list.mix(contigs_to_bins.out.metabat2_contigs_to_bins)
-			//if magscot is disabled, directly use metabat bins for final quality check and taxnomic assignment
+			METABAT_contigs_to_bins(METABAT.out.metabatout)
+			ch_contig_bin_list = ch_contig_bin_list.mix(METABAT_contigs_to_bins.out.metabat2_contigs_to_bins)
 			if(!params.magscot.toBoolean()){ ch_bins = METABAT.out.metabatout }
 		}
 
