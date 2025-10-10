@@ -24,7 +24,6 @@
 			"""
 	}
 
-<<<<<<< HEAD
 	process VAMB_CATALOGUE_INDEX {
 		label 'default_highmemory'
 		cache 'lenient'
@@ -152,11 +151,7 @@ process VAMB_COLLECT_DEPTHS {
 process VAMB {
 	cache 'lenient'
 	label 'vamb'
-<<<<<<< HEAD
-=======
-	label 'gpu'
 	label 'very_long_run'
->>>>>>> ac2c3ea (Merge branch caucluster into dev)
 	label 'exclusive' // vamb does not control for numpy threads, which takes all threads by default
 	scratch params.scratch
 	tag "$vamb_key"
