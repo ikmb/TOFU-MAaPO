@@ -120,7 +120,6 @@ process VAMB_MAPPING{
 process VAMB_COLLECT_DEPTHS {
 	cache 'lenient'
 	label 'default'
-	label 'vamb'
 	label 'short_run'
 	scratch params.scratch
 	tag "$vamb_key"
