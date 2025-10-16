@@ -10,7 +10,7 @@ dependencies:
   - python=3.10
   - scikit-learn=1.1.0
   - metabat2
-  - metaphlan=4.1
+  - metaphlan=4.1.1
   - humann=3.6
   - concoct=1.1.0
   - bowtie2

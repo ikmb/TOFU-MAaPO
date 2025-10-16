@@ -10,7 +10,8 @@ It provides comprehensive functionalities for:
 - **Metabolic pathway** analysis
 - **Assembly** of metagenome-assembled genomes (MAGs)  
 
-The pipeline is compatible with any Linux system and **requires only two dependencies**:
+The pipeline is compatible with any Linux system and **requires only three dependencies**:
+- **Java** (Nextflow dependency, version 17 or later)
 - **Nextflow** (workflow manager)
 - **Singularity** (as the container engine)
   
