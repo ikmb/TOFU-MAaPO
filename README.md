@@ -55,7 +55,7 @@ No software installation step is needed — Nextflow automatically downloads all
 
 # Pipeline Structure
 ![](./images/tofu_overview.svg)  
-Overview of TOFU-MAaPO 1.5.0
+Overview of TOFU-MAaPO 1.5.1
 
 # Key features
 ## Input data
