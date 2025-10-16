@@ -1,5 +1,6 @@
 process getCountTable {
 	label 'default'
+	label 'short_run'
 	cache 'lenient'
 	tag "$sampleID"
 	publishDir "${params.outdir}/counttable/${sampleID}", mode: 'copy'

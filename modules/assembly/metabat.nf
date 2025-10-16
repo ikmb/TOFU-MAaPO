@@ -1,6 +1,7 @@
 process METABAT {
 
     label 'metabat2'
+	label 'very_long_run'
     scratch params.scratch
     tag "$sampleID"
     publishDir "${params.outdir}/Metabat2/${sampleID}", mode: 'copy', enabled: params.publish_rawbins
@@ -30,6 +31,7 @@ process METABAT {
 process contigs_to_bins {
 
 	label 'default'
+	label 'short_run'
 	scratch params.scratch
 	tag "$sampleID"
 	publishDir {"${params.outdir}/Metabat2/${sampleID}"}, mode: 'copy', enabled: params.publish_rawbins as boolean

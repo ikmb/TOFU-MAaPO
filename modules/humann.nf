@@ -2,6 +2,7 @@
 
 	executor 'local'
 	label 'local_run'
+	label 'long_run'
 	output: 
 		val 'true', emit: readystate
 	script:
@@ -21,6 +22,7 @@
 	process HUMANN {
 
 	label 'humann'
+	label 'long_run'
 	tag "$sampleID"
 	scratch params.scratch
 	errorStrategy { (task.exitStatus in [143,137,104,134,139,1] && task.attempt <= maxRetries)  ? 'retry' : 'ignore' }
@@ -116,6 +118,7 @@
 process JOINgenefamilies {
 	
 	label 'humann'
+	label 'short_run'
 	publishDir "${params.outdir}/humann", mode: 'copy', pattern: "*.tsv"
 	scratch params.scratch
 	
@@ -143,6 +146,7 @@ process JOINgenefamilies {
 process JOINpathabundance {
 
 	label 'humann'
+	label 'short_run'
 	publishDir "${params.outdir}/humann", mode: 'copy', pattern: "*.tsv"
 	scratch params.scratch
 	
@@ -170,6 +174,8 @@ process JOINpathabundance {
 process JOINpathcoverage {
 
 	label 'humann'
+	label 'short_run'
+	label 'short_run'
 	publishDir "${params.outdir}/humann", mode: 'copy', pattern: "*.tsv"
 	scratch params.scratch
 

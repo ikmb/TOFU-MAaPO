@@ -1,6 +1,7 @@
 process GTDBTK {
 
 	label 'gtdbtk'
+	label 'long_run'
 	scratch params.scratch
 	tag "$sampleID"
 	publishDir "${params.outdir}/GTDBTK/${sampleID}", mode: 'copy'

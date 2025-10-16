@@ -59,7 +59,7 @@ ${info_line}
 	nextflow run ikmb/TOFU-MAaPO --reads '/path/to/*_R{1,2}_001.fastq.gz' 
 	Mandatory arguments:
 	--reads       The path to the fastq.gz files containing PE metagenomic reads (2 per sample) or SE metagenomic reads (1 per sample, use --single_end) or a csv file with a list of reads
-	or
+	and/or
 	--sra         Use SRA Accession ID to automatically download the queried fastq files.
 				Mandatory:
 				--apikey    Your personal NCBI API key.
@@ -99,10 +99,11 @@ ${info_line}
 	Optional arguments:
 	General:
 		-profile                The nextflow execution profile to use (custom, local or medcluster [default])
-		--single_end            Run the pipeline for single-end metagenomic reads
+		--single_end            When using --reads and a glob to the files, run the pipeline with only single-end metagenomic reads
 		-work-dir               Set a custom work directory, default is "work".
 		--outdir                Set a custom work directory for all outputs, default is "results".
 		-resume                 Resumes pipeline and will continue the run with already completed, cached processes.
+		--getmetadata			When using SRA input, download fitting runinfo metadata.
 
 	Initialization:
 		--updatemetaphlan       Download the Metaphlan4 database to the directory set in parameter metaphlan_db
@@ -139,7 +140,6 @@ ${info_line}
 		--publish_megahit       Publish all megahit contigs. Default: false
 		--publish_rawbins       Publish all raw bins from all binning tools. Default: false
 		--contig_sep            Contig name separator. Default: "megahitcontig"
-		--skip_vamb             Skip Vamb.
 		--vamb_groupsize        Group size of samples to use in one Vamb run if assembly mode is "single". Recommended: Number of all samples in the run. Default: 100.
 	""".stripIndent()
 	}

@@ -48,25 +48,40 @@ include {
 /*
  * Genome Assembly pipeline logic
  */
+
+/*
+Workflow:
+1. Assembly with megahit
+2. Filter contigs by length (2000bp default)
+3. Mapping of a catalogue and indexing with minimap2
+4. Mapping of reads to the catalgoue, coverage and depth tables + bam files
+5. Binning with multiple tools: metabat, vamb, maxbin, concoct, semibin
+6. Refinement of multiple binning tool outputs with magscot to a single bin set per sample
+7. Quality check with CheckM and taxonomical assignment with GTDB-Tk
+
+*/
 workflow assembly{
-	take: data
+	take: data //tuple of (meta,reads)
 	main:
+		//collecting softerware versions in a single channel
 		ch_versions = Channel.empty()
 
+		//parsing the chosen set of binning tools
 		binner = params.binner ? params.binner.split(',').collect{it.trim().toLowerCase().replaceAll('-', '').replaceAll('_', '').replaceAll('2', '')} : []
 		if(params.assembly){log.info "Binner       : ${binner}"}
 
+		//channel for all retained bins
 		ch_contig_bin_list = Channel.empty()
 
 		/*
 		* Contigs
 		*/
-		if(params.assemblymode == "single"){
+		if(params.assemblymode == "single"){ //assemble each sample separately
 			megahit_coas_input = data.unique()
 				.map { it ->
 					metas = it[0]
 					return[metas.coassemblygroup, it[1].flatten()]}
-		}else{
+		}else{ //assemble per coassemblygroup, collect all reads from samples belonging to the same group and create tuple for assembly
 			megahit_coas_input = data.unique()
 				.map { it ->
 					metas = it[0]
@@ -76,21 +91,23 @@ workflow assembly{
 				}
 				.groupTuple()
 		}
-
+		//run megahit assembly per coassemblygroup
 		MEGAHIT_assembly(megahit_coas_input)
 		ch_versions = ch_versions.mix(MEGAHIT_assembly.out.versions.first() )
 
+		//filter contigs by length
 		filtercontigs_in = MEGAHIT_assembly.out.contigs
 
 		FILTERCONTIGS(filtercontigs_in)
 		ch_versions = ch_versions.mix(FILTERCONTIGS.out.versions.first() )
 
+		//align per-sample metadata to filtered contigs 
 		ch_filteredcontigs = FILTERCONTIGS.out.contigs.combine(data.map { it ->
 				metas = it[0]
 				return[metas.coassemblygroup, metas, it[1]]}, by:0 ).map { it -> return[it[2], it[1], it[3]]}
 
 		/*
-		 * Basic Genome Assembly:
+		 * Per sample binning: Mapping and indexing of a catalogue per coassemblygroup and map reads to it
 		 */
 		MINIMAP2_CATALOGUE( FILTERCONTIGS.out.contigs )
 		ch_versions = ch_versions.mix(MINIMAP2_CATALOGUE.out.versions.first() )
@@ -107,30 +124,35 @@ workflow assembly{
 		MINIMAP2_MAPPING( ch_minimap2_mapping_input )
 
 		ch_versions = ch_versions.mix(MINIMAP2_MAPPING.out.versions.first() )
-
+		
+		//outputs used for all selected per sample binning tools:
 		ch_mapping = MINIMAP2_MAPPING.out.maps
 		ch_bam = MINIMAP2_MAPPING.out.bam
 
 		/*
 		* METABAT2 Workflow
 		*/
+		//If magscot is disabled, MetaBAT bins are the final bin output.
 		if ( 'metabat' in binner || !params.magscot.toBoolean() ) {
 			METABAT(ch_mapping)
 			ch_versions = ch_versions.mix(METABAT.out.versions.first() )
 		
 			contigs_to_bins(METABAT.out.metabatout)
 			ch_contig_bin_list = ch_contig_bin_list.mix(contigs_to_bins.out.metabat2_contigs_to_bins)
+			//if magscot is disabled, directly use metabat bins for final quality check and taxnomic assignment
 			if(!params.magscot.toBoolean()){ ch_bins = METABAT.out.metabatout }
 		}
 
 		if(params.magscot.toBoolean()){
 			/*
 			 * Extended Genome Assembly:
+			 * MAGScoT bin refinement allows for combining multiple binning tools outputs into a unified set of high-quality bins
 			*/
 
 			/*
 			* VAMB Workflow
 			*/
+			//Co-binning with VAMB (we will require to group multiple samples together for good results, user adjustable group sizes (100 as default))
 			if ( 'vamb' in binner ) {
 
 				if(params.assemblymode == "single"){
@@ -164,7 +186,7 @@ workflow assembly{
 					vamb_catalogue_in = ch_contigs_perkey
 
 
-					// Minimap2 Index from all samples
+					// Minimap2 catalogue for every co-binning group
 					VAMB_CATALOGUE(vamb_catalogue_in)
 					ch_versions = ch_versions.mix(VAMB_CATALOGUE.out.versions.first() )
 
@@ -176,34 +198,36 @@ workflow assembly{
 					//add to ch_vambgroup_contigs the catalogue based on vamb_group
 					ch_mapping_vamb_input = ch_vambgroup_contigs.combine( VAMB_CATALOGUE_INDEX.out.catalogue, by: 1 )
 
-
+					//Map reads to the co-binning catalogue and retain depths
 					VAMB_MAPPING( ch_mapping_vamb_input )
 					ch_versions = ch_versions.mix(VAMB_MAPPING.out.versions.first() )
 
 					VAMB_COLLECT_DEPTHS( VAMB_MAPPING.out.counttable.groupTuple()//.collect() 
 					)
 					ch_versions = ch_versions.mix(VAMB_COLLECT_DEPTHS.out.versions.first() )
-
+					//Main VAMB bin clustering process
 					VAMB(   VAMB_CATALOGUE_INDEX.out.catalogue_indexfirst.join( VAMB_COLLECT_DEPTHS.out.alldepths )                    
 						)
 					ch_versions = ch_versions.mix(VAMB.out.versions.first() )
+
+					//map vamb clusters back to orignal samples
 					ch_vambgroup_sampleid = ch_sample_to_vambgroup.map{ row -> tuple(row[1], row[0]) }.combine(VAMB.out.all_samples_clustertable, by: 0)
 				}else{
-					
+					//when co-assembly was performed, use earlier produced minimap2 counttables for depths directly
 					VAMB_COLLECT_DEPTHS( MINIMAP2_MAPPING.out.counttable_vamb.groupTuple()//.collect() 
 					)
 					ch_versions = ch_versions.mix(VAMB_COLLECT_DEPTHS.out.versions.first() )
-
+					//Main VAMB bin clustering process
 					VAMB(   MINIMAP2_CATALOGUE_INDEX.out.catalogue_indexfirst.join( VAMB_COLLECT_DEPTHS.out.alldepths )                    
 						)
 					ch_versions = ch_versions.mix(VAMB.out.versions.first() )
 
-
+					//map vamb clusters back to orignal samples
 					ch_vambgroup_sampleid = data.map{it -> meta = it[0]
 													return[meta.coassemblygroup, meta]}
 													.combine(VAMB.out.all_samples_clustertable, by: 0)
 				}
-
+				//convert vamb clusters to a contig-bin assignment table
 				VAMB_CONTIGS_SELECTION( ch_vambgroup_sampleid )
 				ch_contig_bin_list = ch_contig_bin_list.mix(VAMB_CONTIGS_SELECTION.out.magscot_contigbinlist)
 			}
@@ -212,15 +236,16 @@ workflow assembly{
 			* MAXBIN2 Workflow
 			*/
 			if ( 'maxbin' in binner ) {
-				MAXBIN2( ch_mapping )
+				MAXBIN2( ch_mapping ) //output is a contig-bin assingment table
 				ch_contig_bin_list = ch_contig_bin_list.mix(MAXBIN2.out.magscot_contigbinlist)
 				ch_versions = ch_versions.mix(MAXBIN2.out.versions.first() )
 			}
 			/*
 			* CONCOCT Workflow
 			*/
+			//concoct requires BAM files as input
 			if ( 'concoct' in binner ) {
-			CONCOCT( ch_mapping.join( ch_bam ) )
+			CONCOCT( ch_mapping.join( ch_bam ) ) //output is a contig-bin assingment table
 			ch_contig_bin_list = ch_contig_bin_list.mix(CONCOCT.out.magscot_contigbinlist)
 			ch_versions = ch_versions.mix(CONCOCT.out.versions.first() )
 			}
@@ -228,7 +253,8 @@ workflow assembly{
 			* SemiBin2 Workflow
 			*/
 			if ( 'semibin' in binner ) {
-			SEMIBIN( ch_mapping.join( ch_bam ) )
+			//semibin requires both BAM files and coverage as input
+			SEMIBIN( ch_mapping.join( ch_bam ) ) //output is a contig-bin assingment table
 			ch_contig_bin_list = ch_contig_bin_list.mix(SEMIBIN.out.magscot_contigbinlist)
 			ch_versions = ch_versions.mix(SEMIBIN.out.versions.first() )
 			}
@@ -236,24 +262,25 @@ workflow assembly{
 			/*
 			* MAGScoT Workflow
 			*/
-
+			//Aggregate all contig-bin assingment tables for each sample
 			ch_per_sample_contigs_to_bins = ch_contig_bin_list.groupTuple()
 
 			FORMATTING_CONTIG_TO_BIN(   ch_per_sample_contigs_to_bins   )
 			ch_contig_to_bin = FORMATTING_CONTIG_TO_BIN.out.formatted_contigs_to_bin
-
+			//detect marker genes
 			MARKER_IDENT(   ch_mapping.join( ch_contig_to_bin) )
 			ch_versions = ch_versions.mix(MARKER_IDENT.out.versions.first() )
 
+			//magscot input is contig-bin assignment table + markers + filtered contigs
 			ch_magscot_in = ch_contig_to_bin
 									.join( MARKER_IDENT.out.hmm_output )
 									.map{it -> meta = it[0]
 									return[meta.coassemblygroup, meta, it[1], it[2]]}
 									.combine( FILTERCONTIGS.out.magscot_contigs, by:0 )
-
+			//Main MAGScoT bin refinement process, output is a contig-bin assignment table
 			MAGSCOT( ch_magscot_in )
 			ch_versions = ch_versions.mix(MAGSCOT.out.versions.first() )
-
+			//create final bins
 			EXTRACT_REFINED_BINS ( MAGSCOT.out.refined_contigs_to_bins )
 			ch_versions = ch_versions.mix(EXTRACT_REFINED_BINS.out.versions.first() )
 

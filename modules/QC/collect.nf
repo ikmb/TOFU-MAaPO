@@ -4,8 +4,8 @@
  */
 
 process COLLECTOR {
-
 	label 'default'
+	label 'short_run'
 	scratch params.scratch
 	tag "$sampleID"
 

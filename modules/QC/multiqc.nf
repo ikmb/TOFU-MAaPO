@@ -3,6 +3,7 @@ process MULTIQC {
 	publishDir "${params.outdir}/MultiQC", mode: 'copy', pattern: "*.html"
 	scratch params.scratch
 	label 'multiqc'
+	label 'short_run'
 
 	input:
 		path('*')

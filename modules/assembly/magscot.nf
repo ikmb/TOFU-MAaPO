@@ -1,5 +1,6 @@
 process FORMATTING_CONTIG_TO_BIN {
 	label 'default'
+	label 'short_run'
 	scratch params.scratch
 	tag "$sampleID"
 
@@ -19,6 +20,7 @@ process FORMATTING_CONTIG_TO_BIN {
 
 process MARKER_IDENT {
 	label 'magscot'
+	label 'short_run'
 	scratch params.scratch
 	tag "$sampleID"
 	publishDir "${params.outdir}/magscot/${sampleID}", mode: 'copy'
@@ -81,8 +83,8 @@ process MARKER_IDENT {
 }
 
 process MAGSCOT {
-
 	label 'magscot'
+	label 'short_run'
 	scratch params.scratch
 	errorStrategy  { task.exitStatus in [42] ? 'ignore' : task.attempt <= maxRetries  ? 'retry' : 'ignore' }
 	tag "$sampleID"
@@ -129,7 +131,7 @@ process MAGSCOT {
 
 		cat <<-END_VERSIONS > versions.yml
 		"${task.process}":
-		MAGScoT: 1.0.0
+		MAGScoT: 1.1.0
 		R: \$(Rscript --version | awk '{print \$4}')
 		END_VERSIONS
 
@@ -142,6 +144,7 @@ process MAGSCOT {
 
 process EXTRACT_REFINED_BINS {
 	label 'default'
+	label 'short_run'
 	scratch params.scratch
 	tag "$sampleID"
 	publishDir "${params.outdir}/magscot/${sampleID}", mode: 'copy'

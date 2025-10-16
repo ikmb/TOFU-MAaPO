@@ -1,6 +1,7 @@
 process SEMIBIN {
 
 	label 'semibin'
+	label 'very_long_run'
 	scratch params.scratch
 	tag "$sampleID"
 	cache 'lenient'
@@ -19,7 +20,7 @@ process SEMIBIN {
 		semibin_contigs_to_bin = sampleID + '_semibin_contigs_to_bin.tsv'
 		formatted_contigs_to_bin = sampleID + '_semibin_magscot_contigs_to_bin.tsv'
 			"""
-			SemiBin single_easy_bin \
+			SemiBin2 single_easy_bin \
 				-i $fcontigs \
 				-b $mappingbam \
 				-o ${sampleID}_semibin_output \
@@ -31,7 +32,7 @@ process SEMIBIN {
 			}
 			set -e
 
-			gawk '{print \$1"\t"\$2"\tsemibin2"}' $semibin_contigs_to_bin > $formatted_contigs_to_bin
+			awk '{print \$1"\t"\$2"\tsemibin2"}' $semibin_contigs_to_bin > $formatted_contigs_to_bin
 
 			cat <<-END_VERSIONS> versions.yml
 			"${task.process}":

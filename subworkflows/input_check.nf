@@ -93,11 +93,13 @@ workflow input_check {
 
 				download_files(rawoutput.download.map{it -> return [it[0], it[2]]})
 				ch_mix = Channel.empty().mix(rawoutput.local.map{it -> return [it[0], it[2]]}).mix(download_files.out.reads)
-				reads = ch_mix
+				inreads = ch_mix
 		} else {
 			Channel
-				.fromFilePairs(params.reads, size: params.single_end ? 1 : 2)
-				.ifEmpty { exit 1, "Cannot find any matching reads in ${params.reads}\nPaths must be in enclosed quotes"}
+				.fromFilePairs(params.reads, size: params.single_end ? 1 : ( params.no_qc ? (params.only_paired ? 2 : 3) : 2 ) ) 
+				.ifEmpty { exit 1, 
+					( !params.no_qc ? "Cannot find any matching reads in ${params.reads}\nPaths must be in enclosed quotes.\nIf you have single-end reads, make sure to add the parameter --single_end." :
+					"Cannot find three quality controlled matching reads (R1, R2 and unpaired) reads in ${params.reads}!\nIf you want to include only paired reads, use the parameter --only_paired.\nIf you have single-end reads, make sure to add the parameter --single_end.")}
 				.map { row ->
 						def meta = [:]
 						meta.id = row[0]
@@ -114,96 +116,18 @@ workflow input_check {
 						else  
 							return [meta,  row[1] ]
 				}
-				.set { reads }
+				.set { inreads }
 		}
+
+        if(params.no_qc){
+            COLLECTOR( inreads )
+		    reads = COLLECTOR.out 
+        }else{
+            reads = inreads
+        }
 
 	emit:
 		reads // channel: [ val(meta), [ 0:read1, 1:read2 ] ] or  [ val(meta), [ 0:readsingle ] ]
-}
-
-workflow input_check_qced {
-	main:
-		if(hasExtension(params.reads, "csv")){
-			Channel
-				.from(file(params.reads))
-				.splitCsv ( header:true, sep:',' )
-				.map { row ->
-						def id = row.id ? row.id : false
-						if(!id){ exit 1, "Empty id in csv-input found" }
-						def meta = [:]  
-						meta.id = id
-
-						def read1 = row.read1 ? row.read1 : false
-						def read2 = row.read2 ? row.read2 : false
-						def read3 = row.read3 ? row.read3 : false
-						def readsize = [ read1, read2, read3 ].count{ it }
-
-						if (!FileCheck.checkoutfile("$read1")) { exit 1, "Within the input csv the file $read1 in column read1 does not exist for $id"}
-						if (readsize > 1){ if (!FileCheck.checkoutfile("$read2")) { exit 1, "Within the input csv the file $read2 in column read2 does not exist for $id"} }
-						if (readsize == 3){ if (!FileCheck.checkoutfile("$read3")) { exit 1, "Within the input csv the file $read3 in column read3 does not exist for $id"} }
-
-						meta.single_end = readsize == 1 ? true : false
-
-						if (!read1) exit 1, "Invalid input samplesheet in at least column read1! Is your csv file comma separated?"
-						if (!(hasExtension(read1, ".fastq.gz") || hasExtension(read1, ".fq.gz")) ) exit 1, "Invalid file $read1 ! Reads need to end with .fastq.gz"
-						if ( !meta.single_end ){
-							if (!read2) exit 1, "Invalid input samplesheet in at least column read2"
-							if (!(hasExtension(read2, ".fastq.gz") || hasExtension(read2, ".fq.gz")) ) exit 1, "Invalid file $read2 ! Reads need to end with .fastq.gz"
-							if ( read3 ){ 
-								if (!(hasExtension(read3, ".fastq.gz") || hasExtension(read3, ".fq.gz")) ) exit 1, "Invalid file $read3 ! Reads need to end with .fastq.gz"
-							}
-						}
-
-						if(params.assemblymode == "group"){
-							def coassemblygroup = row.group.ifEmpty(exit 1, "Invalid input samplesheet: No group column for coassembly was found")
-							meta.coassemblygroup = coassemblygroup
-						}else if(params.assemblymode == "all"){
-							meta.coassemblygroup = 1
-						}else if(params.assemblymode == "single"){
-							meta.coassemblygroup = meta.id
-						}else{ 
-							exit 1, "Only allowed modes for coassembly are all, group or single"
-						}
-
-						if (meta.single_end){
-							return [meta, [ read1 ] ] 
-						}else{
-							if (read3){
-								return [meta, [ read1, read2, read3 ] ]
-							}else {
-								return [meta, [ read1, read2 ] ]
-							}
-						}
-				}
-				.set { inreads }
-		} else {
-			Channel
-				.fromFilePairs(params.reads, size: params.single_end ? 1 : 3)
-				.ifEmpty { exit 1, "Cannot find any matching reads in ${params.reads}\nPaths must be in enclosed quotes"}
-				.map { row ->
-						def meta = [:]
-						meta.id = row[0]
-						meta.single_end = params.single_end.toBoolean()
-						if(params.assemblymode == "single"){
-							meta.coassemblygroup = meta.id
-						}else if( params.assemblymode == "all"){
-							meta.coassemblygroup = 1
-						}else{ 
-							exit 1, "Cannot use other modes than single or all for coassembly with this inputmode"
-						}
-
-						if (params.single_end){
-							return [meta,  row[1] ] 
-						}else{  
-							return [meta,  row[1] ]
-						}
-				}
-				.set { inreads }
-		}
-		COLLECTOR( inreads )
-		reads = COLLECTOR.out 
-	emit:
-		reads  // channel: [ val(meta), [ 0:read1, 1:read2 ] ] or  [ val(meta), [ 0:readsingle ] ]
 }
 
 workflow input_sra {
