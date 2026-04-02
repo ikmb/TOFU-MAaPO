@@ -166,6 +166,7 @@ nextflow run hello
 You can install Apptainer via:
 - the [Apptainer Quickstart Guide](https://apptainer.org/docs/user/main/quick_start.html) or
 - [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html) (no `sudo` rights required): 
+>**Note**: We recommend installing Apptainer system-wide (sudo required), as Conda-based installations have caused permission issues on some Ubuntu systems.
 ```bash
 # Create a new conda environment for Apptainer
 conda create --name apptainer_env -c conda-forge -c bioconda apptainer
