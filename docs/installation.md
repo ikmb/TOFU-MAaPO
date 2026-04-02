@@ -1,8 +1,8 @@
 # Installation
 
->**Note for IKMB users on CAUcluster**: You can skip all pipeline installation and configuration steps. Simply, load [the required modules](installation.md/#kiel-caucluster) and use "-profile caucluster".
+>**Note for IKMB users on CAUcluster**: You can skip all pipeline installation and configuration steps. Simply, load [the required modules](#kiel-caucluster) and use "-profile caucluster".
 
-Before you can run TOFU-MAaPO, you need to install [Singularity](https://docs.sylabs.io/guides/3.9/user-guide/quick_start.html) and [Nextflow](https://www.nextflow.io/docs/latest/install.html). We show how to install the dependencies in the [the Quick start section](../README.md#installing-dependencies) or you install them manually by following the links.<br />
+Before you can run TOFU-MAaPO, you need [Nextflow](https://www.nextflow.io/docs/latest/install.html) and a supported container engine such as [Apptainer](https://apptainer.org/docs/user/main/quick_start.html) and [Singularity](https://docs.sylabs.io/guides/3.9/user-guide/quick_start.html). We show how to install the dependencies in the [the Quick start section](../README.md#installing-dependencies) or you install them manually by following the links.<br />
 
 You will need to prepare databases for respective modules (e.g., Metaphlan4, HUMAnN3) and a config file for your compute system.<br />
 
@@ -77,9 +77,39 @@ executor {
 
 ### Executors
 
-If you intend to run the pipeline on an HPC or cloud service, refer to the [Nextflow Executors documentation](https://www.nextflow.io/docs/latest/executor.html) for guidance on adapting your custom configuration file to your environment.
+If you intend to run the pipeline on an HPC or cloud service, refer to the [Nextflow Executors documentation](https://docs.seqera.io/nextflow/executor.html) for guidance on adapting your custom configuration file to your environment.
 
-This page only covers the baseline executor configuration. For HPC-specific runtime behavior such as internet-restricted compute nodes, running the main process in `tmux` or `screen`, shared container cache placement, and SLURM routing for download jobs, see [Running on HPC Systems Without Internet Access on Compute Nodes](./hpc_internet_access.md).
+### Container engines
+
+TOFU-MAaPO uses containerized software. The pipeline already defines the required process containers, so you only need to enable the container engine you want to use in your own configuration file.
+
+>**Caution**: Enable only **one** container engine at a time.
+
+The example configuration above uses Apptainer:
+
+```groovy
+apptainer {
+	enabled = true
+	runOptions = "-B /home -B /tmp"
+	cacheDir = "${launchDir}/apptainer_cache"
+}
+```
+
+If your system uses Singularity instead, use:
+
+```groovy
+singularity {
+	enabled = true
+	runOptions = "-B /home -B /tmp"
+	cacheDir = "${launchDir}/singularity_cache"
+}
+```
+
+For more options and detailed documentation see the [Nextflow documentation for supported container engines](https://docs.seqera.io/nextflow/container)
+
+
+Make sure the paths in `runOptions` match the filesystems that should be visible inside the container on your system.
+
 
 ---
 

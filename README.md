@@ -39,7 +39,7 @@ No software installation step is needed — Nextflow automatically downloads all
   - [Prerequisites:](#prerequisites)
   - [Installing dependencies](#installing-dependencies)
     - [Step 1: Install Nextflow](#step-1-install-nextflow)
-    - [Step 2: Install Singularity (Apptainer)](#step-2-install-singularity-apptainer)
+    - [Step 2: Install Apptainer (formerly Singularity)](#step-2-install-apptainer-formerly-singularity)
   - [Downloading TOFU-MAaPO](#downloading-tofu-maapo)
   - [Configuration](#configuration)
     - [Quickstart profile](#quickstart-profile)
@@ -167,16 +167,16 @@ You can install Apptainer via:
 - the [Apptainer Quickstart Guide](https://apptainer.org/docs/user/main/quick_start.html) or
 - [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html) (no `sudo` rights required): 
 ```bash
-# Create a new conda environment for Singularity
+# Create a new conda environment for Apptainer
 conda create --name apptainer_env -c conda-forge -c bioconda apptainer
 # Activate environment
 conda activate apptainer_env
-# Check whether Singularity has been successfully installed
+# Check whether Apptainer has been successfully installed
 apptainer --version
 # Also make sure you can run an example container
 apptainer run docker://ghcr.io/apptainer/lolcow
 ```
-
+>**Note**: The pipeline can also be used with [other container engines such as Singularity](https://docs.seqera.io/nextflow/container) by enabling them in the [configuration file](docs/installation.md#configuration)
 ## Downloading TOFU-MAaPO
 Use the following command to download or update the pipeline:<br />
 ```bash
