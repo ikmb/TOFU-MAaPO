@@ -10,10 +10,11 @@ It provides comprehensive functionalities for:
 - **Metabolic pathway** analysis
 - **Assembly** of metagenome-assembled genomes (MAGs)  
 
-The pipeline is compatible with any Linux system and **requires only three dependencies**:
+The pipeline is compatible with any Linux system and **requires only the following dependencies**:
 - **Java** (Nextflow dependency, version 17 or later)
 - **Nextflow** (workflow manager)
-- **Singularity** (as the container engine)
+- **Apptainer** (or **Singularity**) (as the container engine)<br />
+and **Internet access** (to download databases, software containers and public metagenomic samples)
   
 No software installation step is needed — Nextflow automatically downloads all necessary containers and tools.
 
@@ -161,19 +162,19 @@ chmod +x nextflow
 # Try a simple Nextflow demo
 nextflow run hello
 ```
-### Step 2: Install Singularity (Apptainer)
-You can install Singularity via:
-- the [Singularity Quickstart Guide](https://docs.sylabs.io/guides/3.9/user-guide/quick_start.html) or
+### Step 2: Install Apptainer (formerly Singularity)
+You can install Apptainer via:
+- the [Apptainer Quickstart Guide](https://apptainer.org/docs/user/main/quick_start.html) or
 - [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html) (no `sudo` rights required): 
 ```bash
 # Create a new conda environment for Singularity
-conda create --name sing_env -c conda-forge -c bioconda singularity=3.8 
+conda create --name apptainer_env -c conda-forge -c bioconda apptainer
 # Activate environment
-conda activate sing_env
+conda activate apptainer_env
 # Check whether Singularity has been successfully installed
-singularity --version
+apptainer --version
 # Also make sure you can run an example container
-singularity run library://sylabsed/examples/lolcow
+apptainer run docker://ghcr.io/apptainer/lolcow
 ```
 
 ## Downloading TOFU-MAaPO
@@ -340,9 +341,10 @@ nextflow run ikmb/tofu-maapo \
 All further documentation about the pipeline can be found in the `docs/` directory or under the links below:
 
 1. [Installation and configuration](docs/installation.md)
-2. [Add host genomes to TOFU-MAaPO](docs/hostgenome.md)
-3. [Available options](docs/usage.md)
-4. [Outputs structure](docs/output.md)
+2. [Recommendations for running TOFU-MAaPO in HPC environments with limited internet access](docs/hpc_internet_access.md)
+3. [Add host genomes to TOFU-MAaPO](docs/hostgenome.md)
+4. [Available options](docs/usage.md)
+5. [Outputs structure](docs/output.md)
 
 
 # Funding

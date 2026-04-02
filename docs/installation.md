@@ -1,10 +1,13 @@
 # Installation
 
->**Note for IKMB users on CAUcluster**: You can skip all installation and configuration steps. Simply use "-profile caucluster".
+>**Note for IKMB users on CAUcluster**: You can skip all pipeline installation and configuration steps. Simply, load [the required modules](installation.md/#kiel-caucluster) and use "-profile caucluster".
 
 Before you can run TOFU-MAaPO, you need to install [Singularity](https://docs.sylabs.io/guides/3.9/user-guide/quick_start.html) and [Nextflow](https://www.nextflow.io/docs/latest/install.html). We show how to install the dependencies in the [the Quick start section](../README.md#installing-dependencies) or you install them manually by following the links.<br />
 
 You will need to prepare databases for respective modules (e.g., Metaphlan4, HUMAnN3) and a config file for your compute system.<br />
+
+>**Note**: This page covers database preparation and the baseline structure of your TOFU-MAaPO configuration file. If you are running on an HPC where compute nodes do not have internet access, see [Running on HPC Systems Without Internet Access on Compute Nodes](./hpc_internet_access.md) for runtime recommendations such as `tmux`/`screen`, shared container cache, and routing download jobs to suitable SLURM resources.
+
 # Configuration
 
 Before running **TOFU-MAaPO** for the first time, you must set up a configuration file tailored to your computing system. There are two approaches for configuration:
@@ -50,13 +53,13 @@ params {
   scratch = false
 }
 
-//Enable Singularity as container software
-singularity {
+//Enable Apptainer as container software
+apptainer {
 	enabled = true
-  // Singularity configs, CHANGE THEM TO YOUR USED FILESYSTEM, if not properly set the container won't see your files
+  // Apptainer configs, CHANGE THEM TO YOUR USED FILESYSTEM, if not properly set the container won't see your files
 	runOptions = "-B /home -B /tmp"
 	// where should the containers be downloaded to
-	cacheDir = "${launchDir}/singularity_cache"
+	cacheDir = "${launchDir}/apptainer_cache"
 }
 
 process {
@@ -75,6 +78,8 @@ executor {
 ### Executors
 
 If you intend to run the pipeline on an HPC or cloud service, refer to the [Nextflow Executors documentation](https://www.nextflow.io/docs/latest/executor.html) for guidance on adapting your custom configuration file to your environment.
+
+This page only covers the baseline executor configuration. For HPC-specific runtime behavior such as internet-restricted compute nodes, running the main process in `tmux` or `screen`, shared container cache placement, and SLURM routing for download jobs, see [Running on HPC Systems Without Internet Access on Compute Nodes](./hpc_internet_access.md).
 
 ---
 
@@ -104,6 +109,7 @@ Supply the paths to store the databases to using:
 Run the pipeline with these parameters **during your initial run**.   
 Ensure your local computer has internet access, as the pipeline will automatically download and extract the databases. 
 > Hint: Once the first run is successful, update your custom configuration file to permanently set the paths for `--metaphlan_db` and `--humann_db`.
+> If you are on an HPC system where compute nodes do not have internet access, follow the runtime guidance in [Running on HPC Systems Without Internet Access on Compute Nodes](./hpc_internet_access.md).
 
 >**Note**: Running HUMAnN3 also requires the MetaPhlAn4 database (version vJan21).
 
@@ -139,11 +145,14 @@ params {
 }
 ```
 
-# Kiel Medcluster
-On Kiel Medcluster, please load the following modules with:
+
+# Kiel CAUcluster
+On Kiel CAUcluster, please load the following modules prior running TOFU-MAaPO:
 ```bash
+module load gcc12-env
 module load singularity nextflow
 ```
-When starting TOFU-MAaPO, make sure the medcluster profile is selected, by using: `-profile medcluster`
-No further action is required! <br />
+When starting TOFU-MAaPO, make sure the caucluster profile is selected, by using: `-profile caucluster`
+No further action is required for IKMB users! <br />
 Databases for all tools (with the exception of Salmon) and the host genomes human, mouse and chimp are already set up.
+Non-IKMB users must download databases to their directories due to storage permission policies.
