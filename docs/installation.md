@@ -1,4 +1,7 @@
 # Installation
+
+>**Note for IKMB users on CAUcluster**: You can skip all installation and configuration steps. Simply use "-profile caucluster".
+
 Before you can run TOFU-MAaPO, you need to install [Singularity](https://docs.sylabs.io/guides/3.9/user-guide/quick_start.html) and [Nextflow](https://www.nextflow.io/docs/latest/install.html). We show how to install the dependencies in the [the Quick start section](../README.md#installing-dependencies) or you install them manually by following the links.<br />
 
 You will need to prepare databases for respective modules (e.g., Metaphlan4, HUMAnN3) and a config file for your compute system.<br />
