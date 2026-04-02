@@ -1,11 +1,10 @@
-# Running on HPC Systems Without Internet Access on Compute Nodes
+# Running on HPC Systems with restricted internet access
+>**Note**: This page covers runtime behavior on HPC systems (with restricted internet access). For general software installation, database setup, and the baseline structure of `custom.config`, see [Installation](./installation.md).
 
 Some HPC systems do not allow internet access from regular compute nodes. This matters for TOFU-MAaPO because:
 
 - the Nextflow main process needs internet access to download required containers if they are not cached yet
 - download steps in the pipeline need internet access while they run
-
->**Note**: This page covers runtime behavior on HPC systems (with restricted internet access). For general software installation, database setup, and the baseline structure of `custom.config`, see [Installation](./installation.md).
 
 ## Before you start
 
@@ -18,10 +17,6 @@ Check these points first:
 4. Make sure your container cache is on shared storage, or pre-download the containers before submitting compute jobs.
 
 If the container cache is only stored on the launch node's local disk, compute nodes will not be able to reuse those containers. The default example in [`conf/custom.config`](../conf/custom.config) stores the cache under `${launchDir}/singularity_cache`, so on HPC systems you may want to change this to a shared filesystem path.
-
-
-
-
 
 
 ## Choose your setup

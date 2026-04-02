@@ -14,7 +14,7 @@ The pipeline is compatible with any Linux system and **requires only the followi
 - **Java** (Nextflow dependency, version 17 or later)
 - **Nextflow** (workflow manager)
 - **Apptainer** (or **Singularity**) (as the container engine)<br />
-and **Internet access** (to download databases, software containers and public metagenomic samples)
+- **Internet access** to retrieve databases, software containers and public metagenomic datasets
   
 No software installation step is needed — Nextflow automatically downloads all necessary containers and tools.
 
@@ -51,7 +51,7 @@ No software installation step is needed — Nextflow automatically downloads all
   - [Running metabolic gene/pathway estimation with HUMAnN](#running-metabolic-genepathway-estimation-with-humann)
   - [Running metagenome assembly](#running-metagenome-assembly)
   - [Running taxonomic abundance estimation with MetaPhlAn](#running-taxonomic-abundance-estimation-with-metaphlan)
-- [Documentation](#documentation)
+- [Further Documentation](#further-documentation)
 - [Funding](#funding)
 
 # Pipeline Structure
@@ -133,7 +133,7 @@ Following steps are performed with all refined bins:
 TOFU-MAaPO requires significant computational resources. Ensure your system meets the following minimum requirements:  
 - **CPU**: At least 16 cores.  
 - **RAM**: At least 128 GB (e.g., Semibin may require up to 200 GB, and GTDB-TK up to 100 GB).  
-- **Connection to the internet**<br />
+- **Internet access** to retrieve databases, software containers, and public metagenomic datasets"<br />
 
 For large datasets, it is recommended to run the pipeline on a high-performance computing (HPC) system.  
 
@@ -336,12 +336,12 @@ nextflow run ikmb/tofu-maapo \
 
 **For detailed usage options**, refer to the [**usage documentation**](docs/usage.md).<br />
 
-# Documentation 
+# Further Documentation 
 
 All further documentation about the pipeline can be found in the `docs/` directory or under the links below:
 
 1. [Installation and configuration](docs/installation.md)
-2. [Recommendations for running TOFU-MAaPO in HPC environments with limited internet access](docs/hpc_internet_access.md)
+2. [Recommendations for running TOFU-MAaPO in HPC environments](docs/hpc_internet_access.md)
 3. [Add host genomes to TOFU-MAaPO](docs/hostgenome.md)
 4. [Available options](docs/usage.md)
 5. [Outputs structure](docs/output.md)
