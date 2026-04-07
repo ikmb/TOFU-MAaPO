@@ -79,7 +79,7 @@ TOFU-MAaPO defines the `local_download` label for download processes such as:
 - `download_sra`
 - `download_files`
 
-This means you do not need to modify the pipeline code itself. You only need to map that label to the correct SLURM partition, constraint, or local executor in your configuration.
+This means you do not need to modify the pipeline code itself. You only need to map that label to the correct SLURM partition, constraint, or local executor in your configuration file.
 
 Add or extend the `process` block in your custom Nextflow configuration as recommended in the following examples:
 
