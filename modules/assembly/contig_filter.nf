@@ -34,7 +34,6 @@ process FILTERCONTIGS {
 		
 		"""
 	stub:
-		coassemblygroup = meta.coassemblygroup + '_' + meta.assembler
 		fcontigs_filtered = coassemblygroup + '_fcontigsfiltered.fa'
 
 		"""

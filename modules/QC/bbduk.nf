@@ -154,7 +154,7 @@ process TRIMREADS {
 		if (meta.single_end) {
 			"""
 			touch ${sampleID}_single_trimmed.fastq.gz
-			echo "cleanreads_stub" > versions.yml
+			echo "trimreads_stub" > versions.yml
 			"""
 		} else {
 							"""

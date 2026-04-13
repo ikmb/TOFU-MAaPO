@@ -25,7 +25,6 @@ process BINCOVERAGE_PERSAMPLE{
 		"""
 	stub:
 		sampleID = meta.id
-		assembler = meta.assembler
 		output_file = sampleID + '_abundance_table.tbl'
 		"""
 		touch ${output_file}
@@ -59,8 +58,8 @@ process MERGE_MAG_ABUNDANCE{
 		END_VERSIONS
 		"""
 	stub:
-		output_file = 'merged_MAG_tpm_abundance_' + assembler + '.tbl'
-		output_plot = 'phylum_rel_abudance_plot' + assembler + '.png'
+		output_file = 'merged_MAG_tpm_abundance.tbl'
+		output_plot = 'phylum_rel_abudance_plot.png'
 		"""
 		touch ${output_file}
 		touch ${output_plot}

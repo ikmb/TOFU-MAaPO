@@ -26,7 +26,7 @@ process checkm {
 		"""
 	stub:
 		sampleID = meta.id
-		outputtable = sampleID + '_' + meta.assembler +"_checkm_table.tsv"
+		outputtable = sampleID + "_checkm_table.tsv"
 
 		"""
 		touch $outputtable

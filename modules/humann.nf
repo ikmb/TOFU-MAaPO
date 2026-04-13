@@ -15,6 +15,11 @@
 	humann_databases --update-config no --download uniref uniref90_diamond ${params.humann_db}
 	humann_databases --update-config no --download chocophlan full ${params.humann_db}
 	"""
+    stub:
+    """
+    mkdir -p ${params.humann_db}/uniref
+    mkdir -p ${params.humann_db}/chocophlan
+    """
 }
 	
 
@@ -112,6 +117,36 @@
 
 		"""
 		}
+	stub:
+		sampleID = meta.id
+		genefamilies = sampleID + '_genefamilies.tsv'
+		pathabundance = sampleID + '_pathabundance.tsv'
+		pathcoverage = sampleID + '_pathcoverage.tsv'
+		"""
+		cat > ${genefamilies} <<EOF
+		# Gene Family\t${sampleID}
+		UNMAPPED\t0
+		UNINTEGRATED\t0
+		UniRef90_STUB\t1
+		EOF
+
+		cat > ${pathabundance} <<EOF
+		# Pathway\t${sampleID}
+		UNMAPPED\t0
+		UNINTEGRATED\t0
+		PWY-STUB\t1
+		EOF
+
+		cat > ${pathcoverage} <<EOF
+		# Pathway\t${sampleID}
+		PWY-STUB\t1
+		EOF
+
+		cat <<-END_VERSIONS > versions.yml
+		"${task.process}":
+		humann: stub
+		END_VERSIONS
+		"""
 }
 
 process JOINgenefamilies {
@@ -140,6 +175,21 @@ process JOINgenefamilies {
 		END_VERSIONS
 
 		"""
+    stub:
+    mergedtable = "humann_merged_genefamilies.tsv"
+    """
+    cat > ${mergedtable} <<EOF
+# Gene Family\tstub_sample
+UNMAPPED\t0
+UNINTEGRATED\t0
+UniRef90_STUB\t1
+EOF
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+      Python: stub
+    END_VERSIONS
+    """
 }
 
 process JOINpathabundance {
@@ -168,6 +218,21 @@ process JOINpathabundance {
 		END_VERSIONS
 
 		"""
+	stub:
+		mergedtable = "humann_merged_pathabundance.tsv"
+    	"""
+    	cat > ${mergedtable} <<EOF
+# Pathway\tstub_sample
+UNMAPPED\t0
+UNINTEGRATED\t0
+PWY-STUB\t1
+EOF
+
+    	cat <<-END_VERSIONS > versions.yml
+"${task.process}":
+	Python: stub
+END_VERSIONS
+    	"""
 }
 
 process JOINpathcoverage {
@@ -196,5 +261,18 @@ process JOINpathcoverage {
 		Python: \$(python --version | sed -e "s/Python //g" )
 		END_VERSIONS
 		
+		"""
+    stub:
+		mergedtable = "humann_merged_pathcoverage.tsv"
+		"""
+		cat > ${mergedtable} <<EOF
+# Pathway\tstub_sample
+PWY-STUB\t1
+EOF
+
+		cat <<-END_VERSIONS > versions.yml
+		"${task.process}":
+		Python: stub
+		END_VERSIONS
 		"""
 }       

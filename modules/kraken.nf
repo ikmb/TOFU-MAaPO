@@ -52,6 +52,26 @@ script:
 
 		"""	
 	}
+	stub:
+	sampleID = meta.id
+	report = sampleID + ".kraken2_report.txt"
+	kraken_log = sampleID + "_kraken2.log"
+	"""
+	cat > ${report} <<EOF
+# Kraken2 stub report for ${sampleID}
+100.00\t1\t1\tU\t0\tunclassified
+0.00\t0\t0\tR\t1\troot
+EOF
+
+cat > ${kraken_log} <<EOF
+[stub] kraken2 executed for ${sampleID}
+EOF
+
+cat <<-END_VERSIONS > versions.yml
+"${task.process}":
+  Kraken2: stub
+END_VERSIONS
+"""
 }
 
 process KRAKEN2MPA {
@@ -73,6 +93,18 @@ process KRAKEN2MPA {
       	Python: \$(python --version | sed -e "s/Python //g" )
     	END_VERSIONS
 
+		"""
+		stub:
+		"""
+		cat > ${report.simpleName}.kraken_mpa.txt <<EOF
+#Classification\tstub_sample
+k__Bacteria\t100.0
+EOF
+
+		cat <<-END_VERSIONS > versions.yml
+"${task.process}":
+  Python: stub
+END_VERSIONS
 		"""
 }
 
@@ -96,6 +128,27 @@ process KRAKEN2YAML {
       	Python: \$(python --version | sed -e "s/Python //g" )
     	END_VERSIONS
 
+		"""
+	stub:
+		report_yaml = "kraken_report_mqc.yaml"
+		"""
+		cat > ${report_yaml} <<EOF
+id: kraken2
+section_name: Kraken2
+description: Stub Kraken2 summary
+plot_type: table
+pconfig:
+  id: kraken2_stub_table
+data:
+  stub_sample:
+    classified: 1
+    unclassified: 0
+EOF
+
+		cat <<-END_VERSIONS > versions.yml
+"${task.process}":
+  Python: stub
+END_VERSIONS
 		"""
 }
 
@@ -123,6 +176,20 @@ process KRAKENMERGEREPORTS {
     	END_VERSIONS
 
 		"""
+	stub:
+	report_combined = "kraken_report_combined.txt"
+	"""
+	cat > ${report_combined} <<EOF
+# Kraken2 combined stub report
+100.00\t1\t1\tU\t0\tunclassified
+0.00\t0\t0\tR\t1\troot
+EOF
+
+	cat <<-END_VERSIONS > versions.yml
+"${task.process}":
+  Python: stub
+END_VERSIONS
+	"""
 }
 
 process KRAKENMPAMERGE {
@@ -148,6 +215,19 @@ process KRAKENMPAMERGE {
       	Python: \$(python --version | sed -e "s/Python //g" )
     	END_VERSIONS
 
+		"""
+	stub:
+		abundances = "kraken2_mpa_abundances.txt"
+		"""
+		cat > ${abundances} <<EOF
+Classification\tstub_sample
+k__Bacteria\t100.0
+EOF
+
+		cat <<-END_VERSIONS > versions.yml
+"${task.process}":
+  Python: stub
+END_VERSIONS
 		"""
 }
 
@@ -176,6 +256,19 @@ process BRACKEN {
     	END_VERSIONS
 
 		"""
+	stub:
+		bracken_output = sampleID + ".bracken"
+		"""
+		cat > ${bracken_output} <<EOF
+name\ttaxonomy_id\ttaxonomy_lvl\tkraken_assigned_reads\tadded_reads\tnew_est_reads\tfraction_total_reads
+Bacteria\t2\tD\t1\t0\t1\t1.0
+EOF
+
+		cat <<-END_VERSIONS > versions.yml
+"${task.process}":
+  Python: stub
+END_VERSIONS
+		"""
 }
 
 process BRACKENMERGE {
@@ -202,5 +295,18 @@ process BRACKENMERGE {
 	Python: \$(python --version 2>&1 | awk '{print \$2}' )
 	END_VERSIONS
 	
+	"""
+	stub:
+	bracken_merged = "bracken_merged.txt"
+	"""
+	cat > ${bracken_merged} <<EOF
+name\ttaxonomy_id\ttaxonomy_lvl\tstub_sample
+Bacteria\t2\tD\t1
+EOF
+
+	cat <<-END_VERSIONS > versions.yml
+"${task.process}":
+  Python: stub
+END_VERSIONS
 	"""
 }

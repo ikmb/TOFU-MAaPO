@@ -60,6 +60,26 @@ script:
 	
 	"""	
 	}
+	stub:
+    sampleID = meta.id
+    report = sampleID + ".quant.sf"
+    salmon_log = sampleID + "_salmon.log"
+    """
+    cat > ${report} <<EOF
+Name\tLength\tEffectiveLength\tTPM\tNumReads
+bin_001_contig_1\t1000\t700\t10.0\t25
+bin_002_contig_1\t1200\t900\t5.0\t12
+EOF
+
+    cat > ${salmon_log} <<EOF
+stub salmon quant for ${sampleID}
+EOF
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+      salmon: stub
+    END_VERSIONS
+    """
 }
 
 process SALMON_merge {
@@ -85,5 +105,19 @@ process SALMON_merge {
 		R: \$(Rscript --version 2>&1 | awk '{print \$5}')
 		END_VERSIONS
 		"""	
+	stub:
+    abundances = "salmon_merged_TPM.tbl"
+    """
+    cat > ${abundances} <<EOF
+Name\tLength\tEffectiveLength\tTPM_stub_sample
+bin_001_contig_1\t1000\t700\t10.0
+bin_002_contig_1\t1200\t900\t5.0
+EOF
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+      R: stub
+    END_VERSIONS
+    """
 }
 

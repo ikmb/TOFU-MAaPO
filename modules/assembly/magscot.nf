@@ -159,7 +159,7 @@ process MAGSCOT {
 	"""
 	stub:
 		sampleID = meta.id
-		outputname = meta.id + '_' + meta.assembler
+		outputname = meta.id
 		refined_contigs_to_bins = outputname + '.refined.contig_to_bin.out'
 		stats_outfile = outputname + '.refined.out'
 		full_stats = outputname + '.scores.out'

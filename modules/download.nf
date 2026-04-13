@@ -97,4 +97,20 @@ process download_files {
         
 		"""
     }
+    stub:
+    sampleID = meta.id
+    leftnewname = sampleID + "_1_raw.fastq.gz"
+    rightnewname = sampleID + "_2_raw.fastq.gz"
+    unpairednewname = sampleID + "_single_raw.fastq.gz"
+    if (meta.single_end) {
+        """
+        touch ${unpairednewname}
+        """
+    } else {
+        """
+        touch ${leftnewname}
+        touch ${rightnewname}
+        touch ${unpairednewname}
+        """
+    }
 }

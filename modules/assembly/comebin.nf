@@ -38,4 +38,16 @@ process COMEBIN {
 			comebin: 1.0.4
 			END_VERSIONS
 			"""
+	stub:
+		sampleID = meta.id
+		bed_file = sampleID + '.bed'
+		comebin_contigs_to_bin = sampleID + '_comebin_contigs_to_bin.tsv'
+		formatted_contigs_to_bin = sampleID + '_comebin_magscot_contigs_to_bin.tsv'
+
+		"""
+		touch $comebin_contigs_to_bin
+		touch $formatted_contigs_to_bin
+
+		echo "comebin_stub" > versions.yml
+		"""
 }
