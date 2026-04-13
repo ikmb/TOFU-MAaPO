@@ -77,60 +77,38 @@ workflow assembly{
 		/*
 		* Contigs
 		*/
-		
-		if ( 'spades' in assembler ){
-			//only works in single assembly mode
-			METASPADES(data)
-			ch_versions = ch_versions.mix(METASPADES.out.versions.first() )
-			filtercontigs_in = filtercontigs_in.mix(METASPADES.out.contigs.map{it -> 
-																				def meta = [:]
-																				meta.coassemblygroup = it[0]
-																				meta.assembler = 'metaspades'
-																				return [meta, it[1]]
-																				})
+		if(params.assemblymode == "single"){ //assemble each sample separately
+			megahit_coas_input = data.unique()
+				.map { it ->
+					metas = it[0]
+					return[metas.coassemblygroup, it[1].flatten()]}
+		}else{ //assemble per coassemblygroup, collect all reads from samples belonging to the same group and create tuple for assembly
+			megahit_coas_input = data.unique()
+				.map { it ->
+					metas = it[0]
+					return[metas.coassemblygroup, it[1]]}
+				.flatMap { id, reads -> 
+					reads.collect { read -> [id, read] }
+				}
+				.groupTuple()
 		}
+		//run megahit assembly per coassemblygroup
+		MEGAHIT_assembly(megahit_coas_input)
+		ch_versions = ch_versions.mix(MEGAHIT_assembly.out.versions.first() )
 
-		if ( 'megahit' in assembler ){
-			megahit_coas_input = data.map { it ->
-			metas = it[0]
-			return[metas.coassemblygroup, it[1]]}.groupTuple(by:0).map{ it -> return[it[0], it[1].flatten()]}.unique()
-
-			MEGAHIT_assembly(megahit_coas_input)
-			ch_versions = ch_versions.mix(MEGAHIT_assembly.out.versions.first() )
-			filtercontigs_in = filtercontigs_in.mix(MEGAHIT_assembly.out.contigs.map{it ->
-																				def meta = [:]   
-																				meta.coassemblygroup = it[0]
-																				meta.assembler = 'megahit'
-																				return [meta, it[1]]
-																				})
-		}
+		//filter contigs by length
+		filtercontigs_in = MEGAHIT_assembly.out.contigs
 
 		FILTERCONTIGS(filtercontigs_in)
 		ch_versions = ch_versions.mix(FILTERCONTIGS.out.versions.first() )
-		ch_filteredcontigs = FILTERCONTIGS.out.contigs.map{it -> 
-						meta = it[0]
-						return[meta.coassemblygroup, meta, it[1]]
-						}.combine(data.map { it ->
+
+		//align per-sample metadata to filtered contigs 
+		ch_filteredcontigs = FILTERCONTIGS.out.contigs.combine(data.map { it ->
 				metas = it[0]
-				return[metas.coassemblygroup, metas, it[1]]
-				}, by:0 )
-				.map { it -> 
-					contig = it[2]
-					meta_assembler = it[1]
-					meta_data = it[3]
-					reads = it[4]
-					def meta = [:]
-					meta.coassemblygroup = meta_assembler.coassemblygroup + '_' + meta_assembler.assembler
-					meta.coassemblygroup_orig = meta_assembler.coassemblygroup
-					meta.assembler = meta_assembler.assembler
-					meta.id = meta_data.id
-					meta.single_end = meta_data.single_end
-					//return[it[2], it[1], it[3]]
-					return[meta, contig, reads]
-					}
+				return[metas.coassemblygroup, metas, it[1]]}, by:0 ).map { it -> return[it[2], it[1], it[3]]}
 
 		/*
-		 * Basic Genome Assembly:
+		 * Per sample binning: Mapping and indexing of a catalogue per coassemblygroup and map reads to it
 		 */
 		MINIMAP2_CATALOGUE( FILTERCONTIGS.out.contigs )
 		ch_versions = ch_versions.mix(MINIMAP2_CATALOGUE.out.versions.first() )
@@ -357,11 +335,6 @@ workflow assembly{
 		}
 
 
-/*
-		if(params.drep){
-			DREP( ch_bins.map{it -> return[it[1]]}.collect() )
-		}
-*/
 	emit:
 		versions = ch_versions
 }

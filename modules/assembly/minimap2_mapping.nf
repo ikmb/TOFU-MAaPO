@@ -21,8 +21,7 @@ process MINIMAP2_CATALOGUE {
 		END_VERSIONS
 		"""
 	stub:
-		catalogue = "collected_catalogue.fna.gz"
-		coassemblygroup = meta.coassemblygroup + '_' + meta.assembler
+		catalogue = coassemblygroup + '_' + "collected_catalogue.fna.gz"
 		"""
 		touch $catalogue
 		echo "MINIMAP2_CATALOGUE_stub" > versions.yml
@@ -63,6 +62,7 @@ process MINIMAP2_CATALOGUE_INDEX {
 		echo "MINIMAP2_CATALOGUE_INDEX_stub" > versions.yml
 		"""
 }
+
 process MINIMAP2_MAPPING{
 	cache 'lenient'
 	label 'bowtie2'
@@ -130,7 +130,7 @@ process MINIMAP2_MAPPING{
 			"""		
 		}
 	stub:
-		sampleID = meta.id + '_' + meta.assembler
+		sampleID = meta.id
 		coassemblygroup = meta.coassemblygroup
 		depthout = sampleID + '_depth.txt'
 		mappingbam = sampleID + '_mapping_minimap.bam'

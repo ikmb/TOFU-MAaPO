@@ -90,7 +90,6 @@ process MARKER_IDENT {
 		"""
 	stub:
 		sampleID = meta.id
-		assembler = meta.assembler
 		samplehmm = sampleID + '.hmm'
 		"""
 		touch $samplehmm

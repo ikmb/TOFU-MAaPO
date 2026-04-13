@@ -240,7 +240,7 @@ process VAMB_CONTIGS_SELECTION{
 		"""
 	stub:
 		sampleID = meta.id
-		grep_pattern = meta.coassemblygroup.replaceAll('_megahit', '').replaceAll('_metaspades', '')
+		grep_pattern = meta.coassemblygroup.replaceAll('_megahit', '')
 		persample_clustertable = sampleID + '_vamb_contigs_to_bin.tsv'
 		formatted_contigs_to_bin = sampleID + '_vamb_magscot_contigs_to_bin.tsv'
 		"""
