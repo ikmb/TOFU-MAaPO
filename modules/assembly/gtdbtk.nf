@@ -63,6 +63,10 @@ process GTDBTK {
 	"""
 	stub:
 		"""
+		if [ ! -d ${params.gtdbtk_reference} ]; then
+			mkdir -p ${params.gtdbtk_reference};
+    	fi
+		cd ${params.gtdbtk_reference}
 		touch stub.file
 		"""
 }
