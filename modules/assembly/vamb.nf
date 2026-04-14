@@ -1,4 +1,79 @@
-	process VAMB_CATALOGUE {
+process VAMB_strobealign {
+	label 'strobealing'
+	scratch params.scratch
+	tag "${vamb_key}_${meta.id}"
+	
+
+	input:
+		tuple val(vamb_key), val(meta), path(reads), path(catalogue)
+
+	output:
+		tuple val(vamb_key), path(abundance_table), emit: abundance
+		path("versions.yml"), emit: versions
+
+	script:
+		sampleID = meta.id
+		abundance_table = sampleID + "_abundance.tsv"
+		//strobealign cannot deal with the unpaired file in a paired read set
+		def selected_reads = reads.size() >= 2 ? reads[0..1] : [reads[0]]
+    	def reads_str = selected_reads.collect { it.toString() }.join(' ')
+		"""
+		strobealign -t ${task.cpus} --aemb $catalogue $reads_str > ${abundance_table}
+		
+		cat <<-END_VERSIONS> versions.yml
+		"${task.process}":
+		strobealign: \$(strobealign --version )
+		END_VERSIONS
+		"""
+	stub:
+		sampleID = meta.id
+		abundance_table = sampleID + "_abundance.tsv"
+		"""
+		touch ${abundance_table}
+		
+		cat <<-END_VERSIONS> versions.yml
+		"${task.process}":
+		strobealign stub
+		END_VERSIONS
+		"""
+}
+
+process VAMB_merge_aemb {
+	label 'vamb_util'
+	scratch params.scratch
+	tag "$vamb_key"
+	input:
+		tuple val(vamb_key), path(abundance_table)
+
+	output:
+		tuple val(vamb_key), path(combined_abundance), emit: abundance
+		path("versions.yml"), emit: versions
+	script:
+		combined_abundance = vamb_key + "_abundance.tsv"
+		"""
+		mkdir input && mv ${abundance_table} input/
+
+		python3 /workspace/vamb/src/merge_aemb.py input/ $combined_abundance
+
+		cat <<-END_VERSIONS> versions.yml
+		"${task.process}":
+		Python: \$(python --version | sed -e "s/Python //g" )
+		END_VERSIONS
+		"""
+	stub:
+		combined_abundance = vamb_key + "_abundance.tsv"
+		"""
+		touch ${combined_abundance}
+		
+		cat <<-END_VERSIONS> versions.yml
+		"${task.process}":
+		VAMB_merge_aemb stub
+		END_VERSIONS
+		"""
+}
+
+	
+process VAMB_CATALOGUE {
 		label 'vamb'
 		label 'long_run'
 		scratch params.scratch
@@ -28,9 +103,9 @@
 		touch $catalogue
 		echo "VAMB_CATALOGUE_stub" > versions.yml
 		"""
-	}
+}
 
-	process VAMB_CATALOGUE_INDEX {
+process VAMB_CATALOGUE_INDEX {
 		label 'default_highmemory'
 		cache 'lenient'
 		scratch params.scratch
@@ -62,8 +137,9 @@
 			touch $catalogue_index
 			echo "VAMB_CATALOGUE_INDEX_stub" > versions.yml
 			"""
-	}
+}
 //-I100G
+/*
 process VAMB_MAPPING{
 	cache 'lenient'
 	label 'bowtie2'
@@ -142,7 +218,7 @@ process VAMB_MAPPING{
 			echo "VAMB_MAPPING_stub" > versions.yml
 			"""
 }
-
+*/
 process VAMB_COLLECT_DEPTHS {
 	cache 'lenient'
 	label 'default'
@@ -187,8 +263,7 @@ process VAMB {
 	tag "$vamb_key"
 
 	input:
-		tuple val(vamb_key), path(catalogue), path(catalogue_index), path(alldepths)
-
+		tuple val(vamb_key), path(catalogue), path(abundance)//path(alldepths)
 
 	output:
 		tuple val(vamb_key), path(cluster_table), emit: all_samples_clustertable
@@ -197,8 +272,9 @@ process VAMB {
 	script:
 		cluster_table = 'all_vamb_contigs_to_bin.tsv'
 		"""
-		vamb --outdir bin --fasta $catalogue --jgi $alldepths -o _${params.contig_sep}_ -p ${task.cpus}
-		mv bin/clusters.tsv $cluster_table
+		vamb bin default --outdir bin --fasta $catalogue --abundance_tsv $abundance -o _${params.contig_sep}_ -p ${task.cpus}
+
+		cat bin/vae_clusters*split.tsv > $cluster_table
 
 		cat <<-END_VERSIONS > versions.yml
 		"${task.process}":

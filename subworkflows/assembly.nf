@@ -22,9 +22,11 @@ include {   METABAT;
 
 include {
 	VAMB_CATALOGUE;
-	VAMB_CATALOGUE_INDEX;
-	VAMB_MAPPING;
-	VAMB_COLLECT_DEPTHS;
+	//VAMB_CATALOGUE_INDEX;
+	//VAMB_MAPPING;
+	VAMB_strobealign;
+	VAMB_merge_aemb;
+	//VAMB_COLLECT_DEPTHS;
 	VAMB_CONTIGS_SELECTION;
 	VAMB;
 	group_vamb
@@ -177,20 +179,58 @@ workflow assembly{
 
 					//add to tuple meta vamb_group the tuple contigs with reads
 					ch_vambgroup_contigs = ch_sample_to_vambgroup.join( ch_filteredcontigs )//.map{row -> tuple(row[1], row[0], row[1], row[2], row[3], row[4])}
-
+/*
 					ch_contigs_perkey = group_vamb.out.contigs_perkey
 						.splitCsv ( header:false, sep:',' )
 						.map { row -> tuple(row[0], row[1]) }
+*/
+					vamb_catalogue_in = group_vamb.out.contigs_perkey
+						.splitCsv ( header:false, sep:',' )
+						.map { row -> tuple(row[0], row[1]) }
 
-
-					vamb_catalogue_in = ch_contigs_perkey
+//					vamb_catalogue_in = ch_contigs_perkey
 
 
 					// Minimap2 catalogue for every co-binning group
 					VAMB_CATALOGUE(vamb_catalogue_in)
 					ch_versions = ch_versions.mix(VAMB_CATALOGUE.out.versions.first() )
+										// concatenate all contigs to a catalogue per vamb_key
+
+					//add to ch_vambgroup_contigs the catalogue based on vamb_group
+					ch_mapping_vamb_input = ch_vambgroup_contigs
+						.map{row -> tuple(row[1], row[0], row[3])} //vamb_key, meta, reads
+						.combine( VAMB_CATALOGUE.out.catalogue, by: 0 )// vamb_key, meta, reads, catalogue
+
+					VAMB_strobealign( ch_mapping_vamb_input )
+					ch_versions = ch_versions.mix(VAMB_strobealign.out.versions.first() )
+					
+					VAMB_merge_aemb( VAMB_strobealign.out.abundance.groupTuple() )
+					ch_versions = ch_versions.mix(VAMB_merge_aemb.out.versions.first() )
+					//VAMB_MAPPING( ch_mapping_vamb_input )
+					//ch_versions = ch_versions.mix(VAMB_MAPPING.out.versions.first() )
+
+					VAMB(   VAMB_CATALOGUE.out.catalogue.join( VAMB_merge_aemb.out.abundance )       
+						)
+					ch_versions = ch_versions.mix(VAMB.out.versions.first() )
+					ch_vambgroup_sampleid = ch_sample_to_vambgroup.map{ row -> tuple(row[1], row[0]) }.combine(VAMB.out.all_samples_clustertable, by: 0)
+
+				}else{
+
+					VAMB(   MINIMAP2_CATALOGUE_INDEX.out.catalogue_indexfirst.join( MINIMAP2_MAPPING.out.vambkey_bam.groupTuple() )                    
+						)
+					ch_versions = ch_versions.mix(VAMB.out.versions.first() )
 
 
+					ch_vambgroup_sampleid = data.map{it -> meta = it[0]
+													return[meta.coassemblygroup, meta]}
+													.combine(VAMB.out.all_samples_clustertable, by: 0)
+				}
+
+				VAMB_CONTIGS_SELECTION( ch_vambgroup_sampleid )
+				ch_contig_bin_list = ch_contig_bin_list.mix(VAMB_CONTIGS_SELECTION.out.magscot_contigbinlist)
+			}
+
+/*
 					//VAMB_CATALOGUE(ch_collected_filtered_contigs  )
 					VAMB_CATALOGUE_INDEX( VAMB_CATALOGUE.out.catalogue )
 					ch_versions = ch_versions.mix(VAMB_CATALOGUE_INDEX.out.versions.first() )
@@ -231,7 +271,7 @@ workflow assembly{
 				VAMB_CONTIGS_SELECTION( ch_vambgroup_sampleid )
 				ch_contig_bin_list = ch_contig_bin_list.mix(VAMB_CONTIGS_SELECTION.out.magscot_contigbinlist)
 			}
-
+*/
 			/*
 			* MAXBIN2 Workflow
 			*/
