@@ -1,5 +1,5 @@
 # Running on HPC Systems with restricted internet access
->**Note**: This page covers runtime behavior on HPC systems (with restricted internet access). For general software installation, database setup, and the baseline structure of `custom.config`, see [Installation](./installation.md).
+>**Note**: This page covers runtime behavior on HPC systems (with restricted internet access). For general software installation, database setup, and the baseline structure of `custom.config`, see [Installation](/docs/installation.md).
 
 Some HPC systems do not allow internet access from regular compute nodes. This matters for TOFU-MAaPO because:
 
@@ -30,6 +30,8 @@ Use the scenario that matches your cluster:
    Run `local_download` jobs with `executor = 'local'` on the same node as the Nextflow main process [as explained here](#scenario-2-only-the-login-or-submission-node-has-internet-access).
 3. You are unsure which nodes have internet access.
    Check your site documentation or ask your HPC admins which SLURM partition, constraint, or nodes should be used for internet-enabled jobs.
+
+>**Note**: You can use [`-stub-run`](/docs/hpc_guide.md#perform-a-test-run) to test your pipeline configuration and/or download software containers and databases.
 
 ## Configuration for HPCs with limited internet access
 
