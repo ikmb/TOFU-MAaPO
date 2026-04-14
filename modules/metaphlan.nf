@@ -28,11 +28,13 @@ process PREPARE_METAPHLAN {
 		#mv mpa_latest?download=1 mpa_latest
 
 	"""
+	/*
 	stub:
 		"""
 		mkdir -p ${params.metaphlan_db}
 		echo "mpa_vJan21_CHOCOPhlAnSGB_202103" > ${params.metaphlan_db}/mpa_latest
 		"""
+	*/
 }
 
 process METAPHLAN {

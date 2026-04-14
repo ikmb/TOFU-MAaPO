@@ -44,6 +44,7 @@ process download_sra {
         
 		"""
     }
+    /*
     stub:
         sampleID = meta.id
         def delay = task.attempt
@@ -61,7 +62,7 @@ process download_sra {
             touch ${unpairednewname}
 			"""
 		}
-
+    */
 }
 
 process download_files {
@@ -97,6 +98,7 @@ process download_files {
         
 		"""
     }
+    /*
     stub:
     sampleID = meta.id
     leftnewname = sampleID + "_1_raw.fastq.gz"
@@ -113,4 +115,5 @@ process download_files {
         touch ${unpairednewname}
         """
     }
+    */
 }

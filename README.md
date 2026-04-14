@@ -342,10 +342,11 @@ nextflow run ikmb/tofu-maapo \
 All further documentation about the pipeline can be found in the `docs/` directory or under the links below:
 
 1. [Installation and configuration](docs/installation.md)
-2. [Recommendations for running TOFU-MAaPO in HPC environments](docs/hpc_internet_access.md)
-3. [Add host genomes to TOFU-MAaPO](docs/hostgenome.md)
-4. [Available options](docs/usage.md)
-5. [Outputs structure](docs/output.md)
+2. [Available options](docs/usage.md)
+3. [Guide for HPC users](docs/hpc_guide.md)
+4. [Running on HPC Systems with restricted internet access](docs/hpc_internet_access.md)
+5. [Add host genomes to TOFU-MAaPO](docs/hostgenome.md)
+6. [Outputs structure](docs/output.md)
 
 
 # Funding

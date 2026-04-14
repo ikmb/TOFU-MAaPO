@@ -15,11 +15,13 @@
 	humann_databases --update-config no --download uniref uniref90_diamond ${params.humann_db}
 	humann_databases --update-config no --download chocophlan full ${params.humann_db}
 	"""
+	/*
     stub:
     """
     mkdir -p ${params.humann_db}/uniref
     mkdir -p ${params.humann_db}/chocophlan
     """
+	*/
 }
 	
 

@@ -6,71 +6,30 @@ Some HPC systems do not allow internet access from regular compute nodes. This m
 - the Nextflow main process needs internet access to download required containers if they are not cached yet
 - download steps in the pipeline need internet access while they run
 
-## Before you start
+Here, we want to give some guide lines how to configure and test TOFU-MAaPO in these environments.
 
-Check these points first:
+Table of content:
+- [Running on HPC Systems with restricted internet access](#running-on-hpc-systems-with-restricted-internet-access)
+- [How to configure TOFU-MAaPO for your HPC with network restrictions](#how-to-configure-tofu-maapo-for-your-hpc-with-network-restrictions)
+  - [Configuration for HPCs with limited internet access](#configuration-for-hpcs-with-limited-internet-access)
+  - [Scenario 1: Dedicated internet-enabled SLURM partition or nodes](#scenario-1-dedicated-internet-enabled-slurm-partition-or-nodes)
+    - [Example: dedicated partition](#example-dedicated-partition)
+    - [Example: dedicated nodes via `clusterOptions`](#example-dedicated-nodes-via-clusteroptions)
+    - [Example: dedicated nodes via SLURM constraint](#example-dedicated-nodes-via-slurm-constraint)
+  - [Scenario 2: Only the login or submission node has internet access](#scenario-2-only-the-login-or-submission-node-has-internet-access)
 
-1. Start TOFU-MAaPO from a node that has internet access.
-   This is usually a login node, head node, or dedicated submission node.
-2. Keep the Nextflow main process alive in `tmux` or `screen`.
-3. Make sure your compute nodes can access the same shared filesystem as the launch node.
-4. Make sure your container cache is on shared storage, or pre-download the containers before submitting compute jobs.
-
-If the container cache is only stored on the launch node's local disk, compute nodes will not be able to reuse those containers. The default example in [`conf/custom.config`](../conf/custom.config) stores the cache under `${launchDir}/singularity_cache`, so on HPC systems you may want to change this to a shared filesystem path.
-
-
-## Choose your setup
+# How to configure TOFU-MAaPO for your HPC with network restrictions
 >**Note**: This documentation uses SLURM as the example workload manager, but other solutions such as [SGE and others](https://docs.seqera.io/nextflow/executor) are supported and can be used analogously.
 
 
 Use the scenario that matches your cluster:
 
 1. The login or submission node has internet access, and your cluster provides internet-enabled SLURM nodes or a dedicated partition.
-   Route `local_download` jobs to that partition or node group.
+   Route `local_download` jobs to that partition or node group [as explained here](#scenario-1-dedicated-internet-enabled-slurm-partition-or-nodes).
 2. Only the login or submission node has internet access.
-   Run `local_download` jobs with `executor = 'local'` on the same node as the Nextflow main process.
+   Run `local_download` jobs with `executor = 'local'` on the same node as the Nextflow main process [as explained here](#scenario-2-only-the-login-or-submission-node-has-internet-access).
 3. You are unsure which nodes have internet access.
    Check your site documentation or ask your HPC admins which SLURM partition, constraint, or nodes should be used for internet-enabled jobs.
-
-
-
-## Recommended setup
-
-The best-practice setup is:
-
-1. Start the pipeline from an internet-enabled login, head, or submission node.
-2. Run it inside `tmux` or `screen`.
-3. Let Nextflow submit the heavy compute jobs to SLURM from there.
-
-Example with `tmux`:
-
-```bash
-tmux new -s tofu
-nextflow run main.nf -profile custom -c /path/to/tofu.config
-```
-
-Detach from `tmux` with `Ctrl-b` then `d`, and reconnect later with:
-
-```bash
-tmux attach -t tofu
-```
-
-Example with `screen`:
-
-```bash
-screen -S tofu
-nextflow run main.nf -profile custom -c /path/to/tofu.config
-```
-
-Detach from `screen` with `Ctrl-a` then `d`, and reconnect later with:
-
-```bash
-screen -r tofu
-```
-
-This keeps the pipeline alive even if your SSH connection drops.
-
-If your site does not allow long-running sessions on the login node, use the same approach on a dedicated submission node that has internet access.
 
 ## Configuration for HPCs with limited internet access
 
@@ -83,7 +42,7 @@ This means you do not need to modify the pipeline code itself. You only need to 
 
 Add or extend the `process` block in your custom Nextflow configuration as recommended in the following examples:
 
-### Scenario 1: Dedicated internet-enabled SLURM partition or nodes
+## Scenario 1: Dedicated internet-enabled SLURM partition or nodes
 
 Some clusters provide a dedicated SLURM partition, queue, or node group for jobs that require internet access. In that case, route only the internet-dependent TOFU-MAaPO jobs there.
 
@@ -144,7 +103,7 @@ process {
 
 Use whichever SLURM option matches your local infrastructure.
 
-### Scenario 2: Only the login or submission node has internet access
+## Scenario 2: Only the login or submission node has internet access
 
 If no compute nodes can access the internet, but the node running the Nextflow main process can, then run internet-dependent jobs locally on that same node:
 
