@@ -9,6 +9,7 @@ include { checkm } from '../modules/assembly/checkm.nf'
 include { MAXBIN2 } from '../modules/assembly/maxbin2.nf'
 include { CONCOCT } from '../modules/assembly/concoct.nf'
 include { SEMIBIN } from '../modules/assembly/semibin.nf'
+include { COMEBIN } from '../modules/assembly/comebin.nf'
 include { getCountTable } from '../modules/assembly/assembly_util.nf'
 
 include {   GTDBTK; 
@@ -16,7 +17,7 @@ include {   GTDBTK;
 } from '../modules/assembly/gtdbtk.nf'
 
 include {   METABAT;
-			contigs_to_bins
+			METABAT_contigs_to_bins
 } from '../modules/assembly/metabat.nf'
 
 include {
@@ -137,9 +138,8 @@ workflow assembly{
 			METABAT(ch_mapping)
 			ch_versions = ch_versions.mix(METABAT.out.versions.first() )
 		
-			contigs_to_bins(METABAT.out.metabatout)
-			ch_contig_bin_list = ch_contig_bin_list.mix(contigs_to_bins.out.metabat2_contigs_to_bins)
-			//if magscot is disabled, directly use metabat bins for final quality check and taxnomic assignment
+			METABAT_contigs_to_bins(METABAT.out.metabatout)
+			ch_contig_bin_list = ch_contig_bin_list.mix(METABAT_contigs_to_bins.out.metabat2_contigs_to_bins)
 			if(!params.magscot.toBoolean()){ ch_bins = METABAT.out.metabatout }
 		}
 
@@ -260,6 +260,15 @@ workflow assembly{
 			}
 
 			/*
+			* COMEBIN Workflow
+			*/
+			if ( 'comebin' in binner ) {
+				COMEBIN( ch_mapping.join( ch_bam))
+				ch_contig_bin_list = ch_contig_bin_list.mix(COMEBIN.out.magscot_contigbinlist)
+				ch_versions = ch_versions.mix(COMEBIN.out.versions.first() )
+			}
+
+			/*
 			* MAGScoT Workflow
 			*/
 			//Aggregate all contig-bin assingment tables for each sample
@@ -296,35 +305,33 @@ workflow assembly{
 			checkm( ch_bins )
 			ch_versions = ch_versions.mix(checkm.out.versions.first() )
 		}
-		if(!params.skip_gtdbtk){
-			if(params.updategtdbtk){
-				PREPARE_GTDBTK()
-				ch_readygtdbtk = PREPARE_GTDBTK.out.readystate
-			}else{
-				ch_readygtdbtk = Channel.of('true')
-			}
-			GTDBTK(ch_bins, ch_readygtdbtk)
-			ch_versions = ch_versions.mix(GTDBTK.out.versions.first() )
-			
+		
+		if(params.updategtdbtk){
+			PREPARE_GTDBTK()
+			ch_readygtdbtk = PREPARE_GTDBTK.out.readystate
 		}else{
 			ch_readygtdbtk = Channel.of('true')
-			if(params.updategtdbtk){
-				PREPARE_GTDBTK()
-			}
 		}
+
+		if(!params.skip_gtdbtk){
+			GTDBTK(ch_bins, ch_readygtdbtk)
+			ch_versions = ch_versions.mix(GTDBTK.out.versions.first() )
+		}
+
 		getCountTable(ch_bam)
 		ch_versions = ch_versions.mix(getCountTable.out.versions.first() )
 
-		if(params.magscot.toBoolean()){
-			/*
-			* Abundance Table for MAGS
-			*/
-			BINCOVERAGE_PERSAMPLE( MINIMAP2_MAPPING.out.sample_depth.join( MAGSCOT.out.contigs_to_bins_table ).join( GTDBTK.out.taxonomic_table ) )
-			ch_versions = ch_versions.mix(BINCOVERAGE_PERSAMPLE.out.versions.first() )
+		if(params.magscot.toBoolean() ){
+			if(!params.skip_gtdbtk.toBoolean()){
+				/*
+				* Abundance Table for MAGS
+				*/
+				BINCOVERAGE_PERSAMPLE( MINIMAP2_MAPPING.out.sample_depth.join( MAGSCOT.out.contigs_to_bins_table ).join( GTDBTK.out.taxonomic_table ) )
+				ch_versions = ch_versions.mix(BINCOVERAGE_PERSAMPLE.out.versions.first() )
 
-			MERGE_MAG_ABUNDANCE(BINCOVERAGE_PERSAMPLE.out.abundancetable.collect() )
-			ch_versions = ch_versions.mix(MERGE_MAG_ABUNDANCE.out.versions )
-
+				MERGE_MAG_ABUNDANCE(BINCOVERAGE_PERSAMPLE.out.abundancetable.collect() )
+				ch_versions = ch_versions.mix(MERGE_MAG_ABUNDANCE.out.versions )
+			}
 		}
 
 

@@ -27,6 +27,20 @@ script:
 
 	"""
 
+    stub:
+    sampleID = meta.id
+    sylsp_output = "${sampleID}.sylsp"
+    """
+    cat > ${sylsp_output} <<EOF
+stub sylph sketch for ${sampleID}
+EOF
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+      sylph: stub
+    END_VERSIONS
+    """
+
 }
 
 process SYLPH_PROFILING {
@@ -59,4 +73,17 @@ script:
 	END_VERSIONS
 
 	"""
+	stub:
+    def output_name = params.sylph_merge ? "sylph_merged_profiles.tbl" : "${meta.id}_profile.tbl"
+    """
+    cat > ${output_name} <<EOF
+Genome\tRelative_abundance
+stub_genome\t100.0
+EOF
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+      sylph: stub
+    END_VERSIONS
+    """
 }

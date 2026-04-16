@@ -42,4 +42,20 @@ process COLLECTOR {
 			fi
 			"""
 		}
+	stub:
+		sampleID = meta.id
+		left_clean = sampleID + "_R1_clean.fastq.gz"
+		right_clean = sampleID + "_R2_clean.fastq.gz"
+		single_clean = sampleID + "_single_clean.fastq.gz"
+    if (meta.single_end) {
+        """
+        touch ${single_clean}
+        """
+    } else {
+        """
+        touch ${left_clean}
+        touch ${right_clean}
+        touch ${single_clean}
+        """
+    }
 }

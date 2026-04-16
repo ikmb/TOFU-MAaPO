@@ -28,6 +28,13 @@ process PREPARE_METAPHLAN {
 		#mv mpa_latest?download=1 mpa_latest
 
 	"""
+	/*
+	stub:
+		"""
+		mkdir -p ${params.metaphlan_db}
+		echo "mpa_vJan21_CHOCOPhlAnSGB_202103" > ${params.metaphlan_db}/mpa_latest
+		"""
+	*/
 }
 
 process METAPHLAN {
@@ -165,6 +172,28 @@ process METAPHLAN {
 
 			"""
 		}
+	stub:
+    sampleID = meta.id
+    metaphlan_out = sampleID + "_metaphlan.out"
+    bowtie_out = sampleID + "_metaphlan_bowtie2.txt"
+    bam_out = sampleID + "_metaphlan.bam"
+    """
+    cat > ${metaphlan_out} <<EOF
+#mpa_vJan21_CHOCOPhlAnSGB_202103
+#/stub/path
+#1 reads processed
+#clade_name\tNCBI_tax_id\trelative_abundance\tcoverage\testimated_number_of_reads_from_the_clade
+k__Bacteria|p__Firmicutes\t1239\t100.0\t1.0\t1
+EOF
+
+    touch ${bowtie_out}
+    touch ${bam_out}
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+      metaphlan4: stub
+    END_VERSIONS
+    """
 }
 
 process ABUNDANCE_REL_MERGE {
@@ -192,6 +221,20 @@ process ABUNDANCE_REL_MERGE {
 		END_VERSIONS
 
 		"""
+    stub:
+    abundances = "metaphlan_rel_abundances.txt"
+    """
+    cat > ${abundances} <<EOF
+clade_name\tstub_sample
+k__Bacteria|p__Firmicutes\t100.0
+EOF
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+      Python: stub
+    END_VERSIONS
+    """
+
 }
 
 process ABUNDANCE_ABS_MERGE {
@@ -219,4 +262,17 @@ process ABUNDANCE_ABS_MERGE {
 		END_VERSIONS
 
 		"""
+	stub:
+    abundances = "metaphlan_abs_abundances.txt"
+    """
+    cat > ${abundances} <<EOF
+clade_name\tstub_sample
+k__Bacteria|p__Firmicutes\t1
+EOF
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+      Python: stub
+    END_VERSIONS
+    """
 }

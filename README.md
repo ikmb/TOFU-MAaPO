@@ -10,10 +10,11 @@ It provides comprehensive functionalities for:
 - **Metabolic pathway** analysis
 - **Assembly** of metagenome-assembled genomes (MAGs)  
 
-The pipeline is compatible with any Linux system and **requires only three dependencies**:
+The pipeline is compatible with any Linux system and **requires only the following dependencies**:
 - **Java** (Nextflow dependency, version 17 or later)
 - **Nextflow** (workflow manager)
-- **Singularity** (as the container engine)
+- **Apptainer** (or **Singularity**) (as the container engine)<br />
+- **Internet access** to retrieve databases, software containers and public metagenomic datasets
   
 No software installation step is needed — Nextflow automatically downloads all necessary containers and tools.
 
@@ -38,7 +39,7 @@ No software installation step is needed — Nextflow automatically downloads all
   - [Prerequisites:](#prerequisites)
   - [Installing dependencies](#installing-dependencies)
     - [Step 1: Install Nextflow](#step-1-install-nextflow)
-    - [Step 2: Install Singularity (Apptainer)](#step-2-install-singularity-apptainer)
+    - [Step 2: Install Apptainer (formerly Singularity)](#step-2-install-apptainer-formerly-singularity)
   - [Downloading TOFU-MAaPO](#downloading-tofu-maapo)
   - [Configuration](#configuration)
     - [Quickstart profile](#quickstart-profile)
@@ -50,12 +51,12 @@ No software installation step is needed — Nextflow automatically downloads all
   - [Running metabolic gene/pathway estimation with HUMAnN](#running-metabolic-genepathway-estimation-with-humann)
   - [Running metagenome assembly](#running-metagenome-assembly)
   - [Running taxonomic abundance estimation with MetaPhlAn](#running-taxonomic-abundance-estimation-with-metaphlan)
-- [Documentation](#documentation)
+- [Further Documentation](#further-documentation)
 - [Funding](#funding)
 
 # Pipeline Structure
 ![](./images/tofu_overview.svg)  
-Overview of TOFU-MAaPO 1.5.1
+Overview of TOFU-MAaPO 1.6.0
 
 # Key features
 ## Input data
@@ -106,9 +107,10 @@ Reads are assembled into contigs using **Megahit** (for individual samples, grou
 Contigs are catalogued and indexed using **Minimap2**.
 
 #### Binning
-Binning is performed with up to five tools:
+Binning is performed with up to six tools:
 - **Metabat2**
 - **Concoct**
+- **COMEBin**
 - **Maxbin2**
 - **Semibin2** and/or
 - **Vamb**
@@ -131,7 +133,7 @@ Following steps are performed with all refined bins:
 TOFU-MAaPO requires significant computational resources. Ensure your system meets the following minimum requirements:  
 - **CPU**: At least 16 cores.  
 - **RAM**: At least 128 GB (e.g., Semibin may require up to 200 GB, and GTDB-TK up to 100 GB).  
-- **Connection to the internet**<br />
+- **Internet access** to retrieve databases, software containers, and public metagenomic datasets"<br />
 
 For large datasets, it is recommended to run the pipeline on a high-performance computing (HPC) system.  
 
@@ -160,21 +162,22 @@ chmod +x nextflow
 # Try a simple Nextflow demo
 nextflow run hello
 ```
-### Step 2: Install Singularity (Apptainer)
-You can install Singularity via:
-- the [Singularity Quickstart Guide](https://docs.sylabs.io/guides/3.9/user-guide/quick_start.html) or
+### Step 2: Install Apptainer (formerly Singularity)
+You can install Apptainer via:
+- the [Apptainer Quickstart Guide](https://apptainer.org/docs/user/main/quick_start.html) or
 - [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html) (no `sudo` rights required): 
+>**Note**: We recommend installing Apptainer system-wide (sudo required), as Conda-based installations have caused permission issues on some Ubuntu systems.
 ```bash
-# Create a new conda environment for Singularity
-conda create --name sing_env -c conda-forge -c bioconda singularity=3.8 
+# Create a new conda environment for Apptainer
+conda create --name apptainer_env -c conda-forge -c bioconda apptainer
 # Activate environment
-conda activate sing_env
-# Check whether Singularity has been successfully installed
-singularity --version
+conda activate apptainer_env
+# Check whether Apptainer has been successfully installed
+apptainer --version
 # Also make sure you can run an example container
-singularity run library://sylabsed/examples/lolcow
+apptainer run docker://ghcr.io/apptainer/lolcow
 ```
-
+>**Note**: The pipeline can also be used with [other container engines such as Singularity](https://docs.seqera.io/nextflow/container) by enabling them in the [configuration file](docs/installation.md#configuration)
 ## Downloading TOFU-MAaPO
 Use the following command to download or update the pipeline:<br />
 ```bash
@@ -334,14 +337,16 @@ nextflow run ikmb/tofu-maapo \
 
 **For detailed usage options**, refer to the [**usage documentation**](docs/usage.md).<br />
 
-# Documentation 
+# Further Documentation 
 
 All further documentation about the pipeline can be found in the `docs/` directory or under the links below:
 
 1. [Installation and configuration](docs/installation.md)
-2. [Add host genomes to TOFU-MAaPO](docs/hostgenome.md)
-3. [Available options](docs/usage.md)
-4. [Outputs structure](docs/output.md)
+2. [Available options](docs/usage.md)
+3. [Guide for HPC users](docs/hpc_guide.md)
+4. [Running on HPC Systems with restricted internet access](docs/hpc_internet_access.md)
+5. [Add host genomes to TOFU-MAaPO](docs/hostgenome.md)
+6. [Outputs structure](docs/output.md)
 
 
 # Funding

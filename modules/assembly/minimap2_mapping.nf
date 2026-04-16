@@ -20,6 +20,12 @@ process MINIMAP2_CATALOGUE {
 		Python: \$(python --version | sed -e "s/Python //g" )
 		END_VERSIONS
 		"""
+	stub:
+		catalogue = coassemblygroup + '_' + "collected_catalogue.fna.gz"
+		"""
+		touch $catalogue
+		echo "MINIMAP2_CATALOGUE_stub" > versions.yml
+		"""
 }
 
 process MINIMAP2_CATALOGUE_INDEX {
@@ -49,7 +55,14 @@ process MINIMAP2_CATALOGUE_INDEX {
 		END_VERSIONS
 
 		"""
+	stub:
+		catalogue_index = "catalogue.mmi"
+		"""
+		touch $catalogue_index
+		echo "MINIMAP2_CATALOGUE_INDEX_stub" > versions.yml
+		"""
 }
+
 process MINIMAP2_MAPPING{
 	cache 'lenient'
 	label 'bowtie2'
@@ -116,4 +129,19 @@ process MINIMAP2_MAPPING{
 			
 			"""		
 		}
+	stub:
+		sampleID = meta.id
+		coassemblygroup = meta.coassemblygroup
+		depthout = sampleID + '_depth.txt'
+		mappingbam = sampleID + '_mapping_minimap.bam'
+		mappingbam_index = sampleID + '_mapping_minimap.bam.bai'
+		sample_total_reads = sampleID + '_totalreads.txt'
+		"""
+		touch $depthout
+		touch $mappingbam
+		touch $mappingbam_index
+		touch $sample_total_reads
+		touch error.log
+		echo "MINIMAP2_MAPPING_stub" > versions.yml
+		"""
 }

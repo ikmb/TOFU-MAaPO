@@ -2,6 +2,7 @@ process getCountTable {
 	label 'default'
 	label 'short_run'
 	cache 'lenient'
+	scratch params.scratch
 	tag "$sampleID"
 	publishDir "${params.outdir}/counttable/${sampleID}", mode: 'copy'
 
@@ -24,5 +25,11 @@ process getCountTable {
 		samtools: \$(samtools --version | head -1 | sed -e "s/samtools //g")
 		END_VERSIONS
 		
+		"""
+	stub:
+		sampleID = meta.id
+		"""
+		touch ${sampleID}.counttable.txt
+		echo "getCountTable_stub" > versions.yml
 		"""
 }
