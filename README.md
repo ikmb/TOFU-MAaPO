@@ -81,7 +81,7 @@ Following tools need manual creation or download of required databases:
 The quality control includes:
 * PreQC quality assessment with **fastqc**
 * Read trimming with **BBtools** or **fastp**
-* Phix and artifact removal with **BBtools**
+* Phi X and artifact removal with **BBtools**
 * optional host decontamination with **Bowtie2**
 * PostQC quality assessment with **fastqc**
 * **MultiQC** Report
