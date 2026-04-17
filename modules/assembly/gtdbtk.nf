@@ -61,6 +61,7 @@ process GTDBTK {
 	wget --continue https://data.ace.uq.edu.au/public/gtdb/data/releases/release207/207.0/auxillary_files/gtdbtk_r207_v2_data.tar.gz
 	tar -xvzf gtdbtk_r207_v2_data.tar.gz
 	"""
+/*
 	stub:
 		"""
 		if [ ! -d ${params.gtdbtk_reference} ]; then
@@ -69,4 +70,5 @@ process GTDBTK {
 		cd ${params.gtdbtk_reference}
 		touch stub.file
 		"""
+*/
 }
