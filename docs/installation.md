@@ -66,6 +66,13 @@ process {
   //Default executor for each process, other options can be e.g. SLURM.
   //See https://www.nextflow.io/docs/latest/executor.html for more options and details.
   executor='local'
+
+  //cap the resources to the available hardware specs
+  resourceLimits = [
+      cpus: params.max_cpus,
+      memory: params.max_memory,
+      time: params.max_time
+  ]
 }
 
 //Default for total execution, remove this whole part if you are using a different option above than executor='local':
