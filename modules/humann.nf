@@ -31,7 +31,7 @@
 	label 'long_run'
 	tag "$sampleID"
 	scratch params.scratch
-	errorStrategy { (task.exitStatus in [143,137,104,134,139,1] && task.attempt <= maxRetries)  ? 'retry' : 'ignore' }
+	errorStrategy { (task.exitStatus in [143,137,104,134,139,1] && task.attempt <= task.maxRetries) ? 'retry' : 'ignore' }
 
 	input:
 		tuple val(meta),path(reads)
