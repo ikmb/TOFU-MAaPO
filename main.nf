@@ -9,8 +9,6 @@
  */
 nextflow.enable.dsl = 2
 
-WorkflowHeaderHelp.initialise(workflow, params, log)
-WorkflowCheck.startuptests(workflow, params, log)
 
 
 include { tofumaapo } from './workflows/tofumaapo' 
@@ -18,15 +16,22 @@ include { tofumaapo_sylph } from './workflows/tofumaapo_sylph'
 //params(params)
 
 workflow {
+	main:
+	WorkflowHeaderHelp.initialise(workflow, params, log)
+	WorkflowCheck.startuptests(workflow, params, log)
+
 	if(params.sylph_processing){
 		tofumaapo_sylph()
 	}else{
 		tofumaapo()
 	}
-}
 
-workflow.onComplete {
+	workflow.onComplete = {
 	log.info "========================================="
+	log.info "Pipeline startet at:	$workflow.start"
+	log.info "Pipeline completed at:	$workflow.complete"
 	log.info "Duration:		$workflow.duration"
+	log.info "Execution status:	${ workflow.success ? 'OK' : 'failed' }"
 	log.info "========================================="
+	}
 }

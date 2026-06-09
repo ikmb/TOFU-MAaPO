@@ -4,7 +4,9 @@ process GTDBTK {
 	label 'long_run'
 	scratch params.scratch
 	tag "$sampleID"
-	publishDir "${params.outdir}/GTDBTK/${sampleID}", mode: 'copy'
+	//publishDir "${params.outdir}/GTDBTK/${sampleID}", mode: 'copy'
+	publishDir "${params.outdir}/GTDBTK", mode: 'copy',
+        saveAs: { filename -> "${meta.id}/${filename}" }
 
 	input: 
 		tuple val(meta), file(fafile)

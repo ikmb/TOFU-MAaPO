@@ -5,7 +5,9 @@ process SEMIBIN {
 	scratch params.scratch
 	tag "$sampleID"
 	cache 'lenient'
-	publishDir "${params.outdir}/semibin/${sampleID}", mode: 'copy', enabled: params.publish_rawbins
+	//publishDir "${params.outdir}/semibin/${sampleID}", mode: 'copy', enabled: params.publish_rawbins
+	publishDir "${params.outdir}/semibin", mode: 'copy', enabled: params.publish_rawbins,
+        saveAs: { filename -> "${meta.id}/${filename}" }
 
 	input: 
 		tuple val(meta), file(fcontigs), file(depthout), file(mappingbam), file(mappingbam_index)

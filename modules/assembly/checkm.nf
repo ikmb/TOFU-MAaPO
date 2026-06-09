@@ -4,7 +4,8 @@ process checkm {
 	label 'long_run'
 	scratch params.scratch
 	tag "$sampleID"
-	publishDir "${params.outdir}/checkm/${sampleID}", mode: 'copy'
+	publishDir "${params.outdir}/checkm", mode: 'copy',
+        saveAs: { filename -> "${meta.id}/${filename}" }
 
 	input: 
 		tuple val(meta), file(fafile)
