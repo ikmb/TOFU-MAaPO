@@ -80,12 +80,12 @@ workflow assembly{
 		if(params.assemblymode == "single"){ //assemble each sample separately
 			megahit_coas_input = data.unique()
 				.map { it ->
-					metas = it[0]
+					def metas = it[0]
 					return[metas.coassemblygroup, it[1].flatten()]}
 		}else{ //assemble per coassemblygroup, collect all reads from samples belonging to the same group and create tuple for assembly
 			megahit_coas_input = data.unique()
 				.map { it ->
-					metas = it[0]
+					def metas = it[0]
 					return[metas.coassemblygroup, it[1]]}
 				.flatMap { id, reads -> 
 					reads.collect { read -> [id, read] }
@@ -104,7 +104,7 @@ workflow assembly{
 
 		//align per-sample metadata to filtered contigs 
 		ch_filteredcontigs = FILTERCONTIGS.out.contigs.combine(data.map { it ->
-				metas = it[0]
+				def metas = it[0]
 				return[metas.coassemblygroup, metas, it[1]]}, by:0 ).map { it -> return[it[2], it[1], it[3]]}
 
 		/*
@@ -116,11 +116,13 @@ workflow assembly{
 		MINIMAP2_CATALOGUE_INDEX( MINIMAP2_CATALOGUE.out.catalogue )
 		ch_versions = ch_versions.mix(MINIMAP2_CATALOGUE_INDEX.out.versions.first() )
 
-		ch_minimap2_mapping_input = ch_filteredcontigs.map{it -> meta = it[0]
-									return[meta.coassemblygroup, meta, it[1], it[2]]}
+		ch_minimap2_mapping_input = ch_filteredcontigs.map{it -> 
+									def map_meta = it[0]
+									return[map_meta.coassemblygroup, map_meta, it[1], it[2]]}
 									.combine( MINIMAP2_CATALOGUE_INDEX.out.catalogue, by:0 )
-									.map{it -> meta = it[1]
-									return[meta, it[2], it[3], it[4], it[5]]}
+									.map{it -> 
+										def map_meta = it[1]
+										return[map_meta, it[2], it[3], it[4], it[5]]}
 
 		MINIMAP2_MAPPING( ch_minimap2_mapping_input )
 
@@ -169,11 +171,11 @@ workflow assembly{
 					ch_sample_to_vambgroup = group_vamb.out.sample_vambkey
 					.splitCsv ( header:false, sep:',' )
 					.map { row ->
-							def meta = [:]
-							meta.id = row[0]
-							meta.coassemblygroup = row[2]
-							meta.single_end = row[1].toBoolean()  
-							return [ meta, row[3] ] }
+							def vamb_meta = [:]
+							vamb_meta.id = row[0]
+							vamb_meta.coassemblygroup = row[2]
+							vamb_meta.single_end = row[1].toBoolean()  
+							return [ vamb_meta, row[3] ] }
 
 					//add to tuple meta vamb_group the tuple contigs with reads
 					ch_vambgroup_contigs = ch_sample_to_vambgroup.join( ch_filteredcontigs )//.map{row -> tuple(row[1], row[0], row[1], row[2], row[3], row[4])}
@@ -223,8 +225,9 @@ workflow assembly{
 					ch_versions = ch_versions.mix(VAMB.out.versions.first() )
 
 					//map vamb clusters back to orignal samples
-					ch_vambgroup_sampleid = data.map{it -> meta = it[0]
-													return[meta.coassemblygroup, meta]}
+					ch_vambgroup_sampleid = data.map{it -> 
+													def sample_meta = it[0]
+													return[sample_meta.coassemblygroup, sample_meta]}
 													.combine(VAMB.out.all_samples_clustertable, by: 0)
 				}
 				//convert vamb clusters to a contig-bin assignment table
@@ -283,9 +286,10 @@ workflow assembly{
 			//magscot input is contig-bin assignment table + markers + filtered contigs
 			ch_magscot_in = ch_contig_to_bin
 									.join( MARKER_IDENT.out.hmm_output )
-									.map{it -> meta = it[0]
-									return[meta.coassemblygroup, meta, it[1], it[2]]}
-									.combine( FILTERCONTIGS.out.magscot_contigs, by:0 )
+									.map{it -> 
+										def magscot_meta = it[0]
+										return[magscot_meta.coassemblygroup, magscot_meta, it[1], it[2]]}
+										.combine( FILTERCONTIGS.out.magscot_contigs, by:0 )
 			//Main MAGScoT bin refinement process, output is a contig-bin assignment table
 			MAGSCOT( ch_magscot_in )
 			ch_versions = ch_versions.mix(MAGSCOT.out.versions.first() )

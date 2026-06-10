@@ -1,28 +1,29 @@
 
 process KRAKEN2 {
 
-tag "$sampleID"
+tag "${meta.id}"
 label 'kraken'
 label 'long_run'
-publishDir "${params.outdir}/Kraken/${sampleID}/", mode: 'copy', pattern: "*.txt"
+publishDir "${params.outdir}/Kraken", mode: 'copy', pattern: "*.txt",
+        saveAs: { filename -> "${meta.id}/${filename}" }
+
 
 input:
 	tuple val(meta), path(reads)
 
 output:
-	path(report), emit: krakenreport
-	//tuple val(sampleID), file(kraken_log), emit: krakenlog
-	tuple val(sampleID), path(report), emit: brackeninput
+	path("${meta.id}.kraken2_report.txt"), emit: krakenreport
+	tuple val(meta.id), path("${meta.id}.kraken2_report.txt"), emit: brackeninput
 	path('versions.yml'), emit: version
 
 script:
-	sampleID = meta.id
-	report = sampleID + ".kraken2_report.txt"
-	kraken_log = sampleID + "_kraken2.log"
+	def sampleID = meta.id
+	def report = sampleID + ".kraken2_report.txt"
+	def kraken_log = sampleID + "_kraken2.log"
 
-	left_clean = sampleID + "_R1_clean.fastq.gz"
-	right_clean = sampleID + "_R2_clean.fastq.gz"
-	unpaired_clean = sampleID + "_single_clean.fastq.gz"
+	def left_clean = sampleID + "_R1_clean.fastq.gz"
+	def right_clean = sampleID + "_R2_clean.fastq.gz"
+	def unpaired_clean = sampleID + "_single_clean.fastq.gz"
 
     if (!meta.single_end) {  
 		"""
@@ -53,9 +54,9 @@ script:
 		"""	
 	}
 	stub:
-	sampleID = meta.id
-	report = sampleID + ".kraken2_report.txt"
-	kraken_log = sampleID + "_kraken2.log"
+	def sampleID = meta.id
+	def report = sampleID + ".kraken2_report.txt"
+	def kraken_log = sampleID + "_kraken2.log"
 	"""
 	cat > ${report} <<EOF
 # Kraken2 stub report for ${sampleID}
@@ -115,11 +116,11 @@ process KRAKEN2YAML {
 		path(reports)
 
 	output:
-		path(report_yaml), emit: kraken2yaml
+		path("kraken_report_mqc.yaml"), emit: kraken2yaml
 		path('versions.yml'), emit: version
 
 	script:
-		report_yaml = "kraken_report_mqc.yaml"
+		def report_yaml = "kraken_report_mqc.yaml"
 		"""	
 		kraken2yaml.pl --outfile $report_yaml
 
@@ -130,7 +131,7 @@ process KRAKEN2YAML {
 
 		"""
 	stub:
-		report_yaml = "kraken_report_mqc.yaml"
+		def report_yaml = "kraken_report_mqc.yaml"
 		"""
 		cat > ${report_yaml} <<EOF
 id: kraken2
@@ -236,7 +237,9 @@ process BRACKEN {
 	tag "$sampleID"
 	label 'bracken'
 	label 'long_run'
-	publishDir "${params.outdir}/Kraken/${sampleID}/", mode: 'copy', pattern: "*.bracken"
+	publishDir "${params.outdir}/Kraken", mode: 'copy', pattern: "*.bracken",
+        saveAs: { filename -> "${sampleID}/${filename}" }
+
 
 	input:
 		tuple val(sampleID), path(report)

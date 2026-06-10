@@ -8,7 +8,8 @@ process COMEBIN {
 
 	container  "docker://eikematthias/comebin:1.0.4"
 
-	publishDir "${params.outdir}/comebin/${sampleID}", mode: 'copy', enabled: params.publish_rawbins
+	publishDir "${params.outdir}/comebin", mode: 'copy', enabled: params.publish_rawbins,
+        saveAs: { filename -> "${meta.id}/${filename}" }
 
 	input: 
 		tuple val(meta), file(fcontigs), file(depthout), file(mappingbam), file(mappingbam_index)

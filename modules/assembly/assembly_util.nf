@@ -4,7 +4,8 @@ process getCountTable {
 	cache 'lenient'
 	scratch params.scratch
 	tag "$sampleID"
-	publishDir "${params.outdir}/counttable/${sampleID}", mode: 'copy'
+	publishDir "${params.outdir}/counttable", mode: 'copy',
+        saveAs: { filename -> "${meta.id}/${filename}" }
 
 	input:
 		tuple val(meta), path(finalbam), path(mappingbam_index)

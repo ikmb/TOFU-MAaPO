@@ -9,9 +9,7 @@ process COLLECTOR {
 	scratch params.scratch
 	tag "$sampleID"
 
-	if(params.cleanreads){
-		publishDir "${params.outdir}/reads_clean", mode: 'copy'
-	}
+	publishDir "${params.outdir}/reads_clean", mode: 'copy', enabled: params.cleanreads
 
 	input:
 		tuple val(meta), path(reads)

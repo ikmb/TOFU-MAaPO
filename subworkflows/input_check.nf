@@ -25,7 +25,7 @@ workflow input_check {
 						if(!id){ exit 1, "Empty id in csv-input found" }
 						def meta = [:]  
 						meta.id = id
-						performdownload = false
+						def performdownload = false
 
 						def read1 = row.read1 ? row.read1 : false
 						def read2 = row.read2 ? row.read2 : false
@@ -152,7 +152,7 @@ workflow input_sra {
 						def singleEnd = row[1].size() == -1
 						meta.single_end = singleEnd.toBoolean()
 						if( row[1].size() == 3){
-							fastq = row[1]
+							def fastq = row[1]
 							if (hasExtension(fastq[1], ".fastq.gz") && hasExtension(fastq[2], ".fastq.gz") && hasExtension(fastq[0], ".fastq.gz")){
 								//order shall be: meta, forward, reversed, unpaired
 								return [meta, [fastq[1], fastq[2], fastq[0]] ]
@@ -160,7 +160,7 @@ workflow input_sra {
 								println "Invalid file paths in triplet ${row[1]}, they do not end with .fastq.gz"
 							}
 						}else if( row[1].size() == 2){
-							fastq = row[1]
+							def fastq = row[1]
 							if (hasExtension(fastq[0], ".fastq.gz") && hasExtension(fastq[1], ".fastq.gz")){
 								//order shall be: meta, forward, reversed
 								return [meta, [fastq[0], fastq[1]] ]
@@ -265,18 +265,7 @@ def hasExtension(it, extension) {
 }
 
 def hasinternetprefix(it) {
-	inp = it.toString().toLowerCase()
-	inp.startsWith("ftp") || inp.startsWith("http") || inp.startsWith("https") || inp.startsWith("sftp") 
+    def inp = it.toString().toLowerCase()
+    return inp.startsWith("ftp") || inp.startsWith("http") || inp.startsWith("https") || inp.startsWith("sftp")
 }
 
-class FileCheck {
-    def static checkoutfile(def filePath) {
-        def file = new File(filePath)
-        //Check that file exists and is not empty.
-        if (file.exists() && file.isFile() && file.size() > 0) {
-            return true  
-        } else {
-            return false 
-        }
-    }
-}

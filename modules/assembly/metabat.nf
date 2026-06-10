@@ -4,8 +4,8 @@ process METABAT {
 	label 'very_long_run'
     scratch params.scratch
     tag "$sampleID"
-    publishDir "${params.outdir}/Metabat2/${sampleID}", mode: 'copy', enabled: params.publish_rawbins
-
+	publishDir "${params.outdir}/Metabat2", mode: 'copy', enabled: params.publish_rawbins,
+        saveAs: { filename -> "${meta.id}/${filename}" }
     input: 
         tuple val(meta), file(fcontigs), file(depthout)
 

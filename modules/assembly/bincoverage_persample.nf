@@ -3,7 +3,8 @@ process BINCOVERAGE_PERSAMPLE{
 	label 'short_run'
 	scratch params.scratch
 	tag "$sampleID"
-	publishDir "${params.outdir}/MAG_abundance/${sampleID}", mode: 'copy', pattern: "*.tbl"
+	publishDir "${params.outdir}/MAG_abundance", mode: 'copy', pattern: "*.tbl",
+        saveAs: { filename -> "${meta.id}/${filename}" }
 
 	input:
 		tuple val(meta), file(depthout), file(refined_contigs_to_bins), file(taxonomic_table)

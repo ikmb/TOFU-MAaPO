@@ -31,7 +31,9 @@ process MARKER_IDENT {
 	label 'short_run'
 	scratch params.scratch
 	tag "$sampleID"
-	publishDir "${params.outdir}/magscot/${sampleID}", mode: 'copy'
+	//publishDir "${params.outdir}/magscot/${sampleID}", mode: 'copy'
+	publishDir "${params.outdir}/magscot", mode: 'copy',
+        saveAs: { filename -> "${meta.id}/${filename}" }
 
 	input:
 		tuple val(meta), file(fcontigs), file(depthout), file(formatted_contigs_to_bin)
@@ -102,9 +104,11 @@ process MAGSCOT {
 	label 'magscot'
 	label 'short_run'
 	scratch params.scratch
-	errorStrategy  { task.exitStatus in [42] ? 'ignore' : task.attempt <= maxRetries  ? 'retry' : 'ignore' }
+	errorStrategy { task.exitStatus in [42] ? 'ignore' : task.attempt <= task.maxRetries ? 'retry' : 'ignore' }
 	tag "$sampleID"
-	publishDir "${params.outdir}/magscot/${sampleID}", mode: 'copy'
+	//publishDir "${params.outdir}/magscot/${sampleID}", mode: 'copy'
+	publishDir "${params.outdir}/magscot", mode: 'copy',
+        saveAs: { filename -> "${meta.id}/${filename}" }
 
 	input:
 		tuple val(coassemblygroup), val(meta), file(formatted_contigs_to_bin), file(samplehmm), file(fcontigs_filtered)
@@ -176,8 +180,9 @@ process EXTRACT_REFINED_BINS {
 	label 'short_run'
 	scratch params.scratch
 	tag "$sampleID"
-	publishDir "${params.outdir}/magscot/${sampleID}", mode: 'copy'
-
+	//publishDir "${params.outdir}/magscot/${sampleID}", mode: 'copy'
+	publishDir "${params.outdir}/magscot", mode: 'copy',
+        saveAs: { filename -> "${meta.id}/${filename}" }
 	input:
 		tuple val(meta), file(refined_contigs_to_bins), file(fcontigs_filtered)
 	output:
