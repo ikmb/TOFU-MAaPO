@@ -3,7 +3,7 @@ process COMEBIN {
 	label 'comebin'
 	label 'gpu'
 	scratch params.scratch
-	tag "$sampleID"
+	tag { meta.id }
 	cache 'lenient'
 
 	publishDir "${params.outdir}/comebin", mode: 'copy', enabled: params.publish_rawbins,
@@ -16,8 +16,8 @@ process COMEBIN {
 		tuple val(meta), file(fcontigs), file(depthout), file(mappingbam), file(mappingbam_index)
 
 	output:
-		tuple val(meta), file("${sampleID}_bin.*.fa"), optional: true, emit: comebinout
-		tuple val(meta), file(formatted_contigs_to_bin), optional: true, emit: magscot_contigbinlist
+		tuple val(meta), file("${meta.id}_bin.*.fa"), optional: true, emit: comebinout
+		tuple val(meta), file("${meta.id}_comebin_magscot_contigs_to_bin.tsv"), optional: true, emit: magscot_contigbinlist
 		path("versions.yml"),          optional: true, emit: versions
 
 	script:
@@ -33,6 +33,7 @@ process COMEBIN {
 				-t ${task.cpus} \
 				-n 6 
 
+			find ${sampleID}_comebin_output -name '*.fa' -exec sh -c 'ln -s "\$1" "${sampleID}_bin.\$(basename "\$1")"' _ {} \;
 			awk 'NR>1 {print "${sampleID}_comebin_"\$2"\t"\$1"\tcomebin"}' $comebin_contigs_to_bin > $formatted_contigs_to_bin
 
 			cat <<-END_VERSIONS> versions.yml
@@ -42,14 +43,14 @@ process COMEBIN {
 			"""
 	stub:
 		def sampleID = meta.id
-		def bed_file = sampleID + '.bed'
 		def comebin_contigs_to_bin = sampleID + '_comebin_contigs_to_bin.tsv'
 		def formatted_contigs_to_bin = sampleID + '_comebin_magscot_contigs_to_bin.tsv'
 
 		"""
 		touch $comebin_contigs_to_bin
+		touch ${sampleID}_bin.stub.fa
 		touch $formatted_contigs_to_bin
 
 		echo "comebin_stub" > versions.yml
-		"""
+	"""
 }
