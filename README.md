@@ -52,6 +52,7 @@ No software installation step is needed — Nextflow automatically downloads all
   - [Running metagenome assembly](#running-metagenome-assembly)
   - [Running taxonomic abundance estimation with MetaPhlAn](#running-taxonomic-abundance-estimation-with-metaphlan)
 - [Further Documentation](#further-documentation)
+- [Citing TOFU-MAaPO](#citing-tofu-maapo)
 - [Funding](#funding)
 
 # Pipeline Structure
@@ -348,6 +349,10 @@ All further documentation about the pipeline can be found in the `docs/` directo
 5. [Add host genomes to TOFU-MAaPO](docs/hostgenome.md)
 6. [Outputs structure](docs/output.md)
 
+# Citing TOFU-MAaPO
+If you use TOFU-MAaPO in any published work, please cite our paper:
+
+Wacker, E.M., Rühlemann, M.C., Franke, A. et al. TOFU-MAaPO: fast, scalable and reproducible analysis of large metagenome sequence data from the Sequence Read Archive. Nat Commun 17, 5215 (2026). [https://doi.org/10.1038/s41467-026-74033-9](https://doi.org/10.1038/s41467-026-74033-9)
 
 # Funding
 
