@@ -33,7 +33,10 @@ process COMEBIN {
 				-t ${task.cpus} \
 				-n 6 
 
-			find ${sampleID}_comebin_output -name '*.fa' -exec sh -c 'ln -s "\$1" "${sampleID}_bin.\$(basename "\$1")"' _ {} \;
+			find ${sampleID}_comebin_output -type f -name '*.fa' -print0 | while IFS= read -r -d '' bin; do
+				dest="${sampleID}_bin.\$(basename "\${bin}")"
+				ln -sfn "\${bin}" "\${dest}"
+			done
 			awk 'NR>1 {print "${sampleID}_comebin_"\$2"\t"\$1"\tcomebin"}' $comebin_contigs_to_bin > $formatted_contigs_to_bin
 
 			cat <<-END_VERSIONS> versions.yml

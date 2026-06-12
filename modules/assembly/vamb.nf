@@ -41,7 +41,7 @@ process VAMB_strobealign {
 		abundance_table = sampleID + "_abundance.tsv"
 		//strobealign cannot deal with the unpaired file in a paired read set
 		def selected_reads = reads.flatten().collect().size() >= 2 ? reads[0..1] : [reads[0]]
-    	def reads_str = selected_reads.collect { it.toString() }.join(' ')
+    	def reads_str = selected_reads.collect { read -> read.toString() }.join(' ')
 		"""
 		strobealign -t ${task.cpus} --aemb $catalogue $reads_str > ${abundance_table}
 		
@@ -156,7 +156,6 @@ process VAMB_CONTIGS_SELECTION{
 		"""
 	stub:
 		sampleID = meta.id
-		grep_pattern = meta.coassemblygroup.replaceAll('_megahit', '')
 		persample_clustertable = sampleID + '_vamb_contigs_to_bin.tsv'
 		formatted_contigs_to_bin = sampleID + '_vamb_magscot_contigs_to_bin.tsv'
 		"""
@@ -180,23 +179,16 @@ process group_vamb {
 		//path("temp2.csv"), emit: overview_csv
 	script:
 	"""
-	#If all values for co-binning are unique, we need to create a new grouping to force co-binning with vamb
-	if awk  -F';' 'NF { if (++seen[\$1] > 1) dup=1 } END { exit dup }' "${reads_table}"; then
-		echo "unique grouping"
-		awk  -F';' '{print int((NR-1)/${params.vamb_groupsize}) "," \$0}' ${reads_table} > temp2.csv
-	else
-	# Co-binning is to be performed with the given co-binning grouping
-		echo "using available grouping"
-		awk  -F';' '{print \$1 ";" \$0}' ${reads_table} > temp2.csv
-	fi
-
-
-
-	#meta and contig-key:
-	awk -F';' '{print \$1";"\$3}' temp2.csv | sed 's/ //' > binninggroup_to_sample.csv #binninggroup, id
-
-	
-	"""
-}
+		# If all values for co-binning are unique, create new VAMB groups.
+		if awk  -F';' 'NF { if (++seen[\$1] > 1) dup=1 } END { exit dup }' "${reads_table}"; then
+			echo "unique grouping"
+			awk -F';' '{print int((NR-1)/${params.vamb_groupsize}) ";" \$2}' ${reads_table} > binninggroup_to_sample.csv
+		else
+			# Co-binning is to be performed with the given co-binning grouping.
+			echo "using available grouping"
+			awk -F';' '{print \$1 ";" \$2}' ${reads_table} > binninggroup_to_sample.csv
+		fi
+		"""
+	}
 //#awk -F';' '{a[\$1]=a[\$1]"\t"\$4} END {for (i in a) print i a[i]}' temp2.csv | sed 's/ /,/' > contigs_perkey.csv
 	

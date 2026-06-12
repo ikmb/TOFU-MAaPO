@@ -6,6 +6,7 @@ class WorkflowMain {
 		log.info header(workflow)
 		log.info """Nextflow Version: $workflow.nextflow.version
 Container Engine: ${workflow.containerEngine}
+GPU Acceleration: ${params.gpu}
 =======INPUTS=================================================================="""
 		if(params.reads){
 		log.info "Reads:          : ${params.reads}"}

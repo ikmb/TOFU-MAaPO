@@ -18,7 +18,7 @@ process metaspades {
 	zcat $unpaired > unpaired.fq
 	zcat $left > left.fq
 	zcat $right > right.fq
-	spades.py --meta --pe-1 left.fq --pe-2 right.fq --pe-s unpaired.fq -k 21,33,55 -o ${sample}_spades_out -t ${task_cpus}
+	spades.py --meta --pe-1 left.fq --pe-2 right.fq --pe-s unpaired.fq -k 21,33,55 -o ${sampleID}_spades_out -t ${task.cpus}
 
 	"""
 	}
