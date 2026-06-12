@@ -1,15 +1,16 @@
 process COMEBIN {
 
 	label 'comebin'
-	label 'long_run'
+	label 'gpu'
 	scratch params.scratch
 	tag "$sampleID"
 	cache 'lenient'
 
-	container  "docker://eikematthias/comebin:1.0.4"
-
 	publishDir "${params.outdir}/comebin", mode: 'copy', enabled: params.publish_rawbins,
         saveAs: { filename -> "${meta.id}/${filename}" }
+	container  { params.gpu ?	"docker://eikematthias/comebin:1.0.4" : 
+								"docker://eikematthias/comebin:1.0.4" } //TODO: create small non-gpu container
+	containerOptions { params.gpu ? '--nv' : '' }
 
 	input: 
 		tuple val(meta), file(fcontigs), file(depthout), file(mappingbam), file(mappingbam_index)
@@ -20,9 +21,9 @@ process COMEBIN {
 		path("versions.yml"),          optional: true, emit: versions
 
 	script:
-		sampleID = meta.id
-		comebin_contigs_to_bin = sampleID + '_comebin_output/comebin_res/comebin_res.tsv'
-		formatted_contigs_to_bin = sampleID + '_comebin_magscot_contigs_to_bin.tsv'
+		def sampleID = meta.id
+		def comebin_contigs_to_bin = sampleID + '_comebin_output/comebin_res/comebin_res.tsv'
+		def formatted_contigs_to_bin = sampleID + '_comebin_magscot_contigs_to_bin.tsv'
 		//def engine = params.gpu ? 'gpu' : 'cpu'
 			"""
 			run_comebin.sh \
@@ -40,10 +41,10 @@ process COMEBIN {
 			END_VERSIONS
 			"""
 	stub:
-		sampleID = meta.id
-		bed_file = sampleID + '.bed'
-		comebin_contigs_to_bin = sampleID + '_comebin_contigs_to_bin.tsv'
-		formatted_contigs_to_bin = sampleID + '_comebin_magscot_contigs_to_bin.tsv'
+		def sampleID = meta.id
+		def bed_file = sampleID + '.bed'
+		def comebin_contigs_to_bin = sampleID + '_comebin_contigs_to_bin.tsv'
+		def formatted_contigs_to_bin = sampleID + '_comebin_magscot_contigs_to_bin.tsv'
 
 		"""
 		touch $comebin_contigs_to_bin

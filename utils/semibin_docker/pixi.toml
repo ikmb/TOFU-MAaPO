@@ -1,0 +1,16 @@
+[project]
+authors = ["Luis Pedro Coelho <luis@luispedro.org>"]
+channels = ["conda-forge", "bioconda"]
+name = "semibin_cuda"
+platforms = ["linux-64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+semibin = ">=2.2.0,<3"
+pytorch-gpu = "*"
+gawk = "*"
+
+[system-requirements]
+cuda = "12.6"

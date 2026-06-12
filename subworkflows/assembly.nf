@@ -22,11 +22,10 @@ include {   METABAT;
 
 include {
 	VAMB_CATALOGUE;
-	VAMB_CATALOGUE_INDEX;
-	VAMB_MAPPING;
-	VAMB_COLLECT_DEPTHS;
 	VAMB_CONTIGS_SELECTION;
 	VAMB;
+	VAMB_strobealign;
+	VAMB_merge_aemb;
 	group_vamb
 	} from '../modules/assembly/vamb.nf'
 
@@ -65,14 +64,14 @@ workflow assembly{
 	take: data //tuple of (meta,reads)
 	main:
 		//collecting softerware versions in a single channel
-		ch_versions = Channel.empty()
+		ch_versions = channel.empty()
 
 		//parsing the chosen set of binning tools
 		binner = params.binner ? params.binner.split(',').collect{it.trim().toLowerCase().replaceAll('-', '').replaceAll('_', '').replaceAll('2', '')} : []
 		if(params.assembly){log.info "Binner       : ${binner}"}
 
 		//channel for all retained bins
-		ch_contig_bin_list = Channel.empty()
+		ch_contig_bin_list = channel.empty()
 
 		/*
 		* Contigs
@@ -116,10 +115,10 @@ workflow assembly{
 		MINIMAP2_CATALOGUE_INDEX( MINIMAP2_CATALOGUE.out.catalogue )
 		ch_versions = ch_versions.mix(MINIMAP2_CATALOGUE_INDEX.out.versions.first() )
 
-		ch_minimap2_mapping_input = ch_filteredcontigs.map{it -> 
+		ch_minimap2_mapping_input = ch_filteredcontigs.map{it ->
 									def map_meta = it[0]
 									return[map_meta.coassemblygroup, map_meta, it[1], it[2]]}
-									.combine( MINIMAP2_CATALOGUE_INDEX.out.catalogue, by:0 )
+									.join( MINIMAP2_CATALOGUE_INDEX.out.catalogue, by:0 )
 									.map{it -> 
 										def map_meta = it[1]
 										return[map_meta, it[2], it[3], it[4], it[5]]}
@@ -158,69 +157,67 @@ workflow assembly{
 			if ( 'vamb' in binner ) {
 
 				if(params.assemblymode == "single"){
+				/*
+				* Grouping for co-binning
+				*/
 					//create a new csv file to subgroup samples
-
 					ch_allcontigs_table = ch_filteredcontigs.collectFile() { item ->
-						[ "contigs_grouped.csv", item[0].id + ',' + item[0].single_end + ',' +  item[0].coassemblygroup + ',' + item[1] + ',' + item[2] +  '\n']
-						}
-
-					//new csv file will be read in, we create a file with all fastq files for VAMB_CATALOGUE
+						[ "binning_grouping_input.csv", item[0].binninggroup + ';' + item[0].id + '\n']}
+					
+					//process will check if there is a user provided annotation for co-binning, in the case there is no annotation yet, we will group samples together
 					group_vamb(ch_allcontigs_table)
 
-					//get a tuple which sample (and therefor its catalogue) belongs to wich subgroup
-					ch_sample_to_vambgroup = group_vamb.out.sample_vambkey
-					.splitCsv ( header:false, sep:',' )
-					.map { row ->
-							def vamb_meta = [:]
-							vamb_meta.id = row[0]
-							vamb_meta.coassemblygroup = row[2]
-							vamb_meta.single_end = row[1].toBoolean()  
-							return [ vamb_meta, row[3] ] }
+					ch_id_binninggroup = group_vamb.out.sample_vambkey
+							.splitCsv ( header:false, sep:';' ) //binninggroup, id
+							.map { row -> tuple(row[0], row[1]) }  //id, binninggroup
+				/*
+				* Co-binning Catalogue
+				*/
+					//group all contigs from all samples belonging to the same binning group into a single tuple
+					vamb_catalogue_in = ch_id_binninggroup
+											.join(ch_filteredcontigs.map{it -> return[it[0],it[0].id,it[1]]},by:1)
+											.map{ row -> return[ row[1],row[3]]}
+											.groupTuple()
 
-					//add to tuple meta vamb_group the tuple contigs with reads
-					ch_vambgroup_contigs = ch_sample_to_vambgroup.join( ch_filteredcontigs )//.map{row -> tuple(row[1], row[0], row[1], row[2], row[3], row[4])}
-
-					ch_contigs_perkey = group_vamb.out.contigs_perkey
-						.splitCsv ( header:false, sep:',' )
-						.map { row -> tuple(row[0], row[1]) }
-
-
-					vamb_catalogue_in = ch_contigs_perkey
-
-
-					// Minimap2 catalogue for every co-binning group
+					// concatenate all contigs to a single catalogue per binninggroup
 					VAMB_CATALOGUE(vamb_catalogue_in)
 					ch_versions = ch_versions.mix(VAMB_CATALOGUE.out.versions.first() )
 
+				/*
+				* coverage table for each sample
+				*/
+					//get a tuple which sample (and therefor its catalogue) belongs to wich subgroup
+					ch_mapping_vamb_input = ch_id_binninggroup
+												//add meta, and contig 
+												.join(ch_filteredcontigs.map{it -> return[it[0],it[0].id,it[2]]},by:1) 
+												.map { row -> return[row[1],row[2],row[3]] }  //binninggroup, meta, contig
+												//add catalogue
+												.combine( VAMB_CATALOGUE.out.catalogue, by: 0 )  //binninggroup, meta, contig, catalogue
 
-					//VAMB_CATALOGUE(ch_collected_filtered_contigs  )
-					VAMB_CATALOGUE_INDEX( VAMB_CATALOGUE.out.catalogue )
-					ch_versions = ch_versions.mix(VAMB_CATALOGUE_INDEX.out.versions.first() )
+					//calculate coverage per sample
+					VAMB_strobealign( ch_mapping_vamb_input )
+					ch_versions = ch_versions.mix(VAMB_strobealign.out.versions.first() )
+				/*
+				* coverage table merging
+				*/					
+					VAMB_merge_aemb( VAMB_strobealign.out.abundance.groupTuple() )
+					ch_versions = ch_versions.mix(VAMB_merge_aemb.out.versions.first() )
 
-					//add to ch_vambgroup_contigs the catalogue based on vamb_group
-					ch_mapping_vamb_input = ch_vambgroup_contigs.combine( VAMB_CATALOGUE_INDEX.out.catalogue, by: 1 )
-
-					//Map reads to the co-binning catalogue and retain depths
-					VAMB_MAPPING( ch_mapping_vamb_input )
-					ch_versions = ch_versions.mix(VAMB_MAPPING.out.versions.first() )
-
-					VAMB_COLLECT_DEPTHS( VAMB_MAPPING.out.counttable.groupTuple()//.collect() 
-					)
-					ch_versions = ch_versions.mix(VAMB_COLLECT_DEPTHS.out.versions.first() )
-					//Main VAMB bin clustering process
-					VAMB(   VAMB_CATALOGUE_INDEX.out.catalogue_indexfirst.join( VAMB_COLLECT_DEPTHS.out.alldepths )                    
+				/*
+				* VAMB co-binning
+				*/	
+					VAMB(   VAMB_CATALOGUE.out.catalogue.join( VAMB_merge_aemb.out.abundance )       
 						)
 					ch_versions = ch_versions.mix(VAMB.out.versions.first() )
+					ch_vambgroup_sampleid = ch_id_binninggroup //id, binninggroup
+												//add meta
+												.join(ch_filteredcontigs.map{it -> return[it[0],it[0].id]},by:1) 
+												.map { row -> return[row[1],row[2]] }  //binninggroup, meta
+												.combine(VAMB.out.all_samples_clustertable, by: 0) //binninggroup, id, clustertable
 
-					//map vamb clusters back to orignal samples
-					ch_vambgroup_sampleid = ch_sample_to_vambgroup.map{ row -> tuple(row[1], row[0]) }.combine(VAMB.out.all_samples_clustertable, by: 0)
 				}else{
-					//when co-assembly was performed, use earlier produced minimap2 counttables for depths directly
-					VAMB_COLLECT_DEPTHS( MINIMAP2_MAPPING.out.counttable_vamb.groupTuple()//.collect() 
-					)
-					ch_versions = ch_versions.mix(VAMB_COLLECT_DEPTHS.out.versions.first() )
-					//Main VAMB bin clustering process
-					VAMB(   MINIMAP2_CATALOGUE_INDEX.out.catalogue_indexfirst.join( VAMB_COLLECT_DEPTHS.out.alldepths )                    
+
+					VAMB(   MINIMAP2_CATALOGUE_INDEX.out.catalogue_indexfirst.join( MINIMAP2_MAPPING.out.vambkey_bam.groupTuple() )                    
 						)
 					ch_versions = ch_versions.mix(VAMB.out.versions.first() )
 
