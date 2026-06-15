@@ -111,10 +111,10 @@ Contigs are catalogued and indexed using **Minimap2**.
 Binning is performed with up to six tools:
 - **Metabat2**
 - **Concoct**
-- **COMEBin**
-- **Maxbin2**
-- **Semibin2** and/or
-- **Vamb**
+- **Maxbin2** 
+- **COMEBin** with optional GPU support
+- **Semibin2** with optional GPU support and/or
+- **Vamb** with optional GPU support
 
 #### Bin refinement
 
