@@ -215,6 +215,14 @@ workflow input_sra {
         ena_query(params.sra.replaceAll("\\s", "").toUpperCase())
         ena_query.out
             .splitCsv(header: true, sep: ',')
+            .filter { row ->
+                def fastqFtp = row.fastq_ftp ? row.fastq_ftp.trim() : ''
+                if (!fastqFtp || fastqFtp.equalsIgnoreCase('NA')) {
+                    log.warn "Skipping ${row.run_accession ?: 'unknown accession'} because ENA did not return links to fastq files"
+                    return false
+                }
+                return true
+            }
             .map { row ->
                 def id = row.run_accession ? row.run_accession : false
                 if (!id) {
