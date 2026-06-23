@@ -117,7 +117,7 @@ process VAMB {
 		cat <<-END_VERSIONS > versions.yml
 		"${task.process}":
       	Python: \$(python --version | sed -e "s/Python //g" )
-		Vamb: 3.0.2
+		Vamb: \$(vamb --version | sed -e "s/vamb //g" )
 		END_VERSIONS
 
 		"""
