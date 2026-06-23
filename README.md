@@ -133,7 +133,7 @@ Following steps are performed with all refined bins:
 
 TOFU-MAaPO requires significant computational resources. Ensure your system meets the following minimum requirements:  
 - **CPU**: At least 16 cores.  
-- **RAM**: At least 128 GB (e.g., Semibin may require up to 200 GB, and GTDB-TK up to 100 GB).  
+- **RAM**: At least 128 GB (e.g., Semibin may require up to 200 GB, and GTDB-TK 140 GB).  
 - **Internet access** to retrieve databases, software containers, and public metagenomic datasets"<br />
 
 For large datasets, it is recommended to run the pipeline on a high-performance computing (HPC) system.  
