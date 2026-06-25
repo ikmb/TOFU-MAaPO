@@ -1,7 +1,7 @@
 process FILTERCONTIGS {
 	scratch params.scratch
 	tag "$coassemblygroup"
-	label 'default'
+	label 'seqkit'
 	label 'short_run'
 	input:
 		tuple val(coassemblygroup), file(finalcontigs)
@@ -17,7 +17,7 @@ process FILTERCONTIGS {
 		fcontigs_filtered = coassemblygroup + '_fcontigsfiltered.fa'
 
 		"""
-		/opt/conda/envs/ikmb-metagenome-1.2/bin/python3 ${baseDir}/bin/contigfilterbylen.py ${params.contigsminlength} $finalcontigs > intermediate_file.fa
+		seqkit seq -m ${params.contigsminlength} $finalcontigs > intermediate_file.fa
 
 		if [ -s intermediate_file.fa ]; then
 			# The file is not-empty.
@@ -29,7 +29,7 @@ process FILTERCONTIGS {
 
 		cat <<-END_VERSIONS > versions.yml
 		"${task.process}":
-		Python: \$(/opt/conda/envs/ikmb-metagenome-1.2/bin/python3 --version | sed -e "s/Python //g" )
+		SeqKit: \$(seqkit version | sed -e "s/^seqkit //")
 		END_VERSIONS
 		
 		"""
