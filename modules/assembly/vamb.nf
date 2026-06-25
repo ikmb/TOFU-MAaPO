@@ -134,7 +134,6 @@ process VAMB_CONTIGS_SELECTION{
 	label 'default'
 	scratch params.scratch
 	tag "$sampleID"
-	//publishDir "${params.outdir}/vamb/${sampleID}", mode: 'copy', enabled: params.publish_rawbins
 	publishDir "${params.outdir}/vamb", mode: 'copy', enabled: params.publish_rawbins,
         saveAs: { filename -> "${meta.id}/${filename}" }
 	

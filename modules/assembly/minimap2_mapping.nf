@@ -69,7 +69,6 @@ process MINIMAP2_MAPPING{
 	label 'very_long_run'
 	scratch params.scratch
 	tag "$sampleID"
-	//publishDir "${params.outdir}/${sampleID}/Mapping", mode: 'copy'
 
 	input:
 		tuple val(meta), file(fcontigs), path(reads), path(catalogue), path(catalogue_index)
