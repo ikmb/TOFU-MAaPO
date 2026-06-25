@@ -1,28 +1,29 @@
 process COMEBIN {
 
 	label 'comebin'
-	label 'long_run'
+	label 'gpu'
 	scratch params.scratch
-	tag "$sampleID"
+	tag { meta.id }
 	cache 'lenient'
-
-	container  "docker://eikematthias/comebin:1.0.4"
 
 	publishDir "${params.outdir}/comebin", mode: 'copy', enabled: params.publish_rawbins,
         saveAs: { filename -> "${meta.id}/${filename}" }
+	container  { params.gpu ?	"docker://eikematthias/comebin:1.0.4" : 
+								"docker://eikematthias/comebin:1.0.4" } //TODO: create small non-gpu container
+	containerOptions { params.gpu ? '--nv' : '' }
 
 	input: 
 		tuple val(meta), file(fcontigs), file(depthout), file(mappingbam), file(mappingbam_index)
 
 	output:
-		tuple val(meta), file("${sampleID}_bin.*.fa"), optional: true, emit: comebinout
-		tuple val(meta), file(formatted_contigs_to_bin), optional: true, emit: magscot_contigbinlist
+		tuple val(meta), file("${meta.id}_bin.*.fa"), optional: true, emit: comebinout
+		tuple val(meta), file("${meta.id}_comebin_magscot_contigs_to_bin.tsv"), optional: true, emit: magscot_contigbinlist
 		path("versions.yml"),          optional: true, emit: versions
 
 	script:
-		sampleID = meta.id
-		comebin_contigs_to_bin = sampleID + '_comebin_output/comebin_res/comebin_res.tsv'
-		formatted_contigs_to_bin = sampleID + '_comebin_magscot_contigs_to_bin.tsv'
+		def sampleID = meta.id
+		def comebin_contigs_to_bin = sampleID + '_comebin_output/comebin_res/comebin_res.tsv'
+		def formatted_contigs_to_bin = sampleID + '_comebin_magscot_contigs_to_bin.tsv'
 		//def engine = params.gpu ? 'gpu' : 'cpu'
 			"""
 			run_comebin.sh \
@@ -32,6 +33,10 @@ process COMEBIN {
 				-t ${task.cpus} \
 				-n 6 
 
+			find ${sampleID}_comebin_output -type f -name '*.fa' -print0 | while IFS= read -r -d '' bin; do
+				dest="${sampleID}_bin.\$(basename "\${bin}")"
+				ln -sfn "\${bin}" "\${dest}"
+			done
 			awk 'NR>1 {print "${sampleID}_comebin_"\$2"\t"\$1"\tcomebin"}' $comebin_contigs_to_bin > $formatted_contigs_to_bin
 
 			cat <<-END_VERSIONS> versions.yml
@@ -40,15 +45,15 @@ process COMEBIN {
 			END_VERSIONS
 			"""
 	stub:
-		sampleID = meta.id
-		bed_file = sampleID + '.bed'
-		comebin_contigs_to_bin = sampleID + '_comebin_contigs_to_bin.tsv'
-		formatted_contigs_to_bin = sampleID + '_comebin_magscot_contigs_to_bin.tsv'
+		def sampleID = meta.id
+		def comebin_contigs_to_bin = sampleID + '_comebin_contigs_to_bin.tsv'
+		def formatted_contigs_to_bin = sampleID + '_comebin_magscot_contigs_to_bin.tsv'
 
 		"""
 		touch $comebin_contigs_to_bin
+		touch ${sampleID}_bin.stub.fa
 		touch $formatted_contigs_to_bin
 
 		echo "comebin_stub" > versions.yml
-		"""
+	"""
 }

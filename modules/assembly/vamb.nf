@@ -1,173 +1,79 @@
-	process VAMB_CATALOGUE {
-		label 'vamb'
-		label 'long_run'
-		scratch params.scratch
-		tag "$vamb_key"
-
-		input:
-			tuple val(vamb_key), val(contigs)
-
-		output:
-			tuple val(vamb_key), path(catalogue), emit: catalogue
-			path("versions.yml"), emit: versions
-		script:
-			catalogue = vamb_key + "_collected_catalogue.fna.gz"
-
-			"""
-			concatenate.py $catalogue ${contigs} --keepnames
-
-			cat <<-END_VERSIONS> versions.yml
-			"${task.process}":
-			Python: \$(python --version | sed -e "s/Python //g" )
-			END_VERSIONS
-
-			"""
-	stub:
-		catalogue = vamb_key + "_collected_catalogue.fna.gz"
-		"""
-		touch $catalogue
-		echo "VAMB_CATALOGUE_stub" > versions.yml
-		"""
-	}
-
-	process VAMB_CATALOGUE_INDEX {
-		label 'default_highmemory'
-		cache 'lenient'
-		scratch params.scratch
-		tag "$vamb_key"
-
-		input:
-			tuple val(vamb_key), path(catalogue)
-
-		output:
-			tuple  path(catalogue), val(vamb_key), path(catalogue_index), emit: catalogue
-			tuple  val(vamb_key), path(catalogue), path(catalogue_index), emit: catalogue_indexfirst
-			path("versions.yml"), emit: versions
-		shell:
-			catalogue_index = "catalogue.mmi"
-
-			"""
-			minimap2 -d !{catalogue_index} !{catalogue} -m 2000 --print-qname -I!{params.minimap_indexsize}g
-			# make index #uses default 3 threads
-
-			cat <<-END_VERSIONS> versions.yml
-			"${task.process}":
-			minimap2: \$(minimap2 --version)
-			END_VERSIONS
-
-			"""
-		stub:
-			catalogue_index = "catalogue.mmi"
-			"""
-			touch $catalogue_index
-			echo "VAMB_CATALOGUE_INDEX_stub" > versions.yml
-			"""
-	}
-//-I100G
-process VAMB_MAPPING{
-	cache 'lenient'
-	label 'bowtie2'
+process VAMB_CATALOGUE {
+	label 'vamb'
 	label 'long_run'
-
 	scratch params.scratch
-	tag "$sampleID"
-	//publishDir "${params.outdir}/${sampleID}/Mapping", mode: 'copy'
+	tag "$vamb_key"
 
 	input:
-		tuple val(vamb_key), val(meta), file(fcontigs), path(reads), path(catalogue), path(catalogue_index)
+		tuple val(vamb_key), path(contigs)
 
 	output:
-		tuple val(vamb_key), path(depthout), emit: counttable 
-		val(meta), emit: sampleid
-		tuple val(meta), file(fcontigs), file(depthout), emit: maps
-		tuple val(meta), file(mappingbam), file(mappingbam_index), emit: bam
-		path("error.log"),    optional: true, emit: errorlog
+		tuple val(vamb_key), path(catalogue), emit: catalogue
 		path("versions.yml"), emit: versions
-
 	script:
-		sampleID = meta.id
+		catalogue = vamb_key + "_collected_catalogue.fna.gz"
 
-		left_clean = sampleID + "_R1_clean.fastq.gz"
-		right_clean = sampleID + "_R2_clean.fastq.gz"
-		single_clean = sampleID + "_single_clean.fastq.gz"
+		"""
+		concatenate.py $catalogue ${contigs} --keepnames
 
-		depthout = sampleID + '_depth.txt'
-		mappingbam = sampleID + '_mapping_minimap.bam'
-		mappingbam_index = sampleID + '_mapping_minimap.bam.bai'
+		cat <<-END_VERSIONS> versions.yml
+		"${task.process}":
+		Python: \$(python --version | sed -e "s/Python //g" )
+		END_VERSIONS
 
-		sample_total_reads = sampleID + '_totalreads.txt'
-		if (!meta.single_end) {  
-			"""
-			#minimap2 -I100G -d catalogue.mmi $catalogue; # make index
-			minimap2 -t ${task.cpus} -N 50 -ax sr  $catalogue_index $left_clean $right_clean | samtools view -F 3584 -b --threads ${task.cpus} | samtools sort > $mappingbam 2> error.log # -n 
-			samtools index $mappingbam
-			jgi_summarize_bam_contig_depths $mappingbam --outputDepth $depthout
-
-			cat <<-END_VERSIONS > versions.yml
-			"${task.process}":
-			minimap2: \$(minimap2 --version)
-			samtools: \$(samtools --version | head -1 | sed -e "s/samtools //g")
-			jgi_summarize_bam_contig_depths: \$(jgi_summarize_bam_contig_depths 2>&1 | head -1 | awk '{print \$2}' )
-			END_VERSIONS
-
-			"""
-		} else {
-			"""	
-			#minimap2 -d catalogue.mmi $catalogue; # make index
-			minimap2 -t ${task.cpus} -N 50 -ax sr $catalogue_index $single_clean | samtools view -F 3584 -b --threads ${task.cpus}| samtools sort  > $mappingbam 2> error.log #-n
-			samtools index $mappingbam
-			jgi_summarize_bam_contig_depths $mappingbam --outputDepth $depthout
-
-			cat <<-END_VERSIONS > versions.yml
-			"${task.process}":
-			minimap2: \$(minimap2 --version)
-			samtools: \$(samtools --version | head -1 | sed -e "s/samtools //g")
-			jgi_summarize_bam_contig_depths: \$(jgi_summarize_bam_contig_depths 2>&1 | head -1 | awk '{print \$2}')
-			END_VERSIONS
-
-			"""		
-		}
-		stub:
-			sampleID = meta.id
-
-
-			depthout = sampleID + '_depth.txt'
-			mappingbam = sampleID + '_mapping_minimap.bam'
-			mappingbam_index = sampleID + '_mapping_minimap.bam.bai'
-			"""
-			touch $depthout
-			touch $mappingbam
-			touch $mappingbam_index
-			touch error.log
-			echo "VAMB_MAPPING_stub" > versions.yml
-			"""
+		"""
 }
 
-process VAMB_COLLECT_DEPTHS {
-	cache 'lenient'
-	label 'default'
+process VAMB_strobealign {
+	label 'strobealing'
+	label 'long_run'
+	scratch params.scratch
+	tag "${vamb_key}_${meta.id}"
+	
+	input:
+		tuple val(vamb_key), val(meta), path(reads), path(catalogue)
+
+	output:
+		tuple val(vamb_key), path(abundance_table), emit: abundance
+		path("versions.yml"), emit: versions
+	script:
+		sampleID = meta.id
+		abundance_table = sampleID + "_abundance.tsv"
+		//strobealign cannot deal with the unpaired file in a paired read set
+		def selected_reads = reads.flatten().collect().size() >= 2 ? reads[0..1] : [reads[0]]
+    	def reads_str = selected_reads.collect { read -> read.toString() }.join(' ')
+		"""
+		strobealign -t ${task.cpus} --aemb $catalogue $reads_str > ${abundance_table}
+		
+		cat <<-END_VERSIONS> versions.yml
+		"${task.process}":
+		strobealign: \$(strobealign --version )
+		END_VERSIONS
+		"""
+}
+
+process VAMB_merge_aemb {
+	label 'vamb'
 	label 'short_run'
 	scratch params.scratch
 	tag "$vamb_key"
-	//publishDir "${params.outdir}/${sampleID}/vamb", mode: 'copy'
 
 	input:
-		tuple val(vamb_key), path(depthout)
-
+		tuple val(vamb_key), path(abundance_table)
 	output:
-		tuple val(vamb_key), path(alldepths), emit: alldepths
+		tuple val(vamb_key), path(combined_abundance), emit: abundance
 		path("versions.yml"), emit: versions
 	script:
-
-		alldepths = vamb_key + '_all_depths.tsv'
+		combined_abundance = vamb_key + "_abundance.tsv"
 
 		"""
-		Rscript ${baseDir}/bin/collectmapping.R $alldepths
-		sed -i "s/[.]var/-var/g" $alldepths
+		mkdir input && mv ${abundance_table} input/
 
-		cat <<-END_VERSIONS > versions.yml
+		python3 /workspace/vamb/src/merge_aemb.py input/ $combined_abundance
+
+		cat <<-END_VERSIONS> versions.yml
 		"${task.process}":
-		R: \$(Rscript --version 2>&1 | awk '{print \$5}')
+		Python: \$(python --version | sed -e "s/Python //g" )
 		END_VERSIONS
 
 		"""
@@ -182,13 +88,13 @@ process VAMB_COLLECT_DEPTHS {
 process VAMB {
 	cache 'lenient'
 	label 'vamb'
-	label 'very_long_run'
+	label 'gpu'
+	label 'exclusive' // vamb does not control for numpy threads, which takes all threads by default
 	scratch params.scratch
 	tag "$vamb_key"
-
+	containerOptions { params.gpu ? '--nv' : '' }
 	input:
-		tuple val(vamb_key), path(catalogue), path(catalogue_index), path(alldepths)
-
+        tuple val(vamb_key), path(catalogue), path(abundance)//path(alldepths)
 
 	output:
 		tuple val(vamb_key), path(cluster_table), emit: all_samples_clustertable
@@ -196,14 +102,22 @@ process VAMB {
 
 	script:
 		cluster_table = 'all_vamb_contigs_to_bin.tsv'
+		def gpu_option = params.gpu ? "--cuda" : ""
 		"""
-		vamb --outdir bin --fasta $catalogue --jgi $alldepths -o _${params.contig_sep}_ -p ${task.cpus}
-		mv bin/clusters.tsv $cluster_table
+		vamb bin default \
+			--outdir bin \
+			--fasta $catalogue \
+			--abundance_tsv $abundance \
+			-p ${task.cpus} \
+			$gpu_option \
+			-o _${params.contig_sep}_
+			
+		cat bin/vae_clusters_split.tsv > $cluster_table
 
 		cat <<-END_VERSIONS > versions.yml
 		"${task.process}":
       	Python: \$(python --version | sed -e "s/Python //g" )
-		Vamb: 3.0.2
+		Vamb: \$(vamb --version | sed -e "s/vamb //g" )
 		END_VERSIONS
 
 		"""
@@ -220,7 +134,6 @@ process VAMB_CONTIGS_SELECTION{
 	label 'default'
 	scratch params.scratch
 	tag "$sampleID"
-	//publishDir "${params.outdir}/vamb/${sampleID}", mode: 'copy', enabled: params.publish_rawbins
 	publishDir "${params.outdir}/vamb", mode: 'copy', enabled: params.publish_rawbins,
         saveAs: { filename -> "${meta.id}/${filename}" }
 	
@@ -242,7 +155,6 @@ process VAMB_CONTIGS_SELECTION{
 		"""
 	stub:
 		sampleID = meta.id
-		grep_pattern = meta.coassemblygroup.replaceAll('_megahit', '')
 		persample_clustertable = sampleID + '_vamb_contigs_to_bin.tsv'
 		formatted_contigs_to_bin = sampleID + '_vamb_magscot_contigs_to_bin.tsv'
 		"""
@@ -256,21 +168,26 @@ process group_vamb {
 	label 'default'
 	label 'short_run'
 	scratch params.scratch
-
+	publishDir "${params.outdir}/", mode: 'copy', enabled: params.publish_rawbins
+	
 	input:
 		path(reads_table)
 	output:
-		path("meta_contigkey.csv"), emit: sample_vambkey
-		path("contigs_perkey.csv"), emit: contigs_perkey
-		path("temp2_csv.csv"), emit: overview_csv
+		path("binninggroup_to_sample.csv"), emit: sample_vambkey
+		//path("contigs_perkey.csv"), emit: contigs_perkey
+		//path("temp2.csv"), emit: overview_csv
 	script:
 	"""
-	awk '{print int((NR-1)/${params.vamb_groupsize}) "," \$0}' ${reads_table} | sed 's/\\]//' | sed 's/\\[//' > temp2_csv.csv
-
-	#meta and contig-key:
-	awk -F, '{print \$2","\$3","\$4","\$1}' temp2_csv.csv > meta_contigkey.csv
-
-	awk -F, '{OFS=","; a[\$1]=a[\$1]" "\$5} END {for (i in a) print i a[i]}' temp2_csv.csv | sed 's/ /,/' > contigs_perkey.csv
+		# If all values for co-binning are unique, create new VAMB groups.
+		if awk  -F';' 'NF { if (++seen[\$1] > 1) dup=1 } END { exit dup }' "${reads_table}"; then
+			echo "unique grouping"
+			awk -F';' '{print int((NR-1)/${params.vamb_groupsize}) ";" \$2}' ${reads_table} > binninggroup_to_sample.csv
+		else
+			# Co-binning is to be performed with the given co-binning grouping.
+			echo "using available grouping"
+			awk -F';' '{print \$1 ";" \$2}' ${reads_table} > binninggroup_to_sample.csv
+		fi
+		"""
+	}
+//#awk -F';' '{a[\$1]=a[\$1]"\t"\$4} END {for (i in a) print i a[i]}' temp2.csv | sed 's/ /,/' > contigs_perkey.csv
 	
-	"""
-}

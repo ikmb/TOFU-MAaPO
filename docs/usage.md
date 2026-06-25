@@ -86,6 +86,7 @@ For analysis following modules are available:<br />
 `-profile` Change the configuration of the pipeline. Valid options are medcluster (default), local or custom. You can add a new profile for your compute system by editing the file custom.config in the folder conf or create a new one and add it in the file nextflow.config under 'profiles'.<br />
 `-work-dir` Set a custom work directory, default is "work".<br />
 `-r` Use a specific branch or release version of the pipeline.<br />
+`--ena_query` Use the ENA API to query IDs provided by `--sra`. Query will result in an output table which also contains technical metadata for sequencing depth, used instrument and publishing date. No NCBI API key required. Work in progress.<br />
 `--publish_rawreads` Publish unprocessed/raw files downloaded from SRA in the output directory.<br />
 `--getmetadata` When using SRA input, download fitting runinfo metadata.<br />
 `--single_end` Required when using --reads with an input glob to single_end files. For inputs with a mix of paired and single_end reads use a CSV file instead.
@@ -107,6 +108,7 @@ For analysis following modules are available:<br />
     - **all** Cohort-wide co-assembly
 > We recommend co-assembly with only moderate group sizes (~100 samples) due to hardware restrictions.<br />
 - `--binner` Comma-separated list of binning tools (default: "concoct,maxbin,semibin,metabat,vamb"). Options: **concoct**,**maxbin**,**semibin**,**metabat**,**vamb**, **comebin** <br />
+- `--gpu` Enable GPU acceleration for VAMB, Semibin2 and COMEBIN (Requires NVIDIA GPU with CUDA). <br />
 - `--contigsminlength` Minimum contig length (default: 2000). <br />
 - `--semibin_environment` Specify SemiBin2 environment (default: **human_gut**). See the [SemiBin Documentation](https://github.com/BigDataBiology/SemiBin/#easy-singleco-assembly-binning-mode) for other options. Choose **global** if no other environment is appropiate.  <br />
 - `--skip_gtdbtk` Skip GTDB-TK for taxonomical assignment. <br />

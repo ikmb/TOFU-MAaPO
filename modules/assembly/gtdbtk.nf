@@ -4,7 +4,6 @@ process GTDBTK {
 	label 'long_run'
 	scratch params.scratch
 	tag "$sampleID"
-	//publishDir "${params.outdir}/GTDBTK/${sampleID}", mode: 'copy'
 	publishDir "${params.outdir}/GTDBTK", mode: 'copy',
         saveAs: { filename -> "${meta.id}/${filename}" }
 
@@ -22,10 +21,10 @@ process GTDBTK {
 		REFERENCE_PATH="${params.gtdbtk_reference}"
 		#Check if path already contains a release suffix, if not, add it:
 		if [[ ! "\$REFERENCE_PATH" =~ /release2.*\$ ]]; then
-		REFERENCE_PATH="\${REFERENCE_PATH%/}/release207_v2"
+		REFERENCE_PATH="\${REFERENCE_PATH%/}/release232"
 		fi
 		export GTDBTK_DATA_PATH=\$REFERENCE_PATH
-		gtdbtk classify_wf --cpus ${task.cpus} --genome_dir . --extension fa --out_dir all.bins.gtdbtk_output --pplacer_cpus 1 --skip_ani_screen #/refined_bins
+		gtdbtk classify_wf --cpus ${task.cpus} --genome_dir . --extension fa --out_dir all.bins.gtdbtk_output --pplacer_cpus 1 #/refined_bins
 
 		awk -F "\t" '{ sub(/.*;s__/, "s__", \$2); print \$1 "\t" \$2 }' all.bins.gtdbtk_output/gtdbtk.bac120.summary.tsv > all.bins.gtdbtk_output/parsed_bac120_summary.tsv
 
@@ -59,9 +58,8 @@ process GTDBTK {
     fi
 	cd ${params.gtdbtk_reference}
 
-    #wget --continue https://data.gtdb.ecogenomic.org/releases/release207/207.0/auxillary_files/gtdbtk_r207_v2_data.tar.gz
-	wget --continue https://data.ace.uq.edu.au/public/gtdb/data/releases/release207/207.0/auxillary_files/gtdbtk_r207_v2_data.tar.gz
-	tar -xvzf gtdbtk_r207_v2_data.tar.gz
+	wget --continue https://data.ace.uq.edu.au/public/gtdb/data/releases/release232/232.0/auxillary_files/gtdbtk_package/full_package/gtdbtk_r232_data.tar.gz
+	tar -xvzf gtdbtk_r232_data.tar.gz
 	"""
 /*
 	stub:
