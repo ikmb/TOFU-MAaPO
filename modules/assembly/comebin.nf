@@ -5,6 +5,7 @@ process COMEBIN {
 	scratch params.scratch
 	tag { meta.id }
 	cache 'lenient'
+	errorStrategy { task.exitStatus == 42 ? 'ignore' : task.attempt <= task.maxRetries ? 'retry' : 'finish' }
 
 	publishDir "${params.outdir}/comebin", mode: 'copy', enabled: params.publish_rawbins,
         saveAs: { filename -> "${meta.id}/${filename}" }
@@ -32,6 +33,11 @@ process COMEBIN {
 				-o ${sampleID}_comebin_output \
 				-t ${task.cpus} \
 				-n 6 
+
+			if [[ ! -s "$comebin_contigs_to_bin" ]]; then
+				echo "WARNING: COMEBin produced no usable bins for ${sampleID}; continuing without COMEBin results." >&2
+				exit 42
+			fi
 
 			find ${sampleID}_comebin_output -type f -name '*.fa' -print0 | while IFS= read -r -d '' bin; do
 				dest="${sampleID}_bin.\$(basename "\${bin}")"
