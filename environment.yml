@@ -21,3 +21,5 @@ dependencies:
   - sed
   - krakentools=1.2
   - minimap2
+  - procps-ng  
+  
