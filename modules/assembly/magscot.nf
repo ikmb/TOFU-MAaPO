@@ -114,9 +114,9 @@ process MAGSCOT {
 		tuple val(coassemblygroup), val(meta), file(formatted_contigs_to_bin), file(samplehmm), file(fcontigs_filtered)
 	output:
 		//file("*"), emit: all_files
-		tuple val(meta), file(refined_contigs_to_bins), file(fcontigs_filtered), emit: refined_contigs_to_bins
-		tuple val(meta), file(refined_contigs_to_bins), emit: contigs_to_bins_table
-		tuple val(meta), file(stats_outfile), emit: stats_outfile_table
+		tuple val(meta), file(refined_contigs_to_bins), file(fcontigs_filtered), optional: true, emit: refined_contigs_to_bins
+		tuple val(meta), file(refined_contigs_to_bins), optional: true, emit: contigs_to_bins_table
+		tuple val(meta), file(stats_outfile), optional: true, emit: stats_outfile_table
 		tuple val(meta), file(full_stats), emit: full_bin_stats
 		path("versions.yml"),          optional: true, emit: versions
 	script:
