@@ -118,6 +118,8 @@ ${info_line}
 		--cleanreads            Publish QCed fastq.gz files. Disabled by default.
 		--no_qc                 Skips QC-Module. Only use if your input reads are the output of --cleanreads. Not recommended.
 		--fastp					Uses fastp for qc
+		--min_raw_reads     	Skip samples with fewer than this many raw readssummed over all files belonging to the sample. Default: 0 (disabled).
+		--min_qced_reads    	Skip samples with fewer than this many reads summed over all files belonging to the sample after QC. Default: 0 (disabled).
 
 	Kraken2/Bracken:
 		--kraken2_db            Directory of used Kraken2 database. Should be Bracken ready for use with Bracken. REQUIRED!

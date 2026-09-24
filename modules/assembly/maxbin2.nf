@@ -38,7 +38,13 @@ process MAXBIN2 {
         set -e
 
 		if [ \$? -ne 0 ] && echo "\$output" | grep -q "Marker gene search reveals that the dataset cannot be binned (the medium of marker gene number <= 1). Program stop."; then
-            # Set the error code back to 0
+             {
+                    echo "WARNING: CONCOCT skipped sample ${sampleID}: not enough contigs pass the threshold filter."
+                    echo
+                    cat ${sampleID}_log.txt
+                } > ${sampleID}_maxbin_failed.txt
+			
+			# Set the error code back to 0
             exit_code=0
         else
             # If no error or different error, continue with the script

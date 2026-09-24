@@ -117,48 +117,57 @@ process MAGSCOT {
 		tuple val(meta), file(refined_contigs_to_bins), file(fcontigs_filtered), optional: true, emit: refined_contigs_to_bins
 		tuple val(meta), file(refined_contigs_to_bins), optional: true, emit: contigs_to_bins_table
 		tuple val(meta), file(stats_outfile), optional: true, emit: stats_outfile_table
-		tuple val(meta), file(full_stats), emit: full_bin_stats
+		tuple val(meta), file(full_stats), optional:true, emit: full_bin_stats
+		tuple val(meta), file(failed_log), optional: true, emit: magscot_faillog
 		path("versions.yml"),          optional: true, emit: versions
 	script:
 		sampleID = meta.id
 		refined_contigs_to_bins = sampleID + '.refined.contig_to_bin.out'
 		stats_outfile = sampleID + '.refined.out'
 		full_stats = sampleID + '.scores.out'
+		failed_log = sampleID + '_magscot_failed.txt'
 	"""
-		#If the input couldn't be binned with any binner, we ignore that specific error and create a specific error code to ignore it with nextflow
-		set +e
-		{
-		Rscript /opt/MAGScoT.R \
-			-i $formatted_contigs_to_bin \
-			--hmm $samplehmm \
-			-o $sampleID \
-			-s ${params.magscot_min_sharing} \
-			-a ${params.magscot_score_a} \
-			-b ${params.magscot_score_b} \
-			-c ${params.magscot_score_c} \
-			-t ${params.magscot_threshold} \
-			-m ${params.magscot_min_markers} \
-			-n ${params.magscot_iterations}  > log.txt
+	#If the input couldn't be binned by any binner, we ignore that specific error, create a failed-log-file instead of the usual outputs
+	set +e
+	Rscript /opt/MAGScoT.R \
+		-i $formatted_contigs_to_bin \
+		--hmm $samplehmm \
+		-o $sampleID \
+		-s ${params.magscot_min_sharing} \
+		-a ${params.magscot_score_a} \
+		-b ${params.magscot_score_b} \
+		-c ${params.magscot_score_c} \
+		-t ${params.magscot_threshold} \
+		-m ${params.magscot_min_markers} \
+		-n ${params.magscot_iterations}  > log.txt 2>&1
+	
+	magscot_status=\$?
+	set -e
+	
 
-		if grep -q "HMM input file should have three tab-separated colums without a header: Protein ID, Marker ID, e-value" log.txt; then
-            # Set the error code to 42
-            exit_code=42
-        else
-            # If no error or different error, continue with the script
-            echo "No specific error encountered, continuing with the script."
-            exit_code=\$?
-        fi
+	if grep -Fq \
+		-e "HMM input file should have three tab-separated colums without a header" \
+		-e "Please check your input files and run MAGScoT again." \
+		log.txt
+	then
+		cat log.txt > ${failed_log}
+		echo "" >> ${failed_log}
+		echo "MAGScoT failed for ${sampleID} as no binner tool provided valid contigs" >> ${failed_log}
 
-		cat <<-END_VERSIONS > versions.yml
-		"${task.process}":
-		MAGScoT: 1.1.0
-		R: \$(Rscript --version | awk '{print \$4}')
-		END_VERSIONS
+		exit 0
+	fi
 
-		}
-		set -e
+	# Any other genuine MAGScoT failure remains an error
+	if [ "\$magscot_status" -ne 0 ]; then
+		cat log.txt >&2
+		exit "\$magscot_status"
+	fi
 
-		exit \$exit_code
+	cat <<-END_VERSIONS > versions.yml
+	"${task.process}":
+	MAGScoT: 1.1.0
+	R: \$(Rscript --version | awk '{print \$4}')
+	END_VERSIONS
 	"""
 	stub:
 		sampleID = meta.id

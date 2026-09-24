@@ -96,6 +96,8 @@ For analysis following modules are available:<br />
 - `--fastp` QC and quality assessment are performed with fastp instead of BBTools and FASTQC <br /> 
 - `--genome` Set host genome. On the IKMB Medcluster valid options are human, mouse or chimp. In other cases this needs to be pre-configured. [How to add a host genome to the pipeline?](hostgenome.md) <br />
 - `--no_qc` Skips QC-Module. Only use if your input reads are the output of `--cleanreads`<br /> 
+- `--min_raw_reads` Skip samples with fewer than this many raw reads summed over all files belonging to the sample. Default: 0 (disabled).
+- `--min_qced_reads` Skip samples with fewer than this many reads summed over all files belonging to the sample after QC. Default: 0 (disabled).
 
 ## HUMAnN options
 - `--metaphlan_db` Directory of Metaphlan database. REQUIRED! <br /> 
