@@ -133,12 +133,14 @@ process MAGSCOT {
 		-i $formatted_contigs_to_bin \
 		--hmm $samplehmm \
 		-o $sampleID \
+        --bin_separator ${params.magscot_bin_separator} \
 		-s ${params.magscot_min_sharing} \
 		-a ${params.magscot_score_a} \
 		-b ${params.magscot_score_b} \
 		-c ${params.magscot_score_c} \
 		-t ${params.magscot_threshold} \
 		-m ${params.magscot_min_markers} \
+		--max_cont ${params.magscot_maxcont} \
 		-n ${params.magscot_iterations}  > log.txt 2>&1
 	
 	magscot_status=\$?
