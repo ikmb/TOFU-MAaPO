@@ -16,7 +16,7 @@ process METABAT {
 	script:
 		sampleID = meta.id
 		"""
-		metabat2 -i $fcontigs -a ${sampleID}_depth.txt -o ${sampleID}_bin -t ${task.cpus} -m ${params.contigsminlength}
+		metabat2 -i $fcontigs -a $depthout -o ${sampleID}_bin -t ${task.cpus} -m ${params.contigsminlength}
 		
 		#produce empty .fa file if no bins are produced earlier
 		[ -n "\$(find . -maxdepth 1 -type f -name '*.fa' -print -quit)" ] || touch "${sampleID}_bin.emptydummy.fa"

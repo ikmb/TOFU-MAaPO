@@ -78,10 +78,10 @@ process VAMB_merge_aemb {
 
 		"""
 	stub:
-		alldepths = vamb_key + '_all_depths.tsv'
+		combined_abundance = vamb_key + "_abundance.tsv"
 		"""
-		touch $alldepths
-		echo "VAMB_COLLECT_DEPTHS_stub" > versions.yml
+		touch $combined_abundance
+		echo "VAMB_merge_aemb_stub" > versions.yml
 		"""
 }
 

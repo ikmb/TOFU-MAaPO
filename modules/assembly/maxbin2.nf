@@ -20,7 +20,14 @@ process MAXBIN2 {
 		maxbin2_contigs_to_bin = sampleID + '_maxbin2_contigs_to_bin.tsv'
 		formatted_contigs_to_bin = sampleID + '_maxbin2_magscot_contigs_to_bin.tsv'
 	"""
-		awk '{if(NR>1) print \$1"\\t"\$3}' $depthout > $abundance_table
+		if [ \$(head -n 1 $depthout | awk -F'\\t' '{print NF}') -gt 5 ]; then
+			#multi-sample depth table (e.g. fairy): one abundance file per sample from the mean columns 4,6,8,...
+			awk -F'\\t' 'NR==1{for(i=4;i<=NF;i+=2){f[i]="${sampleID}_abund_"i".txt"; print f[i] > "abund_list.txt"}; next} {for(i=4;i<=NF;i+=2) print \$1"\\t"\$i > f[i]}' $depthout
+			abund_option="-abund_list abund_list.txt"
+		else
+			awk '{if(NR>1) print \$1"\\t"\$3}' $depthout > $abundance_table
+			abund_option="-abund $abundance_table"
+		fi
 		
 		mkdir -p maxbin2_out
 
@@ -30,7 +37,7 @@ process MAXBIN2 {
 		output=\$(run_MaxBin.pl \
 			-contig $fcontigs \
 			-out $maxbin2output \
-			-abund $abundance_table \
+			\$abund_option \
 			-thread ${task.cpus}	 \
 			-min_contig_length ${params.contigsminlength} \
 			-preserve_intermediate )

@@ -45,6 +45,11 @@ include {
 		MINIMAP2_CATALOGUE_INDEX;
 		MINIMAP2_MAPPING } from '../modules/assembly/minimap2_mapping.nf'
 
+include {
+		FAIRY_SKETCH;
+		FAIRY_COVERAGE;
+		FAIRY_COVERAGE as FAIRY_COVERAGE_VAMB } from '../modules/assembly/fairy.nf'
+
 /*
  * Genome Assembly pipeline logic
  */
@@ -132,11 +137,81 @@ workflow assembly{
 		ch_bam = MINIMAP2_MAPPING.out.bam
 
 		/*
+		* Binning groups (single assembly mode): samples pooled for VAMB co-binning and fairy multi-sample coverage
+		*/
+		if( params.assemblymode == "single" && ( params.fairy.toBoolean() || ( params.magscot.toBoolean() && 'vamb' in binner ) ) ){
+			//create a new csv file to subgroup samples
+			ch_allcontigs_table = ch_filteredcontigs.collectFile() { item ->
+				[ "binning_grouping_input.csv", item[0].binninggroup + ';' + item[0].id + '\n']}
+
+			//process will check if there is a user provided annotation for co-binning, in the case there is no annotation yet, we will group samples together
+			group_vamb(ch_allcontigs_table)
+
+			ch_id_binninggroup = group_vamb.out.sample_vambkey
+					.splitCsv ( header:false, sep:';' ) //binninggroup, id
+					.map { row -> tuple(row[0], row[1]) }  //id, binninggroup
+		}
+
+		/*
+		* Optional multi-sample coverage with fairy (used by MetaBAT2, MaxBin2 and VAMB)
+		*/
+		//coverage table used by MetaBAT2 and MaxBin2; without fairy this is the single-sample minimap2 depth
+		ch_mapping_binning = ch_mapping
+
+		if( params.fairy.toBoolean() ){
+			//sketch the reads of every sample once
+			FAIRY_SKETCH( data )
+			ch_versions = ch_versions.mix(FAIRY_SKETCH.out.versions.first() )
+
+			//binning group of each sample: VAMB grouping in single mode, the co-assembly group otherwise
+			ch_sample_group = params.assemblymode == "single" ?
+				ch_id_binninggroup.map { group, id -> [id, group] } :
+				data.map { meta, reads -> [meta.id, meta.coassemblygroup] }
+
+			//binning group of each assembly (assembly key is the sample id in single mode)
+			ch_assembly_group = params.assemblymode == "single" ?
+				ch_sample_group :
+				ch_sample_group.map { id, group -> [group, group] }.unique()
+
+			//all sketches of a binning group
+			ch_group_sketches = FAIRY_SKETCH.out.sketch
+				.map { meta, sketch -> [meta.id, sketch] }
+				.join( ch_sample_group )                                  //id, sketch, group
+				.map { id, sketch, group -> [group, sketch] }
+				.groupTuple()                                             //group, [sketches]
+
+			ch_fairy_in = FILTERCONTIGS.out.contigs                       //assembly, contigs
+				.join( ch_assembly_group )                                //assembly, contigs, group
+				.map { assembly, contigs, group -> [group, assembly, contigs] }
+				.combine( ch_group_sketches, by: 0 )                      //group, assembly, contigs, sketches
+				.map { group, assembly, contigs, sketches -> [assembly, contigs, sketches] }
+				//fairy is not meant for single-sample binning: groups with one sample keep the minimap2 depth
+				.branch { assembly, contigs, sketches ->
+					multisample: sketches.size() > 1
+					singlesample: true
+				}
+
+			FAIRY_COVERAGE( ch_fairy_in.multisample )
+			ch_versions = ch_versions.mix(FAIRY_COVERAGE.out.versions.first() )
+
+			ch_mapping_binning = ch_filteredcontigs
+				.map { meta, contigs, reads -> [meta.coassemblygroup, meta, contigs] }
+				.combine( FAIRY_COVERAGE.out.depth, by: 0 )
+				.map { assembly, meta, contigs, depth -> [meta, contigs, depth] }
+				.mix(
+					ch_mapping
+						.map { meta, contigs, depth -> [meta.coassemblygroup, meta, contigs, depth] }
+						.combine( ch_fairy_in.singlesample.map { assembly, contigs, sketches -> [assembly, true] }, by: 0 )
+						.map { assembly, meta, contigs, depth, flag -> [meta, contigs, depth] }
+				)
+		}
+
+		/*
 		* METABAT2 Workflow
 		*/
 		//If magscot is disabled, MetaBAT bins are the final bin output.
 		if ( 'metabat' in binner || !params.magscot.toBoolean() ) {
-			METABAT(ch_mapping)
+			METABAT(ch_mapping_binning)
 			ch_versions = ch_versions.mix(METABAT.out.versions.first() )
 		
 			METABAT_contigs_to_bins(METABAT.out.metabatout)
@@ -157,19 +232,6 @@ workflow assembly{
 			if ( 'vamb' in binner ) {
 
 				if(params.assemblymode == "single"){
-				/*
-				* Grouping for co-binning
-				*/
-					//create a new csv file to subgroup samples
-					ch_allcontigs_table = ch_filteredcontigs.collectFile() { item ->
-						[ "binning_grouping_input.csv", item[0].binninggroup + ';' + item[0].id + '\n']}
-					
-					//process will check if there is a user provided annotation for co-binning, in the case there is no annotation yet, we will group samples together
-					group_vamb(ch_allcontigs_table)
-
-					ch_id_binninggroup = group_vamb.out.sample_vambkey
-							.splitCsv ( header:false, sep:';' ) //binninggroup, id
-							.map { row -> tuple(row[0], row[1]) }  //id, binninggroup
 				/*
 				* Co-binning Catalogue
 				*/
@@ -194,6 +256,25 @@ workflow assembly{
 												//add catalogue
 												.combine( VAMB_CATALOGUE.out.catalogue, by: 0 )  //binninggroup, meta, contig, catalogue
 
+					ch_vamb_fairy_abundance = channel.empty()
+					if( params.fairy.toBoolean() ){
+						//fairy coverage of the catalogue against all sketches of its binning group
+						ch_vamb_fairy_in = VAMB_CATALOGUE.out.catalogue
+							.combine( ch_group_sketches, by: 0 )  //binninggroup, catalogue, sketches
+							.branch { group, catalogue, sketches ->
+								multisample: sketches.size() > 1
+								singlesample: true
+							}
+						FAIRY_COVERAGE_VAMB( ch_vamb_fairy_in.multisample )
+						ch_versions = ch_versions.mix(FAIRY_COVERAGE_VAMB.out.versions.first() )
+						ch_vamb_fairy_abundance = FAIRY_COVERAGE_VAMB.out.vamb_abundance
+
+						//groups with a single sample keep using strobealign
+						ch_mapping_vamb_input = ch_mapping_vamb_input
+							.combine( ch_vamb_fairy_in.singlesample.map { group, catalogue, sketches -> [group, true] }, by: 0 )
+							.map { group, meta, reads, catalogue, flag -> [group, meta, reads, catalogue] }
+					}
+
 					//calculate coverage per sample
 					VAMB_strobealign( ch_mapping_vamb_input )
 					ch_versions = ch_versions.mix(VAMB_strobealign.out.versions.first() )
@@ -206,7 +287,7 @@ workflow assembly{
 				/*
 				* VAMB co-binning
 				*/	
-					VAMB(   VAMB_CATALOGUE.out.catalogue.join( VAMB_merge_aemb.out.abundance )       
+					VAMB(   VAMB_CATALOGUE.out.catalogue.join( VAMB_merge_aemb.out.abundance.mix( ch_vamb_fairy_abundance ) )       
 						)
 					ch_versions = ch_versions.mix(VAMB.out.versions.first() )
 					ch_vambgroup_sampleid = ch_id_binninggroup //id, binninggroup
@@ -236,7 +317,7 @@ workflow assembly{
 			* MAXBIN2 Workflow
 			*/
 			if ( 'maxbin' in binner ) {
-				MAXBIN2( ch_mapping ) //output is a contig-bin assingment table
+				MAXBIN2( ch_mapping_binning ) //output is a contig-bin assingment table
 				ch_contig_bin_list = ch_contig_bin_list.mix(MAXBIN2.out.magscot_contigbinlist)
 				ch_versions = ch_versions.mix(MAXBIN2.out.versions.first() )
 			}
