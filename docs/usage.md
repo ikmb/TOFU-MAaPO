@@ -119,7 +119,7 @@ For analysis following modules are available:<br />
 - `--publish_megahit` Publish assembled Megahit contigs.<br />
 - `--publish_rawbins` Publish the results of all used binning tools in the genome assembly workflow.<br />
 - `--vamb_groupsize` Set subgroup size for VAMB (default: 100). Adjust based on cohort size.<br />
-- `--fairy` Compute multi-sample contig coverage with [fairy](https://github.com/bluenote-1577/fairy) for MetaBAT2, MaxBin2 and VAMB (default: false). Each contig set gets the coverage of all samples in its binning group: the VAMB subgroups (`--vamb_groupsize` or the `group` column) in `single` assembly mode, the co-assembly group otherwise. Groups with only one sample keep the alignment-based coverage. All other binners and the MAG abundance tables still use the minimap2 alignments.<br />
+- `--fairy` Compute multi-sample contig coverage with [fairy](https://github.com/bluenote-1577/fairy) for MetaBAT2 and MaxBin2 (default: false). Each contig set gets the coverage of all samples in its binning group: the VAMB subgroups (`--vamb_groupsize` or the `group` column) in `single` assembly mode, the co-assembly group otherwise. Groups with only one sample keep the alignment-based coverage. All other binners and the MAG abundance tables still use their default alignments.<br />
 ### MAGScoT options
 - `--magscot_min_sharing` Scoring parameter a [default=1] <br />
 - `--magscot_score_a` Scoring parameter a [default=1] <br />

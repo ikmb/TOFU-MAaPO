@@ -43,20 +43,15 @@ process FAIRY_COVERAGE {
 		tuple val(key), path(contigs), path(sketches)
 
 	output:
-		tuple val(key), path(depthout),       emit: depth          // MetaBAT2 format (jgi_summarize_bam_contig_depths layout)
-		tuple val(key), path(vamb_abundance), emit: vamb_abundance // VAMB --abundance_tsv format
-		path("versions.yml"),                 emit: versions
+		tuple val(key), path(depthout), emit: depth    // MetaBAT2 format (jgi_summarize_bam_contig_depths layout)
+		path("versions.yml"),           emit: versions
 
 	script:
 		depthout = key + '_fairy_depth.txt'
-		vamb_abundance = key + '_fairy_vamb_abundance.tsv'
 		//sorted sketches give a stable sample column order
 		def sketch_files = sketches.collect{ it.toString() }.sort().join(' ')
 		"""
 		fairy coverage $contigs $sketch_files -t ${task.cpus} -o $depthout
-
-		#VAMB: header "contigname" + per-sample mean coverage (columns 4,6,8,...), rows in contig order as written by fairy
-		awk -F'\\t' 'BEGIN{OFS="\\t"} {printf "%s", (NR==1 ? "contigname" : \$1); for(i=4;i<=NF;i+=2) printf "\\t%s", \$i; printf "\\n"}' $depthout > $vamb_abundance
 
 		cat <<-END_VERSIONS > versions.yml
 		"${task.process}":
@@ -65,10 +60,8 @@ process FAIRY_COVERAGE {
 		"""
 	stub:
 		depthout = key + '_fairy_depth.txt'
-		vamb_abundance = key + '_fairy_vamb_abundance.tsv'
 		"""
 		touch $depthout
-		touch $vamb_abundance
 		echo "FAIRY_COVERAGE_stub" > versions.yml
 		"""
 }

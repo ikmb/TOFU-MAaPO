@@ -145,7 +145,7 @@ ${info_line}
 		--publish_rawbins       Publish all raw bins from all binning tools. Default: false
 		--contig_sep            Contig name separator. Default: "megahitcontig"
 		--vamb_groupsize        Group size of samples to use in one Vamb run if assembly mode is "single". Recommended: Number of all samples in the run. Default: 100.
-		--fairy                 Multi-sample contig coverage with fairy for MetaBAT2, MaxBin2 and VAMB (per binning group). Default: false
+		--fairy                 Multi-sample contig coverage with fairy for MetaBAT2 and MaxBin2 (per binning group). Default: false
 	""".stripIndent()
 	}
 

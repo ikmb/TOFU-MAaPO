@@ -47,8 +47,7 @@ include {
 
 include {
 		FAIRY_SKETCH;
-		FAIRY_COVERAGE;
-		FAIRY_COVERAGE as FAIRY_COVERAGE_VAMB } from '../modules/assembly/fairy.nf'
+		FAIRY_COVERAGE } from '../modules/assembly/fairy.nf'
 
 /*
  * Genome Assembly pipeline logic
@@ -153,7 +152,7 @@ workflow assembly{
 		}
 
 		/*
-		* Optional multi-sample coverage with fairy (used by MetaBAT2, MaxBin2 and VAMB)
+		* Optional multi-sample coverage with fairy (used by MetaBAT2 and MaxBin2)
 		*/
 		//coverage table used by MetaBAT2 and MaxBin2; without fairy this is the single-sample minimap2 depth
 		ch_mapping_binning = ch_mapping
@@ -256,26 +255,8 @@ workflow assembly{
 												//add catalogue
 												.combine( VAMB_CATALOGUE.out.catalogue, by: 0 )  //binninggroup, meta, contig, catalogue
 
-					ch_vamb_fairy_abundance = channel.empty()
-					if( params.fairy.toBoolean() ){
-						//fairy coverage of the catalogue against all sketches of its binning group
-						ch_vamb_fairy_in = VAMB_CATALOGUE.out.catalogue
-							.combine( ch_group_sketches, by: 0 )  //binninggroup, catalogue, sketches
-							.branch { group, catalogue, sketches ->
-								multisample: sketches.size() > 1
-								singlesample: true
-							}
-						FAIRY_COVERAGE_VAMB( ch_vamb_fairy_in.multisample )
-						ch_versions = ch_versions.mix(FAIRY_COVERAGE_VAMB.out.versions.first() )
-						ch_vamb_fairy_abundance = FAIRY_COVERAGE_VAMB.out.vamb_abundance
-
-						//groups with a single sample keep using strobealign
-						ch_mapping_vamb_input = ch_mapping_vamb_input
-							.combine( ch_vamb_fairy_in.singlesample.map { group, catalogue, sketches -> [group, true] }, by: 0 )
-							.map { group, meta, reads, catalogue, flag -> [group, meta, reads, catalogue] }
-					}
-
-					//calculate coverage per sample
+					//calculate coverage per sample (already multi-sample: every sample of the group is mapped
+					//against the group's catalogue, so VAMB does not use fairy; fairy gave clearly worse VAMB bins)
 					VAMB_strobealign( ch_mapping_vamb_input )
 					ch_versions = ch_versions.mix(VAMB_strobealign.out.versions.first() )
 				/*
@@ -287,7 +268,7 @@ workflow assembly{
 				/*
 				* VAMB co-binning
 				*/	
-					VAMB(   VAMB_CATALOGUE.out.catalogue.join( VAMB_merge_aemb.out.abundance.mix( ch_vamb_fairy_abundance ) )       
+					VAMB(   VAMB_CATALOGUE.out.catalogue.join( VAMB_merge_aemb.out.abundance )
 						)
 					ch_versions = ch_versions.mix(VAMB.out.versions.first() )
 					ch_vambgroup_sampleid = ch_id_binninggroup //id, binninggroup
