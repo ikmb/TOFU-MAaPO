@@ -1,0 +1,602 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="1240"
+   height="770"
+   viewBox="265 55 1240 770"
+   role="img"
+   aria-labelledby="title desc"
+   version="1.1"
+   id="svg71"
+   sodipodi:docname="tofu-maapo.svg"
+   inkscape:version="1.4.3 (0d15f75, 2025-12-25)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <defs
+     id="defs71" />
+  <sodipodi:namedview
+     id="namedview71"
+     pagecolor="#ffffff"
+     bordercolor="#999999"
+     borderopacity="1"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="1.5280853"
+     inkscape:cx="551.99798"
+     inkscape:cy="529.0935"
+     inkscape:window-width="2560"
+     inkscape:window-height="1382"
+     inkscape:window-x="1728"
+     inkscape:window-y="30"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="bowl-workflow" />
+  <title
+     id="title">TOFU-MAaPO</title>
+  <desc
+     id="desc">Mixed metagenomic reads enter a tofu bowl; stacked abundance profiles and three single-colour segmented genome rings emerge.</desc>
+  <g
+     id="metagenomic-reads"
+     aria-label="Mixed metagenomic sequencing reads">
+    <rect
+       x="321"
+       y="354"
+       width="75"
+       height="17"
+       rx="6"
+       fill="#00534F"
+       id="rect1" />
+    <rect
+       x="403"
+       y="354"
+       width="55"
+       height="17"
+       rx="6"
+       fill="#FF563B"
+       id="rect2" />
+    <rect
+       x="465"
+       y="354"
+       width="36"
+       height="17"
+       rx="6"
+       fill="#EFA718"
+       id="rect3" />
+    <rect
+       x="311"
+       y="386"
+       width="55"
+       height="17"
+       rx="6"
+       fill="#4296BC"
+       id="rect4" />
+    <rect
+       x="374"
+       y="386"
+       width="68"
+       height="17"
+       rx="6"
+       fill="#EFA718"
+       id="rect5" />
+    <rect
+       x="449"
+       y="386"
+       width="51"
+       height="17"
+       rx="6"
+       fill="#00534F"
+       id="rect6" />
+    <rect
+       x="316"
+       y="420"
+       width="77"
+       height="17"
+       rx="6"
+       fill="#FF563B"
+       id="rect7" />
+    <rect
+       x="400"
+       y="420"
+       width="54"
+       height="17"
+       rx="6"
+       fill="#4296BC"
+       id="rect8" />
+    <rect
+       x="462"
+       y="420"
+       width="33"
+       height="17"
+       rx="6"
+       fill="#00534F"
+       id="rect9" />
+    <rect
+       x="307"
+       y="454"
+       width="38"
+       height="17"
+       rx="6"
+       fill="#EFA718"
+       id="rect10" />
+    <rect
+       x="352"
+       y="454"
+       width="49"
+       height="17"
+       rx="6"
+       fill="#00534F"
+       id="rect11" />
+    <rect
+       x="408"
+       y="454"
+       width="38"
+       height="17"
+       rx="6"
+       fill="#FF563B"
+       id="rect12" />
+    <rect
+       x="453"
+       y="454"
+       width="52"
+       height="17"
+       rx="6"
+       fill="#4296BC"
+       id="rect13" />
+  </g>
+  <g
+     id="flow-arrows">
+    <path
+       d="M510 413 h33 v-14 l24 22 -24 22 v-15 h-33 Z"
+       fill="#00534F"
+       id="path13" />
+    <path
+       d="M1207 413 h33 v-14 l24 22 -24 22 v-15 h-33 Z"
+       fill="#00534F"
+       id="path14" />
+  </g>
+  <g
+     id="tofu-bowl">
+    <path
+       d="M626 271 C583 289 556 329 562 370 C576 492 665 590 885 597 C1088 596 1184 497 1206 370 C1218 326 1182 287 1151 271 C1176 310 1188 344 1170 368 C1114 451 666 450 596 370 C575 346 596 303 626 271 Z"
+       fill="#00534F"
+       id="path15" />
+    <path
+       d="M753 590 Q884 628 1016 590 L1005 619 Q1002 628 982 628 H782 Q765 628 762 617 Z"
+       fill="#00534F"
+       id="path16" />
+    <path
+       d="M 628.2245,279.08091 C 645.00395,225.35298 703,195 789,181 c 69,-17 141,-13 195,4 91,6 160,46 165,100 12.5294,14.15685 20.0368,41.12503 19.0368,58.12503 C 1164.0368,398.12503 1049,423 886,424 722.42,421.0518 598.28485,393.97607 596.51944,347.90568 c -1.0413,-27.7381 19.70506,-57.82477 31.70506,-68.82477 z"
+       fill="#ff563b"
+       id="path17"
+       sodipodi:nodetypes="cccccccc" />
+    <path
+       d="m 887,78 95,52 v 104 q -95,45 -190,0 V 130 Z"
+       fill="#fff3d8"
+       id="path18" />
+    <path
+       d="M 792,234 V 130 l 95,-52 95,52 v 104"
+       fill="none"
+       stroke="#00534f"
+       stroke-width="12"
+       stroke-linejoin="round"
+       stroke-linecap="round"
+       id="path19" />
+    <path
+       d="m 792,130 95,52 95,-52 m -95,52 v 72"
+       fill="none"
+       stroke="#00534f"
+       stroke-width="12"
+       stroke-linejoin="round"
+       stroke-linecap="round"
+       id="path20" />
+    <path
+       d="m 769,206 99,56 v 98 q -99,45 -198,0 v -98 z"
+       fill="#fff3d8"
+       id="path21" />
+    <path
+       d="m 670,360 v -98 l 99,-56 99,56 v 98"
+       fill="none"
+       stroke="#00534f"
+       stroke-width="12"
+       stroke-linejoin="round"
+       stroke-linecap="round"
+       id="path22" />
+    <path
+       d="m 670,262 99,56 99,-56 m -99,56 v 62"
+       fill="none"
+       stroke="#00534f"
+       stroke-width="12"
+       stroke-linejoin="round"
+       stroke-linecap="round"
+       id="path23" />
+    <path
+       d="m 997,250 97,54 v 88 q -97,45 -194,0 v -88 z"
+       fill="#fff3d8"
+       id="path24" />
+    <path
+       d="M 898.03676,387.4191 900,304 l 97,-54 97,54 -1.3088,84.72793"
+       fill="none"
+       stroke="#00534f"
+       stroke-width="12"
+       stroke-linejoin="round"
+       stroke-linecap="round"
+       id="path25"
+       sodipodi:nodetypes="ccccc" />
+    <path
+       d="m 900,304 97,54 97,-54 m -97,54 -1.30883,52.03676"
+       fill="none"
+       stroke="#00534f"
+       stroke-width="12"
+       stroke-linejoin="round"
+       stroke-linecap="round"
+       id="path26"
+       sodipodi:nodetypes="ccccc" />
+    <rect
+       x="697.36053"
+       y="-93.235237"
+       width="30"
+       height="24"
+       rx="2"
+       transform="rotate(34)"
+       fill="#00534f"
+       id="rect26"
+       ry="2" />
+    <rect
+       x="409.46677"
+       y="783.46112"
+       width="30"
+       height="24"
+       rx="2"
+       transform="rotate(-35.517149)"
+       fill="#00534f"
+       id="rect27"
+       ry="2" />
+    <rect
+       x="909.98041"
+       y="-163.75133"
+       width="30"
+       height="24"
+       rx="2"
+       transform="rotate(34)"
+       fill="#00534f"
+       id="rect28"
+       ry="2" />
+    <rect
+       x="981.32715"
+       y="-409.01364"
+       width="30"
+       height="24"
+       rx="2"
+       transform="rotate(34)"
+       fill="#00534f"
+       id="rect29"
+       ry="2" />
+    <rect
+       x="1097.168"
+       y="-374.97101"
+       width="30"
+       height="24"
+       rx="2"
+       transform="rotate(34)"
+       fill="#00534f"
+       id="rect30"
+       ry="2" />
+    <g
+       id="bowl-workflow"
+       fill="#FFF3D8">
+      <path
+         d="m 721.09253,494.09253 49.25935,8.83344 m 82.44536,1.21287 c 26.8136,-0.0771 32.55594,-0.15425 66.55858,-0.23137 m 129.75538,-7.96398 -35.3511,8.29131"
+         fill="none"
+         stroke="#fff3d8"
+         stroke-width="13"
+         stroke-linejoin="round"
+         stroke-linecap="round"
+         id="path30"
+         sodipodi:nodetypes="cccccc" />
+      <rect
+         x="779"
+         y="484"
+         width="66"
+         height="14"
+         rx="7"
+         fill="#FFF3D8"
+         id="rect31" />
+      <rect
+         x="779"
+         y="514"
+         width="66"
+         height="14"
+         rx="7"
+         fill="#FFF3D8"
+         id="rect32" />
+      <rect
+         x="922"
+         y="484"
+         width="66"
+         height="14"
+         rx="7"
+         fill="#FFF3D8"
+         id="rect33" />
+      <rect
+         x="922"
+         y="514"
+         width="66"
+         height="14"
+         rx="7"
+         fill="#FFF3D8"
+         id="rect34" />
+      <circle
+         cx="719"
+         cy="493"
+         r="23"
+         fill="#fff3d8"
+         id="circle34" />
+      <circle
+         cx="886"
+         cy="504"
+         r="23"
+         fill="#FFF3D8"
+         id="circle35" />
+      <circle
+         cx="1057"
+         cy="493"
+         r="23"
+         fill="#FFF3D8"
+         id="circle36" />
+    </g>
+  </g>
+  <g
+     id="taxonomic-profile"
+     aria-label="Stacked taxonomic abundance profiles">
+    <rect
+       x="1284"
+       y="295"
+       width="43"
+       height="22"
+       rx="0"
+       fill="#4296BC"
+       id="rect36" />
+    <rect
+       x="1284"
+       y="317"
+       width="43"
+       height="23"
+       rx="0"
+       fill="#EFA718"
+       id="rect37" />
+    <rect
+       x="1284"
+       y="340"
+       width="43"
+       height="32"
+       rx="0"
+       fill="#FF563B"
+       id="rect38" />
+    <rect
+       x="1284"
+       y="372"
+       width="43"
+       height="29"
+       rx="0"
+       fill="#00534F"
+       id="rect39" />
+    <rect
+       x="1339"
+       y="295"
+       width="43"
+       height="29"
+       rx="0"
+       fill="#4296BC"
+       id="rect40" />
+    <rect
+       x="1339"
+       y="324"
+       width="43"
+       height="22"
+       rx="0"
+       fill="#EFA718"
+       id="rect41" />
+    <rect
+       x="1339"
+       y="346"
+       width="43"
+       height="30"
+       rx="0"
+       fill="#FF563B"
+       id="rect42" />
+    <rect
+       x="1339"
+       y="376"
+       width="43"
+       height="25"
+       rx="0"
+       fill="#00534F"
+       id="rect43" />
+    <rect
+       x="1394"
+       y="295"
+       width="43"
+       height="19"
+       rx="0"
+       fill="#4296BC"
+       id="rect44" />
+    <rect
+       x="1394"
+       y="314"
+       width="43"
+       height="32"
+       rx="0"
+       fill="#EFA718"
+       id="rect45" />
+    <rect
+       x="1394"
+       y="346"
+       width="43"
+       height="24"
+       rx="0"
+       fill="#FF563B"
+       id="rect46" />
+    <rect
+       x="1394"
+       y="370"
+       width="43"
+       height="31"
+       rx="0"
+       fill="#00534F"
+       id="rect47" />
+  </g>
+  <g
+     id="reconstructed-genomes"
+     aria-label="Three single-colour gapped reconstructed genomes">
+    <path
+       d="M1315.581 419.090 A37 37 0 0 1 1347.306 442.140"
+       fill="none"
+       stroke="#FF563B"
+       stroke-width="11"
+       id="path47" />
+    <path
+       d="M1348.567 445.801 A37 37 0 0 1 1340.496 480.758"
+       fill="none"
+       stroke="#FF563B"
+       stroke-width="11"
+       id="path48" />
+    <path
+       d="M1337.274 483.924 A37 37 0 0 1 1304.049 491.901"
+       fill="none"
+       stroke="#FF563B"
+       stroke-width="11"
+       id="path49" />
+    <path
+       d="M1299.740 490.542 A37 37 0 0 1 1276.090 458.581"
+       fill="none"
+       stroke="#FF563B"
+       stroke-width="11"
+       id="path50" />
+    <path
+       d="M1276.051 454.064 A37 37 0 0 1 1309.132 419.203"
+       fill="none"
+       stroke="#FF563B"
+       stroke-width="11"
+       id="path51" />
+    <path
+       d="M1416.581 419.090 A37 37 0 0 1 1448.306 442.140"
+       fill="none"
+       stroke="#4296BC"
+       stroke-width="11"
+       id="path52" />
+    <path
+       d="M1449.567 445.801 A37 37 0 0 1 1441.496 480.758"
+       fill="none"
+       stroke="#4296BC"
+       stroke-width="11"
+       id="path53" />
+    <path
+       d="M1438.274 483.924 A37 37 0 0 1 1405.049 491.901"
+       fill="none"
+       stroke="#4296BC"
+       stroke-width="11"
+       id="path54" />
+    <path
+       d="M1400.740 490.542 A37 37 0 0 1 1377.090 458.581"
+       fill="none"
+       stroke="#4296BC"
+       stroke-width="11"
+       id="path55" />
+    <path
+       d="M1377.051 454.064 A37 37 0 0 1 1410.132 419.203"
+       fill="none"
+       stroke="#4296BC"
+       stroke-width="11"
+       id="path56" />
+    <path
+       d="M1365.581 497.090 A37 37 0 0 1 1397.306 520.140"
+       fill="none"
+       stroke="#EFA718"
+       stroke-width="11"
+       id="path57" />
+    <path
+       d="M1398.567 523.801 A37 37 0 0 1 1390.496 558.758"
+       fill="none"
+       stroke="#EFA718"
+       stroke-width="11"
+       id="path58" />
+    <path
+       d="M1387.274 561.924 A37 37 0 0 1 1354.049 569.901"
+       fill="none"
+       stroke="#EFA718"
+       stroke-width="11"
+       id="path59" />
+    <path
+       d="M1349.740 568.542 A37 37 0 0 1 1326.090 536.581"
+       fill="none"
+       stroke="#EFA718"
+       stroke-width="11"
+       id="path60" />
+    <path
+       d="M1326.051 532.064 A37 37 0 0 1 1359.132 497.203"
+       fill="none"
+       stroke="#EFA718"
+       stroke-width="11"
+       id="path61" />
+  </g>
+  <g
+     id="wordmark-outlined"
+     aria-label="TOFU-MAaPO"
+     fill="#00534F"
+     transform="translate(386 788) scale(0.0738606987222099 -0.0732421875)">
+    <path
+       transform="translate(0 0)"
+       d="M479 0V1218H44V1466H1209V1218H775V0Z"
+       id="path62" />
+    <path
+       transform="translate(1251 0)"
+       d="M89 724Q89 948 156 1100Q206 1212 292.5 1301.0Q379 1390 482 1433Q619 1491 798 1491Q1122 1491 1316.5 1290.0Q1511 1089 1511 731Q1511 376 1318.0 175.5Q1125 -25 802 -25Q475 -25 282.0 174.5Q89 374 89 724ZM394 734Q394 485 509.0 356.5Q624 228 801 228Q978 228 1091.5 355.5Q1205 483 1205 738Q1205 990 1094.5 1114.0Q984 1238 801 1238Q618 1238 506.0 1112.5Q394 987 394 734Z"
+       id="path63" />
+    <path
+       transform="translate(2844 0)"
+       d="M151 0V1466H1156V1218H447V871H1059V623H447V0Z"
+       id="path64" />
+    <path
+       transform="translate(4095 0)"
+       d="M147 1466H443V672Q443 483 454 427Q473 337 544.5 282.5Q616 228 740 228Q866 228 930.0 279.5Q994 331 1007.0 406.0Q1020 481 1020 655V1466H1316V696Q1316 432 1292.0 323.0Q1268 214 1203.5 139.0Q1139 64 1031.0 19.5Q923 -25 749 -25Q539 -25 430.5 23.5Q322 72 259.0 149.5Q196 227 176 312Q147 438 147 684Z"
+       id="path65" />
+    <path
+       transform="translate(5574 0)"
+       d="M115 391V672H667V391Z"
+       id="path66" />
+    <path
+       transform="translate(6256 0)"
+       d="M145 0V1466H588L854 466L1117 1466H1561V0H1286V1154L995 0H710L420 1154V0Z"
+       id="path67" />
+    <path
+       transform="translate(7962 0)"
+       d="M1471 0H1149L1021 333H435L314 0H0L571 1466H884ZM926 580 724 1124 526 580Z"
+       id="path68" />
+    <path
+       transform="translate(9441 0)"
+       d="M357 738 102 784Q145 938 250.0 1012.0Q355 1086 562 1086Q750 1086 842.0 1041.5Q934 997 971.5 928.5Q1009 860 1009 677L1006 349Q1006 209 1019.5 142.5Q1033 76 1070 0H792Q781 28 765 83Q758 108 755 116Q683 46 601.0 11.0Q519 -24 426 -24Q262 -24 167.5 65.0Q73 154 73 290Q73 380 116.0 450.5Q159 521 236.5 558.5Q314 596 460 624Q657 661 733 693V721Q733 802 693.0 836.5Q653 871 542 871Q467 871 425.0 841.5Q383 812 357 738ZM733 510Q679 492 562.0 467.0Q445 442 409 418Q354 379 354 319Q354 260 398.0 217.0Q442 174 510 174Q586 174 655 224Q706 262 722 317Q733 353 733 454Z"
+       id="path69" />
+    <path
+       transform="translate(10580 0)"
+       d="M149 0V1466H624Q894 1466 976 1444Q1102 1411 1187.0 1300.5Q1272 1190 1272 1015Q1272 880 1223.0 788.0Q1174 696 1098.5 643.5Q1023 591 945 574Q839 553 638 553H445V0ZM445 1218V802H607Q782 802 841.0 825.0Q900 848 933.5 897.0Q967 946 967 1011Q967 1091 920.0 1143.0Q873 1195 801 1208Q748 1218 588 1218Z"
+       id="path70" />
+    <path
+       transform="translate(11946 0)"
+       d="M89 724Q89 948 156 1100Q206 1212 292.5 1301.0Q379 1390 482 1433Q619 1491 798 1491Q1122 1491 1316.5 1290.0Q1511 1089 1511 731Q1511 376 1318.0 175.5Q1125 -25 802 -25Q475 -25 282.0 174.5Q89 374 89 724ZM394 734Q394 485 509.0 356.5Q624 228 801 228Q978 228 1091.5 355.5Q1205 483 1205 738Q1205 990 1094.5 1114.0Q984 1238 801 1238Q618 1238 506.0 1112.5Q394 987 394 734Z"
+       id="path71" />
+  </g>
+  <metadata
+     id="metadata71">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:title>TOFU-MAaPO</dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+</svg>

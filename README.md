@@ -1,7 +1,8 @@
 # TOFU-MAaPO
+<img src="images/tofu-maapo_icon.svg" width="500" alt="Logo" style="display: block; margin: 0 auto;">
 
 Taxonomic Or FUnctional Metagenomic Assembly and PrOfiling = TOFU-MAaPO 
-
+# Description
 TOFU-MAaPO is a Nextflow pipeline designed for the analysis of metagenomic short reads. 
 
 It provides comprehensive functionalities for:
@@ -21,6 +22,7 @@ No software installation step is needed — Nextflow automatically downloads all
 
 # Table of content
 - [TOFU-MAaPO](#tofu-maapo)
+- [Description](#description)
 - [Table of content](#table-of-content)
 - [Pipeline Structure](#pipeline-structure)
 - [Key features](#key-features)
